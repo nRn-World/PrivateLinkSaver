@@ -1,9 +1,9 @@
 :root {
   /* Primary Colors */
-  --primary-color: #6366f1;
-  --primary-light: #818cf8;
-  --primary-dark: #4f46e5;
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --primary-color: #0ea5e9;
+  --primary-light: #38bdf8;
+  --primary-dark: #0284c7;
+  --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
   
   /* Secondary Colors */
   --secondary-color: #06b6d4;
@@ -30,7 +30,7 @@
   --scrollbar-thumb: #cbd5e1;
   
   /* Folder Colors */
-  --folder-color: #8b5cf6;
+  --folder-color: #0ea5e9;
   
   /* Spacing */
   --spacing-xs: 4px;
@@ -282,17 +282,12 @@ body {
 }
 
 .welcome-icon {
-  width: 60px;
-  height: 60px;
+  width: 160px;
+  height: 160px;
   margin: 0 auto var(--spacing-sm);
-  background: var(--primary-gradient);
-  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  color: white;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -354,17 +349,18 @@ h2 {
 }
 
 .logo-icon {
-  width: 64px;
-  height: 64px;
+  width: 140px;
+  height: 140px;
   margin: 0 auto var(--spacing-md);
-  background: var(--primary-gradient);
-  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  color: white;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+}
+
+.app-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Input Groups */
@@ -486,12 +482,12 @@ input[type="password"]:focus {
 .btn-primary {
   background: var(--primary-gradient);
   color: white;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
 }
 
 .btn-success {

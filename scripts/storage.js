@@ -102,7 +102,7 @@ const StorageUtils = {
         const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup']);
         return {
             language: result.language || 'sv',
-            darkMode: result.darkMode || false,
+            darkMode: result.darkMode !== undefined ? result.darkMode : true,
             firstTime: result.firstTime !== false,
             autoBackup: result.autoBackup || false
         };

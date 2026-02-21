@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const defaultFolderData = defaultFolders.map(key => ({
                 id: CryptoUtils.generateUUID(),
                 name: translations[state.currentLang][key],
-                color: folderColors[key] || '#8b5cf6',
+                color: folderColors[key] || '#0ea5e9',
                 isDefault: true,
                 key: key
             }));
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         
         const folder = state.folders.find(f => f.name === bookmark.folder);
-        const folderColor = folder?.color || '#8b5cf6';
+        const folderColor = folder?.color || '#0ea5e9';
         
         el.innerHTML = `
             <div class="bookmark-header">

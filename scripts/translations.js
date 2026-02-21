@@ -525,7 +525,7 @@ const defaultFolders = [
 
 // Folder colors
 const folderColors = {
-  'general_folder': '#8b5cf6',
+  'general_folder': '#0ea5e9',
   'work_folder': '#3b82f6',
   'personal_folder': '#10b981',
   'shopping_folder': '#f59e0b',

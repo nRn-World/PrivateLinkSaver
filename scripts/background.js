@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     console.log('Extension installed/updated:', details.reason);
     
     // Set default badge color
-    chrome.action.setBadgeBackgroundColor({ color: '#6366f1' });
+    chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
     
     // Create context menus
     chrome.contextMenus.removeAll(() => {
@@ -238,9 +238,9 @@ async function updateBadge() {
     const bookmarks = result.bookmarks || [];
     const count = bookmarks.length;
     
-    if (count > 0) {
-        chrome.action.setBadgeText({ text: count.toString() });
-        chrome.action.setBadgeBackgroundColor({ color: '#6366f1' });
+    if (bookmarks.length > 0) {
+        chrome.action.setBadgeText({ text: bookmarks.length.toString() });
+        chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
     } else {
         chrome.action.setBadgeText({ text: '' });
     }

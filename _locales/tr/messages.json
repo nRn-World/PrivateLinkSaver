@@ -1,0 +1,48 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Bağlantılarınızı şifre koruması ile özel ve güvenli bir şekilde kaydedin ve düzenleyin",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Mevcut sayfayı yer imlerine kaydet",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "PrivateLinkSaver açılır penceresini aç",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Yer imlerinde hızlı arama",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Bağlantıyı PrivateLinkSaver'a kaydet",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Sayfayı PrivateLinkSaver'a kaydet",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Kaydedildi: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "Bu sayfa zaten kayıtlı!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Yer imi kaydetmek için lütfen giriş yapın",
+    "description": "Notification login required"
+  }
+}

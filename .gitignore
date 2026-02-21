@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/
+*.code-workspace
+.idea/
+.kiro/
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/

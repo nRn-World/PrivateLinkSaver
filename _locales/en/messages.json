@@ -1,0 +1,48 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Save and organize your links privately and securely with password protection",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Save current page to bookmarks",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "Open PrivateLinkSaver popup",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Quick search in bookmarks",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Save link to PrivateLinkSaver",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Save page to PrivateLinkSaver",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Saved: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "This page is already saved!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Please log in to save bookmarks",
+    "description": "Notification login required"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Guarda y organiza tus enlaces de forma privada y segura con protección por contraseña",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Guardar página actual en marcadores",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "Abrir ventana emergente de PrivateLinkSaver",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Búsqueda rápida en marcadores",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Guardar enlace en PrivateLinkSaver",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Guardar página en PrivateLinkSaver",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Guardado: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "¡Esta página ya está guardada!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Por favor inicie sesión para guardar marcadores",
+    "description": "Notification login required"
+  }
+}

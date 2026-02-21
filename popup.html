@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateLinkSaver Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/popup.css">
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" data-translate="loading">Laddar...</div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <!-- Header with Language & Theme -->
+        <div class="top-bar">
+            <div class="language-selector">
+                <button class="lang-btn" data-lang="sv" title="Svenska">🇸🇪</button>
+                <button class="lang-btn" data-lang="en" title="English">🇬🇧</button>
+                <button class="lang-btn" data-lang="tr" title="Türkçe">🇹🇷</button>
+                <button class="lang-btn" data-lang="es" title="Español">🇪🇸</button>
+                <button class="lang-btn" data-lang="fr" title="Français">🇫🇷</button>
+            </div>
+            <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div class="card welcome-screen" id="welcome-screen">
+            <div class="welcome-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2 data-translate="welcome_title">Välkommen till PrivateLinkSaver</h2>
+            <p class="subtitle" data-translate="welcome_subtitle">Spara och organisera dina länkar på ett säkert sätt</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-lock"></i>
+                    <span data-translate="feature_secure">Säker lösenordsskydd</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-folder-open"></i>
+                    <span data-translate="feature_organize">Organisera med mappar & taggar</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-search"></i>
+                    <span data-translate="feature_search">Kraftfull sökfunktion</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-moon"></i>
+                    <span data-translate="feature_theme">Mörkt & ljust tema</span>
+                </div>
+            </div>
+
+            <button id="get-started-btn" class="btn btn-primary btn-large">
+                <i class="fas fa-rocket"></i> <span data-translate="get_started">Kom igång</span>
+            </button>
+        </div>
+
+        <!-- Login Section -->
+        <div class="card auth-card" id="login-section">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 data-translate="app_title">PrivateLinkSaver Pro</h2>
+            </div>
+            <p class="subtitle" data-translate="enter_password">Ange ditt lösenord för att fortsätta</p>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" data-translate-placeholder="password" placeholder="Lösenord">
+                    <button type="button" class="password-toggle" id="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button id="login-btn" class="btn btn-primary">
+                    <i class="fas fa-unlock"></i> <span data-translate="unlock">Lås upp</span>
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <button id="show-register-btn" class="text-link" data-translate="register_new_password">
+                    <i class="fas fa-user-plus"></i> Registrera nytt lösenord
+                </button>
+            </div>
+        </div>
+
+        <!-- Register Section -->
+        <div class="card auth-card" id="register-section">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h2 data-translate="register_password">Skapa lösenord</h2>
+            </div>
+            <p class="subtitle" data-translate="create_new_password">Skapa ett säkert lösenord för att skydda dina bokmärken</p>
+            
+            <div class="register-form">
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="new-password" data-translate-placeholder="new_password" placeholder="Nytt lösenord">
+                </div>
+                <div class="password-strength" id="password-strength">
+                    <div class="strength-bar"></div>
+                    <span class="strength-text"></span>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="confirm-password" data-translate-placeholder="confirm_password" placeholder="Bekräfta lösenord">
+                </div>
+                <div class="button-group">
+                    <button id="register-btn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                    </button>
+                    <button id="cancel-register-btn" class="btn btn-outline">
+                        <i class="fas fa-times"></i> <span data-translate="cancel">Avbryt</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks Section -->
+        <div class="card bookmarks-card" id="bookmarks-section">
+            <div class="header">
+                <div class="header-title">
+                    <h2><i class="fas fa-bookmark"></i> <span data-translate="your_bookmarks">Dina bokmärken</span></h2>
+                </div>
+                <div class="header-controls">
+                    <button id="stats-btn" class="icon-btn" title="Statistik">
+                        <i class="fas fa-chart-bar"></i>
+                    </button>
+                    <button id="refresh-btn" class="icon-btn refresh-btn" title="Uppdatera">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button id="show-all-btn" class="icon-btn active" title="Visa alla">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button id="hide-all-btn" class="icon-btn" title="Dölj alla">
+                        <i class="fas fa-eye-slash"></i>
+                    </button>
+                    <button id="settings-btn" class="icon-btn" title="Inställningar">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button id="logout-btn" class="btn btn-danger btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Logga ut</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Bookmark Section -->
+            <div class="add-bookmark-section">
+                <div class="add-bookmark-row">
+                    <select id="folder-select-add" class="folder-select"></select>
+                    <div class="tag-input-wrapper">
+                        <input type="text" id="tag-input" placeholder="Lägg till taggar..." data-translate-placeholder="add_tags">
+                    </div>
+                </div>
+                <button id="add-bookmark" class="btn btn-success btn-large">
+                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Spara aktuell sida</span>
+                </button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <i class="fas fa-bookmark"></i>
+                    <span id="quick-bookmark-count">0</span>
+                </div>
+                <div class="quick-stat">
+                    <i class="fas fa-folder"></i>
+                    <span id="quick-folder-count">0</span>
+                </div>
+                <div class="quick-stat">
+                    <i class="fas fa-tags"></i>
+                    <span id="quick-tag-count">0</span>
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="search-filter-section">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-box" class="search-box" placeholder="Sök bokmärken..." data-translate-placeholder="search">
+                    <kbd class="shortcut-hint">Ctrl+K</kbd>
+                </div>
+            </div>
+
+            <!-- Folder & Tag Filters -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <select id="folder-select" class="filter-select">
+                        <option value="all" data-translate="all_folders">Alla mappar</option>
+                    </select>
+                    <button id="new-folder-btn" class="icon-btn-sm" title="Ny mapp">
+                        <i class="fas fa-folder-plus"></i>
+                    </button>
+                    <button id="delete-folder-btn" class="icon-btn-sm" title="Ta bort mapp">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <div class="filter-group tag-filter" id="tag-filter-container">
+                    <span class="filter-label"><i class="fas fa-tags"></i></span>
+                    <div class="tag-list" id="tag-list"></div>
+                </div>
+            </div>
+
+            <!-- Sort Controls -->
+            <div class="sort-controls">
+                <button id="sort-date" class="sort-btn active">
+                    <i class="fas fa-calendar-alt"></i> <span data-translate="sort_date">Datum</span>
+                </button>
+                <button id="sort-name" class="sort-btn">
+                    <i class="fas fa-sort-alpha-down"></i> <span data-translate="sort_name">Namn</span>
+                </button>
+                <button id="sort-visits" class="sort-btn">
+                    <i class="fas fa-fire"></i> <span data-translate="sort_visits">Populära</span>
+                </button>
+            </div>
+
+            <!-- Data Actions -->
+            <div class="data-actions">
+                <button id="export-btn" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-export"></i> <span data-translate="export">Exportera</span>
+                </button>
+                <button id="import-btn" class="btn btn-outline btn-sm">
+                    <i class="fas fa-file-import"></i> <span data-translate="import">Importera</span>
+                </button>
+                <button id="backup-btn" class="btn btn-outline btn-sm">
+                    <i class="fas fa-hdd"></i> <span data-translate="backup">Backup</span>
+                </button>
+                <input type="file" id="file-input" class="file-input" accept=".json">
+            </div>
+
+            <!-- Bookmarks Container -->
+            <div id="bookmarks-container" class="bookmarks-container">
+                <div class="empty-state" id="empty-state">
+                    <i class="fas fa-bookmark"></i>
+                    <p data-translate="no_bookmarks_yet">Inga bokmärken ännu</p>
+                    <span data-translate="start_saving">Börja spara dina favoritsidor!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Modal -->
+        <div id="stats-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-chart-bar"></i> <span data-translate="statistics">Statistik</span></h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-bookmark"></i>
+                            <div class="stat-number" id="stat-bookmarks">0</div>
+                            <div class="stat-label" data-translate="total_bookmarks">Bokmärken</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-folder"></i>
+                            <div class="stat-number" id="stat-folders">0</div>
+                            <div class="stat-label" data-translate="total_folders">Mappar</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-tags"></i>
+                            <div class="stat-number" id="stat-tags">0</div>
+                            <div class="stat-label" data-translate="total_tags">Taggar</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-eye"></i>
+                            <div class="stat-number" id="stat-visits">0</div>
+                            <div class="stat-label" data-translate="total_visits">Besök</div>
+                        </div>
+                    </div>
+                    <div class="top-domains" id="top-domains">
+                        <h4 data-translate="top_domains">Topp domäner</h4>
+                        <div class="domain-list" id="domain-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Folder Modal -->
+        <div id="folder-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 data-translate="new_folder">Ny mapp</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <i class="fas fa-folder input-icon"></i>
+                        <input type="text" id="folder-name" placeholder="Mappnamn" data-translate-placeholder="folder_name">
+                    </div>
+                    <div class="color-picker" id="folder-colors">
+                        <button class="color-option active" data-color="#8e44ad" style="background: #8e44ad;"></button>
+                        <button class="color-option" data-color="#3498db" style="background: #3498db;"></button>
+                        <button class="color-option" data-color="#2ecc71" style="background: #2ecc71;"></button>
+                        <button class="color-option" data-color="#e74c3c" style="background: #e74c3c;"></button>
+                        <button class="color-option" data-color="#f39c12" style="background: #f39c12;"></button>
+                        <button class="color-option" data-color="#1abc9c" style="background: #1abc9c;"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-folder-btn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Bookmark Modal -->
+        <div id="edit-bookmark-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 data-translate="edit_bookmark">Redigera bokmärke</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <i class="fas fa-heading input-icon"></i>
+                        <input type="text" id="edit-bookmark-title" placeholder="Titel" data-translate-placeholder="bookmark_title">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-link input-icon"></i>
+                        <input type="text" id="edit-bookmark-url" placeholder="URL" data-translate-placeholder="bookmark_url">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-bookmark-edit-btn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Modal -->
+        <div id="backup-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-hdd"></i> <span data-translate="backup_restore">Backup & Återställning</span></h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="backup-section">
+                        <h4 data-translate="create_backup">Skapa backup</h4>
+                        <p data-translate="backup_description">Spara en kopia av alla dina bokmärken</p>
+                        <button id="create-backup-btn" class="btn btn-primary">
+                            <i class="fas fa-download"></i> <span data-translate="download_backup">Ladda ner backup</span>
+                        </button>
+                    </div>
+                    <div class="backup-section">
+                        <h4 data-translate="auto_backup">Automatisk backup</h4>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-backup-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span data-translate="enable_auto_backup">Aktivera daglig backup</span>
+                    </div>
+                    <div class="backup-list" id="backup-list">
+                        <h4 data-translate="previous_backups">Tidigare backuper</h4>
+                        <div id="backups-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/crypto.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/popup.js"></script>
+</body>
+</html>

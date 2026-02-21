@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateLinkSaver - Inställningar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .settings-card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-card h2 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-card h2 i {
+            color: var(--primary-color);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .setting-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Select */
+        select {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .danger-zone {
+            border: 1px solid var(--danger-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .danger-zone h3 {
+            color: var(--danger-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .danger-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .storage-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .storage-used {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .storage-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .shortcut-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .shortcut-item kbd {
+            padding: 4px 10px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Support Section */
+        .support-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(99, 102, 241, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .support-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .support-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .support-content {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .coffee-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .support-text h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+        }
+
+        .support-text p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .coffee-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .coffee-cta::before {
+            content: '☕';
+            font-size: 16px;
+        }
+
+        .support-link:hover .coffee-cta {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        [data-theme="dark"] .support-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+        }
+
+        [data-theme="dark"] .coffee-icon {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-shield-alt"></i> <span data-translate="app_title">PrivateLinkSaver</span></h1>
+        <p data-translate="settings_title">Inställningar och konfiguration</p>
+    </div>
+
+    <div class="container">
+        <!-- General Settings -->
+        <div class="settings-card">
+            <h2><i class="fas fa-cog"></i> <span data-translate="general_settings">Allmänna inställningar</span></h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="dark_mode">Mörkt läge</h3>
+                    <p data-translate="toggle_theme">Växla mellan mörkt och ljust tema</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="language">Språk</h3>
+                    <p data-translate="select_language">Välj ditt föredragna språk</p>
+                </div>
+                <select id="language">
+                    <option value="sv">Svenska</option>
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="auto_backup">Automatisk backup</h3>
+                    <p data-translate="auto_backup_desc">Skapa automatisk backup varje dag</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-backup">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Storage -->
+        <div class="settings-card">
+            <h2><i class="fas fa-hdd"></i> <span data-translate="storage">Lagring</span></h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="storage_usage">Använd lagring</h3>
+                    <p data-translate="storage_desc">Se hur mycket utrymme dina bokmärken använder</p>
+                </div>
+                <span id="storage-text">0 MB / 5 MB</span>
+            </div>
+            
+            <div class="storage-bar">
+                <div class="storage-used" id="storage-bar" style="width: 0%"></div>
+            </div>
+            <div class="storage-info">
+                <span id="storage-percent">0% använt</span>
+                <span>Max 5 MB</span>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="settings-card">
+            <h2><i class="fas fa-keyboard"></i> <span data-translate="keyboard_shortcuts">Tangentbordsgenvägar</span></h2>
+            
+            <div class="shortcut-list">
+                <div class="shortcut-item">
+                    <span data-translate="add_current_page">Spara aktuell sida</span>
+                    <kbd>Ctrl+Shift+S</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="open_extension">Öppna PrivateLinkSaver</span>
+                    <kbd>Ctrl+Shift+B</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="quick_search">Snabbsökning</span>
+                    <kbd>Ctrl+Shift+F</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="focus_search">Fokusera sökfält</span>
+                    <kbd>Ctrl+K</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="new_folder">Ny mapp</span>
+                    <kbd>Ctrl+N</kbd>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-card">
+            <h2><i class="fas fa-exclamation-triangle"></i> <span data-translate="danger_zone">Farozon</span></h2>
+            
+            <div class="danger-zone">
+                <h3><i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data">Radera all data</span></h3>
+                <p data-translate="delete_data_warning">Detta kommer att permanent radera alla dina bokmärken, mappar och inställningar. Denna åtgärd kan inte ångras.</p>
+                <button class="btn btn-danger" id="clear-data">
+                    <i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data_btn">Radera all data</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Section -->
+    <div class="container">
+        <div class="settings-card support-section">
+            <a href="https://buymeacoffee.com/nrnworld" target="_blank" rel="noopener noreferrer" class="support-link">
+                <div class="support-content">
+                    <img src="icons/kaffe-icon.png" alt="Coffee Icon" class="coffee-icon" onerror="this.style.display='none'">
+                    <div class="support-text">
+                        <h2><i class="fas fa-coffee"></i> <span data-translate="support_title">THE WALL OF FAME</span></h2>
+                        <p data-translate="support_description">Support the development of PrivateLinkSaver by buying me a coffee. Your contribution helps keep this extension free and continuously improving!</p>
+                        <span class="coffee-cta" data-translate="support_cta">Click here to buy me a coffee</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>PrivateLinkSaver</p>
+        <p>Created 2026 by © nRn World | <a href="mailto:bynrnworld@gmail.com">bynrnworld@gmail.com</a></p>
+    </div>
+
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/options.js"></script>
+    <script>
+        // Fallback for dark mode toggle if StorageUtils is not available
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('dark-mode');
+            
+            // Simple toggle without storage dependency
+            if (darkModeToggle && !darkModeToggle.hasAttribute('data-initialized')) {
+                darkModeToggle.setAttribute('data-initialized', 'true');
+                
+                // Check if there's a saved preference in localStorage
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.setAttribute('data-theme', 'dark');
+                    darkModeToggle.checked = true;
+                }
+                
+                // Add simple toggle listener as fallback
+                darkModeToggle.addEventListener('change', () => {
+                    const isDark = darkModeToggle.checked;
+                    document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,48 +1,48 @@
-# Integritetspolicy för PrivateLinkSaver Pro
+# Privacy Policy for PrivateLinkSaver Pro
 
-## Senast uppdaterad: 2026-01-30
+## Last updated: 2026-01-30
 
-## Sammanfattning
+## Summary
 
-PrivateLinkSaver Pro är designad med din integritet som högsta prioritet. Vi tror på att dina data tillhör dig, och ingen annan.
+PrivateLinkSaver Pro is designed with your privacy as top priority. We believe that your data belongs to you, and no one else.
 
-## Data som samlas in
+## Data Collection
 
-**PrivateLinkSaver Pro samlar INTE in någon personlig information.**
+**PrivateLinkSaver Pro does NOT collect any personal information.**
 
-Tillägget lagrar endast:
-- Dina sparade bokmärken (URL, titel, mapp, taggar)
-- Dina skapade mappar och taggar
-- Dina inställningar (språk, tema, auto-backup)
-- Ett hashat lösenord (aldrig i klartext)
+The extension only stores:
+- Your saved bookmarks (URL, title, folder, tags)
+- Your created folders and tags
+- Your settings (language, theme, auto-backup)
+- A hashed password (never in plaintext)
 
-## Var lagras data?
+## Where is data stored?
 
-All data lagras **LOKALT** i din webbläsare med hjälp av Chrome's storage API. Data skickas aldrig till några externa servrar.
+All data is stored **LOCALLY** in your browser using Chrome's storage API. Data is never sent to any external servers.
 
-## Säkerhet
+## Security
 
-- Lösenord hashas med SHA-256 och en unik salt
-- Känslig data kan krypteras med AES-256-GCM
-- Ingen data överförs över nätverket
-- Ingen spårning eller analytics
+- Passwords are hashed with SHA-256 and a unique salt
+- Sensitive data can be encrypted with AES-256-GCM
+- No data is transmitted over the network
+- No tracking or analytics
 
-## Delning av data
+## Data Sharing
 
-Vi delar INTE din data med någon. Eftersom allt lagras lokalt har vi inte ens tillgång till den.
+We do NOT share your data with anyone. Since everything is stored locally, we don't even have access to it.
 
-## Dina rättigheter
+## Your Rights
 
-Du har full kontroll över din data:
-- Exportera all data när som helst
-- Radera all data när som helst
-- Ingen inlåsning - din data är alltid tillgänglig för dig
+You have full control over your data:
+- Export all data at any time
+- Delete all data at any time
+- No lock-in - your data is always accessible to you
 
-## Kontakt
+## Contact
 
-Vid frågor om integritet, kontakta oss via:
+If you have questions about privacy, contact us via:
 - Buy Me a Coffee: https://buymeacoffee.com/robinayzit
 
-## Ändringar
+## Changes
 
-Vi kan uppdatera denna integritetspolicy. Eventuella ändringar kommer att meddelas i tillägget.
+We may update this privacy policy. Any changes will be notified within the extension.

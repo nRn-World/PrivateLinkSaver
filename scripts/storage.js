@@ -101,7 +101,7 @@ const StorageUtils = {
     async getPreferences() {
         const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup']);
         return {
-            language: result.language || 'sv',
+            language: result.language || 'en',
             darkMode: result.darkMode !== undefined ? result.darkMode : true,
             firstTime: result.firstTime !== false,
             autoBackup: result.autoBackup || false

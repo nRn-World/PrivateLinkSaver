@@ -1,125 +1,125 @@
 # PrivateLinkSaver Pro 🔐
 
-En modern och professionell Chrome extension för att spara och organisera dina länkar privat och säkert med lösenordsskydd.
+A modern and professional Chrome extension to save and organize your links privately and securely with password protection.
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Chrome](https://img.shields.io/badge/chrome-%E2%9C%93-brightgreen)
 
-## 🌟 Funktioner
+## 🌟 Features
 
-### 🔒 Säkerhet
-- **Lösenordsskydd**: Säkra dina bokmärken med SHA-256 hashing
-- **Kryptering**: AES-256-GCM kryptering för känslig data
-- **Automatisk utloggning**: Konfigurerbar timeout för ökad säkerhet
+### 🔒 Security
+- **Password Protection**: Secure your bookmarks with SHA-256 hashing
+- **Encryption**: AES-256-GCM encryption for sensitive data
+- **Auto-lock**: Configurable timeout for increased security
 
-### 📁 Organisation
-- **Mappar**: Skapa obegränsade mappar med anpassade färger
-- **Taggar**: Tagga dina bokmärken för enkel filtrering
-- **Favoriter**: Markera viktiga bokmärken
-- **Sök**: Kraftfull sökfunktion med fuzzy matching
+### 📁 Organization
+- **Folders**: Create unlimited folders with custom colors
+- **Tags**: Tag your bookmarks for easy filtering
+- **Favorites**: Mark important bookmarks
+- **Search**: Powerful search function with fuzzy matching
 
-### 🎨 Anpassning
-- **Mörkt/Ljust tema**: Växla mellan teman eller följ systemet
-- **5 Språk**: Svenska, Engelska, Turkiska, Spanska, Franska
-- **Anpassningsbar UI**: Modern design med animationer
+### 🎨 Customization
+- **Dark/Light Theme**: Switch between themes or follow system settings
+- **5 Languages**: English, Swedish, Turkish, Spanish, French
+- **Customizable UI**: Modern design with animations
 
-### 📊 Statistik
-- **Översikt**: Se totalt antal bokmärken, mappar och taggar
-- **Topp domäner**: Se vilka webbplatser du sparar mest
-- **Besöksräknare**: Spåra hur ofta du besöker dina bokmärken
+### 📊 Statistics
+- **Overview**: See total bookmarks, folders, and tags
+- **Top Domains**: See which sites you save the most
+- **Visit Counter**: Track how often you visit your bookmarks
 
-### 💾 Datahantering
-- **Export/Import**: JSON, CSV, HTML format
-- **Automatisk backup**: Dagliga backuper
-- **Återställning**: Återställ från tidigare backuper
+### 💾 Data Management
+- **Export/Import**: JSON, CSV, HTML formats
+- **Automatic Backup**: Daily backups
+- **Restore**: Restore from previous backups
 
-### ⌨️ Produktivitet
-- **Tangentbordsgenvägar**: Snabb åtkomst med kortkommandon
-- **Kontextmeny**: Högerklicka för att spara länkar
-- **Omnibox**: Sök i bokmärken från adressfältet (skriv "pls")
+### ⌨️ Productivity
+- **Keyboard Shortcuts**: Quick access with shortcuts
+- **Context Menu**: Right-click to save links
+- **Omnibox**: Search bookmarks from the address bar (type "pls")
 
 ## 🚀 Installation
 
-### Från Chrome Web Store (Rekommenderas)
+### From Chrome Web Store (Recommended)
 
-1. Besök [Chrome Web Store](https://chrome.google.com/webstore) (kommer snart)
-2. Sök efter "PrivateLinkSaver Pro"
-3. Klicka "Lägg till i Chrome"
+1. Visit [Chrome Web Store](https://chrome.google.com/webstore) (Coming soon)
+2. Search for "PrivateLinkSaver Pro"
+3. Click "Add to Chrome"
 
-### Från Source (Developer Mode)
+### From Source (Developer Mode)
 
-1. Ladda ner den senaste versionen som .zip
-2. Packa upp filerna
-3. Öppna Chrome och gå till `chrome://extensions/`
-4. Aktivera "Developer mode" i övre högra hörnet
-5. Klicka på "Load unpacked"
-6. Välj mappen med uppackade filer
-7. Klart!
+1. Download the latest version as .zip
+2. Extract the files
+3. Open Chrome and go to `chrome://extensions/`
+4. Enable "Developer mode" in the top right corner
+5. Click "Load unpacked"
+6. Select the folder with extracted files
+7. Done!
 
-## 📖 Användning
+## 📖 Usage
 
-### Första gången
+### First Time
 
-1. Klicka på tilläggsikonen i verktygsfältet
-2. Skapa ett säkert lösenord (minst 6 tecken)
-3. Logga in med ditt lösenord
-4. Börja spara dina favoritsidor!
+1. Click the extension icon in the toolbar
+2. Create a secure password (at least 6 characters)
+3. Login with your password
+4. Start saving your favorite sites!
 
-### Spara Länkar
+### Save Links
 
-- **Via popup**: Klicka på tilläggsikonen → "Spara aktuell sida"
-- **Kontextmeny**: Högerklicka på en länk → "Spara länk till PrivateLinkSaver"
-- **Tangentbordsgenväg**: Tryck `Ctrl+Shift+S` (Windows) eller `Cmd+Shift+S` (Mac)
+- **Via popup**: Click extension icon → "Save current page"
+- **Context Menu**: Right-click a link → "Save link to PrivateLinkSaver"
+- **Keyboard Shortcut**: Press `Ctrl+Shift+S` (Windows) or `Cmd+Shift+S` (Mac)
 
-### Organisera
+### Organize
 
-- Skapa nya mappar med olika färger
-- Flytta bokmärken mellan mappar
-- Lägg till taggar för bättre filtrering
-- Sök bland dina bokmärken
+- Create new folders with different colors
+- Move bookmarks between folders
+- Add tags for better filtering
+- Search among your bookmarks
 
-### Tangentbordsgenvägar
+### Keyboard Shortcuts
 
-| Genväg | Funktion |
+| Shortcut | Function |
 |--------|----------|
-| `Ctrl+Shift+S` | Spara aktuell sida |
-| `Ctrl+Shift+B` | Öppna PrivateLinkSaver |
-| `Ctrl+Shift+F` | Snabbsökning |
-| `Ctrl+K` | Fokusera sökfält |
-| `Ctrl+N` | Skapa ny mapp |
-| `Ctrl+D` | Spara aktuell sida |
-| `Escape` | Rensa sökning |
+| `Ctrl+Shift+S` | Save current page |
+| `Ctrl+Shift+B` | Open PrivateLinkSaver |
+| `Ctrl+Shift+F` | Quick search |
+| `Ctrl+K` | Focus search field |
+| `Ctrl+N` | Create new folder |
+| `Ctrl+D` | Save current page |
+| `Escape` | Clear search |
 
-## 🔒 Säkerhet
+## 🔒 Security
 
-- **Lösenord**: Hashas med SHA-256 och en unik 16-byte salt
-- **Kryptering**: AES-256-GCM för känslig data
-- **Lokal lagring**: All data sparas lokalt i din webbläsare
-- **Inga servrar**: Ingen data skickas till externa servrar
+- **Password**: Hashed with SHA-256 and a unique 16-byte salt
+- **Encryption**: AES-256-GCM for sensitive data
+- **Local Storage**: All data is saved locally in your browser
+- **No Servers**: No data is sent to external servers
 
-## 📁 Projektstruktur
+## 📁 Project Structure
 
 ```
 PrivateLinkSaverPro/
-├── manifest.json          # Extension-konfiguration
+├── manifest.json          # Extension configuration
 ├── popup.html            # Popup UI
-├── options.html          # Inställningssida
+├── options.html          # Settings page
 ├── styles/
-│   └── popup.css         # Stilar
+│   └── popup.css         # Styles
 ├── scripts/
-│   ├── popup.js          # Popup-logik
+│   ├── popup.js          # Popup logic
 │   ├── background.js     # Service worker
-│   ├── options.js        # Inställningar
-│   ├── storage.js        # Lagringsfunktioner
-│   ├── crypto.js         # Kryptering
-│   └── translations.js   # Översättningar
+│   ├── options.js        # Settings
+│   ├── storage.js        # Storage functions
+│   ├── crypto.js         # Encryption
+│   └── translations.js   # Translations
 ├── icons/
 │   ├── icon16.png
 │   ├── icon32.png
 │   ├── icon48.png
 │   └── icon128.png
-├── _locales/             # Översättningar
+├── _locales/             # Translations
 │   ├── sv/
 │   ├── en/
 │   ├── tr/
@@ -130,59 +130,59 @@ PrivateLinkSaverPro/
 └── LICENSE
 ```
 
-## 🛠️ Teknologier
+## 🛠️ Technologies
 
-- **Manifest V3**: Senaste Chrome Extension-standarden
-- **Vanilla JavaScript**: Inga externa dependencies
-- **Web Crypto API**: Säker kryptering
-- **Chrome Storage API**: Lokal datalagring
-- **CSS Variables**: Dynamiska teman
-- **Font Awesome**: Ikoner
-- **Google Fonts**: Inter typsnitt
+- **Manifest V3**: Latest Chrome Extension standard
+- **Vanilla JavaScript**: No external dependencies
+- **Web Crypto API**: Secure encryption
+- **Chrome Storage API**: Local data storage
+- **CSS Variables**: Dynamic themes
+- **Font Awesome**: Icons
+- **Google Fonts**: Inter font
 
 ## 📝 Changelog
 
 ### Version 2.0.0 (2026-01-30)
 
-- ✨ **NYTT**: Komplett UI-översyn med modern design
-- ✨ **NYTT**: Taggsystem för bättre organisation
-- ✨ **NYTT**: Statistik och insights
-- ✨ **NYTT**: Automatisk backup
-- ✨ **NYTT**: Omnibox-integration (sök med "pls")
-- ✨ **NYTT**: Besöksräknare
-- ✨ **NYTT**: Topp domäner-visning
-- ✨ **NYTT**: Förbättrad sök med fuzzy matching
-- ✨ **NYTT**: Inställningssida (options.html)
-- 🔒 **FÖRBÄTTRAT**: Starkare kryptering (AES-256-GCM)
-- 🔒 **FÖRBÄTTRAT**: Lösenordsstyrke-indikator
-- 🎨 **FÖRBÄTTRAT**: Mörkt/ljust tema
-- 🌍 **FÖRBÄTTRAT**: Full i18n-stöd
-- ⚡ **FÖRBÄTTRAT**: Prestandaoptimeringar
+- ✨ **NEW**: Complete UI overhaul with modern design
+- ✨ **NEW**: Tag system for better organization
+- ✨ **NEW**: Statistics and insights
+- ✨ **NEW**: Automatic backup
+- ✨ **NEW**: Omnibox integration (search with "pls")
+- ✨ **NEW**: Visit counter
+- ✨ **NEW**: Top domains display
+- ✨ **NEW**: Improved search with fuzzy matching
+- ✨ **NEW**: Settings page (options.html)
+- 🔒 **IMPROVED**: Stronger encryption (AES-256-GCM)
+- 🔒 **IMPROVED**: Password strength indicator
+- 🎨 **IMPROVED**: Dark/light theme
+- 🌍 **IMPROVED**: Full i18n support
+- ⚡ **IMPROVED**: Performance optimizations
 
 ### Version 1.0.0 (2026-01-15)
 
 - 🎉 Initial release
-- 🔒 Lösenordsskydd med SHA-256
-- 📁 Mapp-funktionalitet
-- 🌍 Flerspråkigt stöd
-- 🎨 Mörkt/ljust tema
+- 🔒 Password protection with SHA-256
+- 📁 Folder functionality
+- 🌍 Multilingual support
+- 🎨 Dark/light theme
 - 📤 Export/Import
 
-## 🤝 Bidra
+## 🤝 Contribute
 
-Bidrag är välkomna! Följ dessa steg:
+Contributions are welcome! Follow these steps:
 
-1. Forka repositoryt
-2. Skapa en feature branch (`git checkout -b feature/amazing-feature`)
-3. Commita dina ändringar (`git commit -m 'Add amazing feature'`)
-4. Pusha till branchen (`git push origin feature/amazing-feature`)
-5. Öppna en Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 Licens
+## 📄 License
 
-Detta projekt är licensierat under MIT License - se [LICENSE](LICENSE) för detaljer.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
-## 👨‍💻 Författare
+## 👨‍💻 Author
 
 **Robin Ayzit**
 
@@ -190,29 +190,8 @@ Detta projekt är licensierat under MIT License - se [LICENSE](LICENSE) för det
 
 ## 🙏 Support
 
-Om du gillar detta projekt, överväg att:
+If you like this project, consider to:
 
-- ⭐ Ge projektet en stjärna på GitHub
-- ☕ [Köp mig en kaffe](https://buymeacoffee.com/robinayzit)
-- 📢 Dela med dina vänner
-
-## ❓ FAQ
-
-**F: Är mina data säkra?**
-A: Ja! All data sparas lokalt i din Chrome-webbläsare och krypteras med ditt lösenord. Ingen data skickas till externa servrar.
-
-**F: Kan jag synkronisera mellan enheter?**
-A: För närvarande stöds endast lokal lagring. Cloud sync planeras i framtida versioner.
-
-**F: Vad händer om jag glömmer mitt lösenord?**
-A: För säkerhets skull finns ingen "glömt lösenord" funktion. Se till att exportera dina bokmärken regelbundet som backup!
-
-**F: Hur tar jag bort alla data?**
-A: Gå till Inställningar → Farozon → "Radera all data". Detta kan inte ångras!
-
-**F: Kan jag importera från andra bokmärkeshanterare?**
-A: Ja! Du kan importera från JSON-filer. Stöd för Chrome och Firefox import kommer snart.
-
----
-
-<p align="center">Gjord med ❤️ av Robin Ayzit</p>
+- ⭐ Star the project on GitHub
+- ☕ [Buy me a coffee](https://buymeacoffee.com/robinayzit)
+- 📢 Share with your friends

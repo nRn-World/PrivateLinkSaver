@@ -1,5 +1,5 @@
-// PrivateLinkSaver Pro - Background Service Worker
-console.log('PrivateLinkSaver Pro background script loaded');
+// PrivateLinkSaver - Background Service Worker
+console.log('PrivateLinkSaver background script loaded');
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {

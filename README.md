@@ -1,4 +1,4 @@
-# PrivateLinkSaver Pro 🔐
+# PrivateLinkSaver 🔐
 
 A modern and professional Chrome extension to save and organize your links privately and securely with password protection.
 
@@ -44,7 +44,7 @@ A modern and professional Chrome extension to save and organize your links priva
 ### From Chrome Web Store (Recommended)
 
 1. Visit [Chrome Web Store](https://chrome.google.com/webstore) (Coming soon)
-2. Search for "PrivateLinkSaver Pro"
+2. Search for "PrivateLinkSaver"
 3. Click "Add to Chrome"
 
 ### From Source (Developer Mode)
@@ -101,7 +101,7 @@ A modern and professional Chrome extension to save and organize your links priva
 ## 📁 Project Structure
 
 ```
-PrivateLinkSaverPro/
+PrivateLinkSaver/
 ├── manifest.json          # Extension configuration
 ├── popup.html            # Popup UI
 ├── options.html          # Settings page

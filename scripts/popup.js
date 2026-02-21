@@ -1,4 +1,4 @@
-// PrivateLinkSaver Pro - Popup Script
+// PrivateLinkSaver - Popup Script
 document.addEventListener('DOMContentLoaded', async function () {
     // Element references
     const elements = {

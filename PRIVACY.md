@@ -1,14 +1,14 @@
-# Privacy Policy for PrivateLinkSaver Pro
+# Privacy Policy for PrivateLinkSaver
 
 ## Last updated: 2026-01-30
 
 ## Summary
 
-PrivateLinkSaver Pro is designed with your privacy as top priority. We believe that your data belongs to you, and no one else.
+PrivateLinkSaver is designed with your privacy as top priority. We believe that your data belongs to you, and no one else.
 
 ## Data Collection
 
-**PrivateLinkSaver Pro does NOT collect any personal information.**
+**PrivateLinkSaver does NOT collect any personal information.**
 
 The extension only stores:
 - Your saved bookmarks (URL, title, folder, tags)

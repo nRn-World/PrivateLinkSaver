@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         storageText.textContent = `${usedMB} MB / ${totalMB} MB`;
         storageBar.style.width = `${Math.min(percent, 100)}%`;
-        storagePercent.textContent = `${percent}% använt`;
+        storagePercent.textContent = `${percent}% used`;
         
         // Color code storage bar
         if (percent > 80) {
@@ -81,27 +81,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Clear all data
     clearDataBtn.addEventListener('click', async () => {
         const confirmed = confirm(
-            'ÄR DU HELT SÄKER?\n\n' +
-            'Detta kommer att PERMANENT radera:\n' +
-            '- Alla dina bokmärken\n' +
-            '- Alla dina mappar\n' +
-            '- Alla dina taggar\n' +
-            '- Ditt lösenord\n' +
-            '- Alla inställningar\n\n' +
-            'Denna åtgärd kan INTE ångras!\n\n' +
-            'Klicka OK för att fortsätta och radera all data.'
+            'ARE YOU SURE?\n\n' +
+            'This will PERMANENTLY delete:\n' +
+            '- All your bookmarks\n' +
+            '- All your folders\n' +
+            '- All your tags\n' +
+            '- Your password\n' +
+            '- All settings\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Click OK to proceed and delete all data.'
         );
         
         if (confirmed) {
             const doubleConfirmed = confirm(
-                'Sista varning!\n\n' +
-                'Är du absolut säker på att du vill radera ALL data?\n\n' +
-                'Detta är din sista chans att ångra dig.'
+                'Final Warning!\n\n' +
+                'Are you absolutely sure you want to delete ALL data?\n\n' +
+                'This is your last chance to cancel.'
             );
             
             if (doubleConfirmed) {
                 await StorageUtils.clear();
-                alert('All data har raderats. Tillägget kommer nu att återställas.');
+                alert('All data has been deleted. The extension will now reset.');
                 window.location.reload();
             }
         }

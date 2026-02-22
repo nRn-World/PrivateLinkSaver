@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // State variables
     let state = {
-        currentLang: 'sv',
+        currentLang: 'en',
         darkMode: false,
         allBookmarksHidden: false,
         currentFolder: 'all',

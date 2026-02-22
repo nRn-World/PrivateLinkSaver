@@ -1,10 +1,7 @@
 // PrivateLinkSaver - Background Service Worker
-console.log('PrivateLinkSaver background script loaded');
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {
-    console.log('Extension installed/updated:', details.reason);
-    
     // Set default badge color
     chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
     
@@ -74,7 +71,6 @@ async function createAutoBackup() {
         }
         
         await chrome.storage.local.set({ backups });
-        console.log('Auto-backup created');
     } catch (error) {
         console.error('Auto-backup failed:', error);
     }
@@ -157,7 +153,7 @@ async function saveBookmark(url, title, tab) {
     // Get current bookmarks and preferences
     const data = await chrome.storage.local.get(['bookmarks', 'language', 'folders']);
     const bookmarks = data.bookmarks || [];
-    const currentLang = data.language || 'sv';
+    const currentLang = data.language || 'en';
     const folders = data.folders || [];
     
     // Check if bookmark already exists
@@ -194,7 +190,7 @@ async function saveBookmark(url, title, tab) {
     }
     
     // Get default folder
-    const defaultFolder = folders.length > 0 ? folders[0].name : 'Allmänt';
+    const defaultFolder = folders.length > 0 ? folders[0].name : 'General';
     
     // Create new bookmark
     const newBookmark = {

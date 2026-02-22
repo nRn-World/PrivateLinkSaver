@@ -12,7 +12,7 @@
     <!-- Loader -->
     <div class="loader" id="loader">
         <div class="loader-spinner"></div>
-        <div class="loader-text" data-translate="loading">Laddar...</div>
+        <div class="loader-text" data-translate="loading">Loading...</div>
     </div>
 
     <!-- Toast Container -->
@@ -38,30 +38,30 @@
             <div class="welcome-icon">
                 <img src="icons/icon-utanbakgrund.png" alt="App Icon" class="app-icon">
             </div>
-            <h2 data-translate="welcome_title">Välkommen till PrivateLinkSaver</h2>
-            <p class="subtitle" data-translate="welcome_subtitle">Spara och organisera dina länkar på ett säkert sätt</p>
+            <h2 data-translate="welcome_title">Welcome to PrivateLinkSaver</h2>
+            <p class="subtitle" data-translate="welcome_subtitle">Save and organize your links securely</p>
             
             <div class="feature-list">
                 <div class="feature-item">
                     <i class="fas fa-lock"></i>
-                    <span data-translate="feature_secure">Säker lösenordsskydd</span>
+                    <span data-translate="feature_secure">Secure password protection</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-folder-open"></i>
-                    <span data-translate="feature_organize">Organisera med mappar & taggar</span>
+                    <span data-translate="feature_organize">Organize with folders & tags</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-search"></i>
-                    <span data-translate="feature_search">Kraftfull sökfunktion</span>
+                    <span data-translate="feature_search">Powerful search function</span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-moon"></i>
-                    <span data-translate="feature_theme">Mörkt & ljust tema</span>
+                    <span data-translate="feature_theme">Dark & light theme</span>
                 </div>
             </div>
 
             <button id="get-started-btn" class="btn btn-primary btn-large">
-                <i class="fas fa-rocket"></i> <span data-translate="get_started">Kom igång</span>
+                <i class="fas fa-rocket"></i> <span data-translate="get_started">Get started</span>
             </button>
         </div>
 
@@ -73,24 +73,24 @@
                 </div>
                 <h2 data-translate="app_title">PrivateLinkSaver</h2>
             </div>
-            <p class="subtitle" data-translate="enter_password">Ange ditt lösenord för att fortsätta</p>
+            <p class="subtitle" data-translate="enter_password">Enter your password to continue</p>
             
             <div class="login-form">
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="password" data-translate-placeholder="password" placeholder="Lösenord">
+                    <input type="password" id="password" data-translate-placeholder="password" placeholder="Password">
                     <button type="button" class="password-toggle" id="toggle-password">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
                 <button id="login-btn" class="btn btn-primary">
-                    <i class="fas fa-unlock"></i> <span data-translate="unlock">Lås upp</span>
+                    <i class="fas fa-unlock"></i> <span data-translate="unlock">Unlock</span>
                 </button>
             </div>
             
             <div class="auth-footer">
                 <button id="show-register-btn" class="text-link" data-translate="register_new_password">
-                    <i class="fas fa-user-plus"></i> Registrera nytt lösenord
+                    <i class="fas fa-user-plus"></i> Register new password
                 </button>
             </div>
         </div>
@@ -101,14 +101,14 @@
                 <div class="logo-icon">
                     <i class="fas fa-key"></i>
                 </div>
-                <h2 data-translate="register_password">Skapa lösenord</h2>
+                <h2 data-translate="register_password">Create Password</h2>
             </div>
-            <p class="subtitle" data-translate="create_new_password">Skapa ett säkert lösenord för att skydda dina bokmärken</p>
+            <p class="subtitle" data-translate="create_new_password">Create a secure password to protect your bookmarks</p>
             
             <div class="register-form">
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="new-password" data-translate-placeholder="new_password" placeholder="Nytt lösenord">
+                    <input type="password" id="new-password" data-translate-placeholder="new_password" placeholder="New Password">
                 </div>
                 <div class="password-strength" id="password-strength">
                     <div class="strength-bar"></div>
@@ -116,14 +116,14 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="confirm-password" data-translate-placeholder="confirm_password" placeholder="Bekräfta lösenord">
+                    <input type="password" id="confirm-password" data-translate-placeholder="confirm_password" placeholder="Confirm Password">
                 </div>
                 <div class="button-group">
                     <button id="register-btn" class="btn btn-primary">
-                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                        <i class="fas fa-save"></i> <span data-translate="save">Save</span>
                     </button>
                     <button id="cancel-register-btn" class="btn btn-outline">
-                        <i class="fas fa-times"></i> <span data-translate="cancel">Avbryt</span>
+                        <i class="fas fa-times"></i> <span data-translate="cancel">Cancel</span>
                     </button>
                 </div>
             </div>
@@ -133,26 +133,26 @@
         <div class="card bookmarks-card" id="bookmarks-section">
             <div class="header">
                 <div class="header-title">
-                    <h2><i class="fas fa-bookmark"></i> <span data-translate="your_bookmarks">Dina bokmärken</span></h2>
+                    <h2><i class="fas fa-bookmark"></i> <span data-translate="your_bookmarks">Your Bookmarks</span></h2>
                 </div>
                 <div class="header-controls">
-                    <button id="stats-btn" class="icon-btn" title="Statistik">
+                    <button id="stats-btn" class="icon-btn" title="Statistics">
                         <i class="fas fa-chart-bar"></i>
                     </button>
-                    <button id="refresh-btn" class="icon-btn refresh-btn" title="Uppdatera">
+                    <button id="refresh-btn" class="icon-btn refresh-btn" title="Refresh">
                         <i class="fas fa-sync-alt"></i>
                     </button>
-                    <button id="show-all-btn" class="icon-btn active" title="Visa alla">
+                    <button id="show-all-btn" class="icon-btn active" title="Show All">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button id="hide-all-btn" class="icon-btn" title="Dölj alla">
+                    <button id="hide-all-btn" class="icon-btn" title="Hide All">
                         <i class="fas fa-eye-slash"></i>
                     </button>
-                    <button id="settings-btn" class="icon-btn" title="Inställningar">
+                    <button id="settings-btn" class="icon-btn" title="Settings">
                         <i class="fas fa-cog"></i>
                     </button>
                     <button id="logout-btn" class="btn btn-danger btn-sm">
-                        <i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Logga ut</span>
+                        <i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Logout</span>
                     </button>
                 </div>
             </div>
@@ -162,11 +162,11 @@
                 <div class="add-bookmark-row">
                     <select id="folder-select-add" class="folder-select"></select>
                     <div class="tag-input-wrapper">
-                        <input type="text" id="tag-input" placeholder="Lägg till taggar..." data-translate-placeholder="add_tags">
+                        <input type="text" id="tag-input" placeholder="Add tags..." data-translate-placeholder="add_tags">
                     </div>
                 </div>
                 <button id="add-bookmark" class="btn btn-success btn-large">
-                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Spara aktuell sida</span>
+                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
                 </button>
             </div>
 
@@ -190,7 +190,7 @@
             <div class="search-filter-section">
                 <div class="search-box-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-box" class="search-box" placeholder="Sök bokmärken..." data-translate-placeholder="search">
+                    <input type="text" id="search-box" class="search-box" placeholder="Search bookmarks..." data-translate-placeholder="search">
                     <kbd class="shortcut-hint">Ctrl+K</kbd>
                 </div>
             </div>
@@ -199,12 +199,12 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <select id="folder-select" class="filter-select">
-                        <option value="all" data-translate="all_folders">Alla mappar</option>
+                        <option value="all" data-translate="all_folders">All Folders</option>
                     </select>
-                    <button id="new-folder-btn" class="icon-btn-sm" title="Ny mapp">
+                    <button id="new-folder-btn" class="icon-btn-sm" title="New Folder">
                         <i class="fas fa-folder-plus"></i>
                     </button>
-                    <button id="delete-folder-btn" class="icon-btn-sm" title="Ta bort mapp">
+                    <button id="delete-folder-btn" class="icon-btn-sm" title="Delete Folder">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
@@ -217,23 +217,23 @@
             <!-- Sort Controls -->
             <div class="sort-controls">
                 <button id="sort-date" class="sort-btn active">
-                    <i class="fas fa-calendar-alt"></i> <span data-translate="sort_date">Datum</span>
+                    <i class="fas fa-calendar-alt"></i> <span data-translate="sort_date">Date</span>
                 </button>
                 <button id="sort-name" class="sort-btn">
-                    <i class="fas fa-sort-alpha-down"></i> <span data-translate="sort_name">Namn</span>
+                    <i class="fas fa-sort-alpha-down"></i> <span data-translate="sort_name">Name</span>
                 </button>
                 <button id="sort-visits" class="sort-btn">
-                    <i class="fas fa-fire"></i> <span data-translate="sort_visits">Populära</span>
+                    <i class="fas fa-fire"></i> <span data-translate="sort_visits">Popular</span>
                 </button>
             </div>
 
             <!-- Data Actions -->
             <div class="data-actions">
                 <button id="export-btn" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-export"></i> <span data-translate="export">Exportera</span>
+                    <i class="fas fa-file-export"></i> <span data-translate="export">Export</span>
                 </button>
                 <button id="import-btn" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-import"></i> <span data-translate="import">Importera</span>
+                    <i class="fas fa-file-import"></i> <span data-translate="import">Import</span>
                 </button>
                 <button id="backup-btn" class="btn btn-outline btn-sm">
                     <i class="fas fa-hdd"></i> <span data-translate="backup">Backup</span>
@@ -245,8 +245,8 @@
             <div id="bookmarks-container" class="bookmarks-container">
                 <div class="empty-state" id="empty-state">
                     <i class="fas fa-bookmark"></i>
-                    <p data-translate="no_bookmarks_yet">Inga bokmärken ännu</p>
-                    <span data-translate="start_saving">Börja spara dina favoritsidor!</span>
+                    <p data-translate="no_bookmarks_yet">No bookmarks yet</p>
+                    <span data-translate="start_saving">Start saving your favorite pages!</span>
                 </div>
             </div>
         </div>
@@ -255,7 +255,7 @@
         <div id="stats-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3><i class="fas fa-chart-bar"></i> <span data-translate="statistics">Statistik</span></h3>
+                    <h3><i class="fas fa-chart-bar"></i> <span data-translate="statistics">Statistics</span></h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -263,26 +263,26 @@
                         <div class="stat-card">
                             <i class="fas fa-bookmark"></i>
                             <div class="stat-number" id="stat-bookmarks">0</div>
-                            <div class="stat-label" data-translate="total_bookmarks">Bokmärken</div>
+                            <div class="stat-label" data-translate="total_bookmarks">Bookmarks</div>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-folder"></i>
                             <div class="stat-number" id="stat-folders">0</div>
-                            <div class="stat-label" data-translate="total_folders">Mappar</div>
+                            <div class="stat-label" data-translate="total_folders">Folders</div>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-tags"></i>
                             <div class="stat-number" id="stat-tags">0</div>
-                            <div class="stat-label" data-translate="total_tags">Taggar</div>
+                            <div class="stat-label" data-translate="total_tags">Tags</div>
                         </div>
                         <div class="stat-card">
                             <i class="fas fa-eye"></i>
                             <div class="stat-number" id="stat-visits">0</div>
-                            <div class="stat-label" data-translate="total_visits">Besök</div>
+                            <div class="stat-label" data-translate="total_visits">Visits</div>
                         </div>
                     </div>
                     <div class="top-domains" id="top-domains">
-                        <h4 data-translate="top_domains">Topp domäner</h4>
+                        <h4 data-translate="top_domains">Top Domains</h4>
                         <div class="domain-list" id="domain-list"></div>
                     </div>
                 </div>
@@ -293,13 +293,13 @@
         <div id="folder-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 data-translate="new_folder">Ny mapp</h3>
+                    <h3 data-translate="new_folder">New Folder</h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="input-group">
                         <i class="fas fa-folder input-icon"></i>
-                        <input type="text" id="folder-name" placeholder="Mappnamn" data-translate-placeholder="folder_name">
+                        <input type="text" id="folder-name" placeholder="Folder Name" data-translate-placeholder="folder_name">
                     </div>
                     <div class="color-picker" id="folder-colors">
                         <button class="color-option active" data-color="#8e44ad" style="background: #8e44ad;"></button>
@@ -312,7 +312,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id="save-folder-btn" class="btn btn-primary">
-                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                        <i class="fas fa-save"></i> <span data-translate="save">Save</span>
                     </button>
                 </div>
             </div>
@@ -322,13 +322,13 @@
         <div id="edit-bookmark-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 data-translate="edit_bookmark">Redigera bokmärke</h3>
+                    <h3 data-translate="edit_bookmark">Edit Bookmark</h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="input-group">
                         <i class="fas fa-heading input-icon"></i>
-                        <input type="text" id="edit-bookmark-title" placeholder="Titel" data-translate-placeholder="bookmark_title">
+                        <input type="text" id="edit-bookmark-title" placeholder="Title" data-translate-placeholder="bookmark_title">
                     </div>
                     <div class="input-group">
                         <i class="fas fa-link input-icon"></i>
@@ -337,7 +337,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id="save-bookmark-edit-btn" class="btn btn-primary">
-                        <i class="fas fa-save"></i> <span data-translate="save">Spara</span>
+                        <i class="fas fa-save"></i> <span data-translate="save">Save</span>
                     </button>
                 </div>
             </div>
@@ -347,27 +347,27 @@
         <div id="backup-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3><i class="fas fa-hdd"></i> <span data-translate="backup_restore">Backup & Återställning</span></h3>
+                    <h3><i class="fas fa-hdd"></i> <span data-translate="backup_restore">Backup & Restore</span></h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="backup-section">
-                        <h4 data-translate="create_backup">Skapa backup</h4>
-                        <p data-translate="backup_description">Spara en kopia av alla dina bokmärken</p>
+                        <h4 data-translate="create_backup">Create Backup</h4>
+                        <p data-translate="backup_description">Save a copy of all your bookmarks</p>
                         <button id="create-backup-btn" class="btn btn-primary">
-                            <i class="fas fa-download"></i> <span data-translate="download_backup">Ladda ner backup</span>
+                            <i class="fas fa-download"></i> <span data-translate="download_backup">Download Backup</span>
                         </button>
                     </div>
                     <div class="backup-section">
-                        <h4 data-translate="auto_backup">Automatisk backup</h4>
+                        <h4 data-translate="auto_backup">Automatic Backup</h4>
                         <label class="toggle-switch">
                             <input type="checkbox" id="auto-backup-toggle">
                             <span class="toggle-slider"></span>
                         </label>
-                        <span data-translate="enable_auto_backup">Aktivera daglig backup</span>
+                        <span data-translate="enable_auto_backup">Enable daily backup</span>
                     </div>
                     <div class="backup-list" id="backup-list">
-                        <h4 data-translate="previous_backups">Tidigare backuper</h4>
+                        <h4 data-translate="previous_backups">Previous Backups</h4>
                         <div id="backups-container"></div>
                     </div>
                 </div>

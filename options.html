@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrivateLinkSaver - Inställningar</title>
+    <title>PrivateLinkSaver - Settings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -425,18 +425,18 @@
             </div>
             <span data-translate="app_title">PrivateLinkSaver</span>
         </h1>
-        <p data-translate="settings_title">Inställningar och konfiguration</p>
+        <p data-translate="settings_title">Settings and Configuration</p>
     </div>
 
     <div class="container">
         <!-- General Settings -->
         <div class="settings-card">
-            <h2><i class="fas fa-cog"></i> <span data-translate="general_settings">Allmänna inställningar</span></h2>
+            <h2><i class="fas fa-cog"></i> <span data-translate="general_settings">General Settings</span></h2>
             
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3 data-translate="dark_mode">Mörkt läge</h3>
-                    <p data-translate="toggle_theme">Växla mellan mörkt och ljust tema</p>
+                    <h3 data-translate="dark_mode">Dark Mode</h3>
+                    <p data-translate="toggle_theme">Toggle between dark and light theme</p>
                 </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="dark-mode">
@@ -446,8 +446,8 @@
 
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3 data-translate="language">Språk</h3>
-                    <p data-translate="select_language">Välj ditt föredragna språk</p>
+                    <h3 data-translate="language">Language</h3>
+                    <p data-translate="select_language">Select your preferred language</p>
                 </div>
                 <select id="language">
                     <option value="sv">Svenska</option>
@@ -460,8 +460,8 @@
 
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3 data-translate="auto_backup">Automatisk backup</h3>
-                    <p data-translate="auto_backup_desc">Skapa automatisk backup varje dag</p>
+                    <h3 data-translate="auto_backup">Automatic Backup</h3>
+                    <p data-translate="auto_backup_desc">Create automatic backup every day</p>
                 </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="auto-backup">
@@ -472,12 +472,12 @@
 
         <!-- Storage -->
         <div class="settings-card">
-            <h2><i class="fas fa-hdd"></i> <span data-translate="storage">Lagring</span></h2>
+            <h2><i class="fas fa-hdd"></i> <span data-translate="storage">Storage</span></h2>
             
             <div class="setting-item">
                 <div class="setting-info">
-                    <h3 data-translate="storage_usage">Använd lagring</h3>
-                    <p data-translate="storage_desc">Se hur mycket utrymme dina bokmärken använder</p>
+                    <h3 data-translate="storage_usage">Storage Used</h3>
+                    <p data-translate="storage_desc">See how much space your bookmarks are using</p>
                 </div>
                 <span id="storage-text">0 MB / 5 MB</span>
             </div>
@@ -486,34 +486,34 @@
                 <div class="storage-used" id="storage-bar" style="width: 0%"></div>
             </div>
             <div class="storage-info">
-                <span id="storage-percent">0% använt</span>
+                <span id="storage-percent">0% used</span>
                 <span>Max 5 MB</span>
             </div>
         </div>
 
         <!-- Keyboard Shortcuts -->
         <div class="settings-card">
-            <h2><i class="fas fa-keyboard"></i> <span data-translate="keyboard_shortcuts">Tangentbordsgenvägar</span></h2>
+            <h2><i class="fas fa-keyboard"></i> <span data-translate="keyboard_shortcuts">Keyboard Shortcuts</span></h2>
             
             <div class="shortcut-list">
                 <div class="shortcut-item">
-                    <span data-translate="add_current_page">Spara aktuell sida</span>
+                    <span data-translate="add_current_page">Save Current Page</span>
                     <kbd>Ctrl+Shift+S</kbd>
                 </div>
                 <div class="shortcut-item">
-                    <span data-translate="open_extension">Öppna PrivateLinkSaver</span>
+                    <span data-translate="open_extension">Open PrivateLinkSaver</span>
                     <kbd>Ctrl+Shift+B</kbd>
                 </div>
                 <div class="shortcut-item">
-                    <span data-translate="quick_search">Snabbsökning</span>
+                    <span data-translate="quick_search">Quick Search</span>
                     <kbd>Ctrl+Shift+F</kbd>
                 </div>
                 <div class="shortcut-item">
-                    <span data-translate="focus_search">Fokusera sökfält</span>
+                    <span data-translate="focus_search">Focus Search Field</span>
                     <kbd>Ctrl+K</kbd>
                 </div>
                 <div class="shortcut-item">
-                    <span data-translate="new_folder">Ny mapp</span>
+                    <span data-translate="new_folder">New Folder</span>
                     <kbd>Ctrl+N</kbd>
                 </div>
             </div>
@@ -521,13 +521,13 @@
 
         <!-- Danger Zone -->
         <div class="settings-card">
-            <h2><i class="fas fa-exclamation-triangle"></i> <span data-translate="danger_zone">Farozon</span></h2>
+            <h2><i class="fas fa-exclamation-triangle"></i> <span data-translate="danger_zone">Danger Zone</span></h2>
             
             <div class="danger-zone">
-                <h3><i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data">Radera all data</span></h3>
-                <p data-translate="delete_data_warning">Detta kommer att permanent radera alla dina bokmärken, mappar och inställningar. Denna åtgärd kan inte ångras.</p>
+                <h3><i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data">Delete All Data</span></h3>
+                <p data-translate="delete_data_warning">This will permanently delete all your bookmarks, folders, and settings. This action cannot be undone.</p>
                 <button class="btn btn-danger" id="clear-data">
-                    <i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data_btn">Radera all data</span>
+                    <i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data_btn">Delete All Data</span>
                 </button>
             </div>
         </div>

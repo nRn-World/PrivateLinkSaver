@@ -146,8 +146,8 @@ async function saveBookmark(url, title, tab) {
     if (!result.isLoggedIn || !result.passwordHash) {
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: 'PrivateLinkSaver Pro',
+            iconUrl: 'icons/icon-utanbakgrund.png',
+            title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('notificationLoginRequired') || 'Please log in to save bookmarks',
             priority: 2
         });
@@ -165,8 +165,8 @@ async function saveBookmark(url, title, tab) {
     if (exists) {
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon128.png',
-            title: 'PrivateLinkSaver Pro',
+            iconUrl: 'icons/icon-utanbakgrund.png',
+            title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('notificationExists') || 'This page is already saved!',
             priority: 1
         });

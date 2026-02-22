@@ -557,30 +557,6 @@
     <script src="scripts/translations.js"></script>
     <script src="scripts/storage.js"></script>
     <script src="scripts/options.js"></script>
-    <script>
-        // Fallback for dark mode toggle if StorageUtils is not available
-        document.addEventListener('DOMContentLoaded', () => {
-            const darkModeToggle = document.getElementById('dark-mode');
-            
-            // Simple toggle without storage dependency
-            if (darkModeToggle && !darkModeToggle.hasAttribute('data-initialized')) {
-                darkModeToggle.setAttribute('data-initialized', 'true');
-                
-                // Check if there's a saved preference in localStorage
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'dark') {
-                    document.body.setAttribute('data-theme', 'dark');
-                    darkModeToggle.checked = true;
-                }
-                
-                // Add simple toggle listener as fallback
-                darkModeToggle.addEventListener('change', () => {
-                    const isDark = darkModeToggle.checked;
-                    document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                });
-            }
-        });
-    </script>
+
 </body>
 </html>

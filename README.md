@@ -193,5 +193,5 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 If you like this project, consider to:
 
 - ⭐ Star the project on GitHub
-- ☕ [Buy me a coffee](https://buymeacoffee.com/robinayzit)
+- ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)
 - 📢 Share with your friends

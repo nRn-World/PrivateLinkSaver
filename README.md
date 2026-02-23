@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 **Robin Ayzit**
 
-- Buy Me a Coffee: [buymeacoffee.com/robinayzit](https://buymeacoffee.com/robinayzit)
+- Buy Me a Coffee: [buymeacoffee.com/robinayzit](https://buymeacoffee.com/nrnworld)
 
 ## 🙏 Support
 

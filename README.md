@@ -184,14 +184,14 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ## 👨‍💻 Author
 
-**Created 2026 by © nRn World**
+Created 2026 by **© nRn World**
 
-📧 bynrnworld@gmail.com
+📧 [bynrnworld@gmail.com](mailto:bynrnworld@gmail.com)
 
 ## 🙏 Support
 
 If you like this project, consider to:
 
-⭐ **Star the project** on GitHub  
-☕ **Buy me a coffee** [buymeacoffee.com/nrnworld](https://buymeacoffee.com/nrnworld)  
-📢 **Share with your friends**
+*   ⭐ Star the project on GitHub
+*   ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)
+*   📢 Share with your friends

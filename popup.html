@@ -165,6 +165,7 @@
                         <input type="text" id="tag-input" placeholder="Add tags..." data-translate-placeholder="add_tags">
                     </div>
                 </div>
+                <div class="smart-tag-suggestions" id="smart-tag-suggestions"></div>
                 <button id="add-bookmark" class="btn btn-success btn-large">
                     <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
                 </button>
@@ -192,6 +193,11 @@
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-box" class="search-box" placeholder="Search bookmarks..." data-translate-placeholder="search">
                     <kbd class="shortcut-hint">Ctrl+K</kbd>
+                </div>
+                <div class="search-actions">
+                    <button id="command-palette-btn" class="btn btn-outline btn-sm search-action-btn">
+                        <i class="fas fa-terminal"></i> <span data-translate="command_palette">Commands</span>
+                    </button>
                 </div>
             </div>
 
@@ -370,6 +376,24 @@
                         <h4 data-translate="previous_backups">Previous Backups</h4>
                         <div id="backups-container"></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Command Palette Modal -->
+        <div id="command-palette-modal" class="modal">
+            <div class="modal-content command-palette-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-terminal"></i> <span data-translate="command_palette">Command Palette</span></h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body command-palette-body">
+                    <div class="input-group command-input-group">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" id="command-input" placeholder="Type an action..." data-translate-placeholder="command_palette_placeholder">
+                    </div>
+                    <div id="command-results" class="command-results"></div>
+                    <p class="command-hint" data-translate="command_palette_hint">Press Enter to run the first command</p>
                 </div>
             </div>
         </div>

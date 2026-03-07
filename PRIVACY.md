@@ -22,9 +22,9 @@ All data is stored **LOCALLY** in your browser using Chrome's storage API. Data 
 
 ## Security
 
-- Passwords are hashed with SHA-256 and a unique salt
+- Passwords are hashed with PBKDF2-SHA256 and a unique salt
 - Sensitive data can be encrypted with AES-256-GCM
-- No data is transmitted over the network
+- Bookmark favicon previews may be loaded from Google's favicon service (`https://www.google.com/s2/favicons`) when available
 - No tracking or analytics
 
 ## Data Sharing
@@ -41,7 +41,7 @@ You have full control over your data:
 ## Contact
 
 If you have questions about privacy, contact us via:
-- Buy Me a Coffee: https://buymeacoffee.com/robinayzit
+- Buy Me a Coffee: https://buymeacoffee.com/nrnworld
 
 ## Changes
 

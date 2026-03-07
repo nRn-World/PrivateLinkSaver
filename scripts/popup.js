@@ -55,6 +55,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         sortVisitsBtn: document.getElementById('sort-visits'),
         tagInput: document.getElementById('tag-input'),
         tagList: document.getElementById('tag-list'),
+        smartTagSuggestions: document.getElementById('smart-tag-suggestions'),
+        commandPaletteBtn: document.getElementById('command-palette-btn'),
+        commandPaletteModal: document.getElementById('command-palette-modal'),
+        commandInput: document.getElementById('command-input'),
+        commandResults: document.getElementById('command-results'),
         totalBookmarks: document.getElementById('total-bookmarks'),
         totalFolders: document.getElementById('total-folders'),
         totalTags: document.getElementById('total-tags'),
@@ -76,8 +81,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         bookmarks: [],
         sortBy: 'date',
         selectedFolderColor: '#8e44ad',
-        editingBookmarkId: null
+        editingBookmarkId: null,
+        activeSuggestedTags: [],
+        currentTabMeta: null,
+        commandIndex: 0,
+        activeCommands: []
     };
+
+    function t(key, fallback = '') {
+        return translations[state.currentLang]?.[key] || translations.en?.[key] || fallback;
+    }
+
+    const TRACKING_PARAM_PREFIXES = ['utm_', 'ga_', 'mc_', 'pk_', 'sc_'];
+    const TRACKING_PARAM_EXACT = new Set([
+        'fbclid',
+        'gclid',
+        'dclid',
+        'msclkid',
+        'yclid',
+        '_hsenc',
+        '_hsmi',
+        'igshid',
+        'ref',
+        'ref_src',
+        'source',
+        'campaign',
+        'si'
+    ]);
 
     // Show loader
     function showLoader() {
@@ -101,10 +131,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             info: 'info-circle'
         };
         
-        toast.innerHTML = `
-            <i class="fas fa-${icons[type] || 'info-circle'}"></i>
-            <span>${message}</span>
-        `;
+        const icon = document.createElement('i');
+        icon.className = `fas fa-${icons[type] || 'info-circle'}`;
+        const text = document.createElement('span');
+        text.textContent = message;
+        toast.appendChild(icon);
+        toast.appendChild(text);
         
         elements.toastContainer.appendChild(toast);
         
@@ -141,6 +173,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.querySelectorAll('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === lang);
         });
+
+        updateSmartTagSuggestions();
+        if (elements.commandPaletteModal.classList.contains('active')) {
+            renderCommandResults(elements.commandInput.value);
+        }
     }
 
     // Toggle dark/light theme
@@ -204,6 +241,64 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function loadTags() {
         state.tags = await StorageUtils.getTags();
         updateTagList();
+    }
+
+    async function refreshCurrentTabMeta() {
+        return new Promise((resolve) => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                const tab = tabs && tabs[0] ? tabs[0] : null;
+                if (!tab || !isSafeHttpUrl(tab.url)) {
+                    state.currentTabMeta = null;
+                    state.activeSuggestedTags = [];
+                    updateSmartTagSuggestions();
+                    resolve(null);
+                    return;
+                }
+
+                state.currentTabMeta = {
+                    title: String(tab.title || tab.url || 'Untitled').trim(),
+                    url: normalizeHttpUrl(tab.url),
+                    favIconUrl: tab.favIconUrl || null
+                };
+                state.activeSuggestedTags = inferTagsFromMeta(state.currentTabMeta.url, state.currentTabMeta.title);
+                updateSmartTagSuggestions();
+                resolve(state.currentTabMeta);
+            });
+        });
+    }
+
+    function updateSmartTagSuggestions() {
+        if (!elements.smartTagSuggestions) return;
+
+        elements.smartTagSuggestions.innerHTML = '';
+        if (!state.activeSuggestedTags.length) return;
+
+        const enteredTags = elements.tagInput.value
+            .split(',')
+            .map((tag) => tag.trim().toLowerCase())
+            .filter(Boolean);
+
+        state.activeSuggestedTags.forEach((tag) => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'smart-tag-chip';
+            chip.textContent = `+${tag}`;
+            if (enteredTags.includes(tag.toLowerCase())) {
+                chip.classList.add('active');
+            }
+
+            chip.addEventListener('click', () => {
+                const existing = elements.tagInput.value
+                    .split(',')
+                    .map((entry) => entry.trim())
+                    .filter(Boolean);
+                const merged = mergeTags(existing, [tag]);
+                elements.tagInput.value = merged.join(', ');
+                updateSmartTagSuggestions();
+            });
+
+            elements.smartTagSuggestions.appendChild(chip);
+        });
     }
 
     // Update folder dropdowns
@@ -287,13 +382,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         stats.topDomains.forEach(({ domain, count }) => {
             const item = document.createElement('div');
             item.className = 'domain-item';
-            item.innerHTML = `
-                <span class="domain-name">
-                    <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=16" alt="">
-                    ${domain}
-                </span>
-                <span class="domain-count">${count}</span>
-            `;
+
+            const domainName = document.createElement('span');
+            domainName.className = 'domain-name';
+
+            const icon = document.createElement('img');
+            icon.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
+            icon.alt = '';
+
+            const domainText = document.createElement('span');
+            domainText.textContent = domain;
+
+            const domainCount = document.createElement('span');
+            domainCount.className = 'domain-count';
+            domainCount.textContent = String(count);
+
+            domainName.appendChild(icon);
+            domainName.appendChild(domainText);
+            item.appendChild(domainName);
+            item.appendChild(domainCount);
             domainList.appendChild(item);
         });
     }
@@ -311,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Show bookmarks
     async function showBookmarks() {
         state.bookmarks = await StorageUtils.getBookmarks();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
         
         elements.loginSection.style.display = 'none';
         elements.registerSection.style.display = 'none';
@@ -319,35 +426,44 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.bookmarksSection.style.display = 'block';
         
         await updateStats();
+        await refreshCurrentTabMeta();
     }
 
     // Display bookmarks
-    function displayBookmarks(bookmarks) {
+    function displayBookmarks(bookmarks, options = {}) {
         elements.bookmarksContainer.innerHTML = '';
-        
-        if (bookmarks.length === 0) {
+
+        const list = options.preSorted ? bookmarks : sortBookmarks(bookmarks);
+
+        if (list.length === 0) {
             elements.bookmarksContainer.appendChild(elements.emptyState);
+            const hasFilters = Boolean(elements.searchBox.value.trim()) || elements.folderSelect.value !== 'all' || Boolean(state.currentTag);
+            const titleNode = elements.emptyState.querySelector('p');
+            const subtitleNode = elements.emptyState.querySelector('span');
+            if (hasFilters) {
+                if (titleNode) titleNode.textContent = t('no_results_title', 'No matches found');
+                if (subtitleNode) subtitleNode.textContent = t('no_results_subtitle', 'Try another keyword or filter');
+            } else {
+                if (titleNode) titleNode.textContent = t('no_bookmarks_yet', 'No bookmarks yet');
+                if (subtitleNode) subtitleNode.textContent = t('start_saving', 'Start saving your favorite pages!');
+            }
             elements.emptyState.style.display = 'flex';
             return;
         }
-        
-        // Sort bookmarks
-        const sortedBookmarks = sortBookmarks(bookmarks);
-        
-        sortedBookmarks.forEach((bookmark, index) => {
-            const item = createBookmarkElement(bookmark, index);
+
+        list.forEach((bookmark) => {
+            const item = createBookmarkElement(bookmark);
             elements.bookmarksContainer.appendChild(item);
         });
-        
-        // Update badge
-        chrome.action.setBadgeText({ text: bookmarks.length.toString() });
+
+        chrome.action.setBadgeText({ text: state.bookmarks.length.toString() });
     }
 
     // Create bookmark element
-    function createBookmarkElement(bookmark, index) {
+    function createBookmarkElement(bookmark) {
         const el = document.createElement('div');
-        console.log("Value of el after createElement:", el);
         el.className = 'bookmark-item';
+        el.dataset.bookmarkId = bookmark.id;
         el.dataset.folder = bookmark.folder;
         el.dataset.tags = JSON.stringify(bookmark.tags || []);
         
@@ -355,12 +471,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             el.classList.add('hidden');
         }
         
-        const folder = state.folders.find(f => f.name === bookmark.folder);
-        const folderColor = folder?.color || '#0ea5e9';
-        
+        const safeUrl = normalizeHttpUrl(bookmark.url);
+        const safeHref = safeUrl || '#';
+        const safeUrlText = safeUrl || String(bookmark.url || '');
+        const safeFavicon = normalizeHttpUrl(bookmark.favicon) || getFavicon(bookmark.url);
+        const visitCount = Number(bookmark.visitCount) || 0;
+
         el.innerHTML = `
             <div class="bookmark-header">
-                <img class="bookmark-favicon" src="${bookmark.favicon || getFavicon(bookmark.url)}" alt="">
+                <img class="bookmark-favicon" src="${escapeHtml(safeFavicon)}" alt="">
                 <span class="bookmark-title">${escapeHtml(bookmark.title)}</span>
                 <div class="bookmark-actions">
                 <button class="bookmark-action-btn edit" title="${translations[state.currentLang]['edit']}">
@@ -375,20 +494,20 @@ document.addEventListener('DOMContentLoaded', async function () {
             </div>
             </div>
             <div class="bookmark-url">
-                <a href="${bookmark.url}" target="_blank">${bookmark.url}</a>
+                <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(safeUrlText)}</a>
             </div>
             <div class="bookmark-meta">
-                <span class="bookmark-date">${bookmark.date}</span>
-                ${bookmark.visitCount ? `<span><i class="fas fa-eye"></i> ${bookmark.visitCount}</span>` : ''}
+                <span class="bookmark-date">${escapeHtml(bookmark.date)}</span>
+                ${visitCount > 0 ? `<span><i class="fas fa-eye"></i> ${visitCount}</span>` : ''}
                 <select class="bookmark-folder-select">
                     ${state.folders.map(f => `
-                        <option value="${f.name}" ${f.name === bookmark.folder ? 'selected' : ''}>${f.name}</option>
+                        <option value="${escapeHtml(f.name)}" ${f.name === bookmark.folder ? 'selected' : ''}>${escapeHtml(f.name)}</option>
                     `).join('')}
                 </select>
             </div>
             ${(bookmark.tags || []).length > 0 ? `
                 <div class="bookmark-tags">
-                    ${bookmark.tags.map(tag => `<span class="bookmark-tag">${tag}</span>`).join('')}
+                    ${bookmark.tags.map(tag => `<span class="bookmark-tag">${escapeHtml(tag)}</span>`).join('')}
                 </div>
             ` : ''}
         `;
@@ -404,16 +523,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
         
         el.querySelector('.delete').addEventListener('click', async () => {
-            await deleteBookmark(index);
+            await deleteBookmark(bookmark.id);
         });
         
         el.querySelector('.bookmark-folder-select').addEventListener('change', async (e) => {
-            await updateBookmarkFolder(index, e.target.value);
+            await updateBookmarkFolder(bookmark.id, e.target.value);
         });
         
         // Track visit
         el.querySelector('a').addEventListener('click', async () => {
-            await trackVisit(index);
+            await trackVisit(bookmark.id);
         });
         
         return el;
@@ -442,52 +561,96 @@ document.addEventListener('DOMContentLoaded', async function () {
     function filterBookmarks() {
         const searchTerm = elements.searchBox.value.toLowerCase();
         const selectedFolder = elements.folderSelect.value;
-        
-        const items = elements.bookmarksContainer.querySelectorAll('.bookmark-item');
-        
-        items.forEach(item => {
-            if (state.allBookmarksHidden) {
+
+        const filtered = state.bookmarks
+            .map((bookmark) => {
+                const matchesFolder = selectedFolder === 'all' || bookmark.folder === selectedFolder;
+                const matchesTag = !state.currentTag || (bookmark.tags || []).includes(state.currentTag);
+                const score = getSearchScore(bookmark, searchTerm);
+                const matchesSearch = !searchTerm || score > 0;
+
+                return {
+                    bookmark,
+                    score,
+                    matches: matchesFolder && matchesTag && matchesSearch
+                };
+            })
+            .filter((entry) => entry.matches);
+
+        if (searchTerm) {
+            filtered.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return (b.bookmark.timestamp || 0) - (a.bookmark.timestamp || 0);
+            });
+            displayBookmarks(filtered.map((entry) => entry.bookmark), { preSorted: true });
+        } else {
+            displayBookmarks(filtered.map((entry) => entry.bookmark));
+        }
+
+        if (state.allBookmarksHidden) {
+            elements.bookmarksContainer.querySelectorAll('.bookmark-item').forEach((item) => {
                 item.classList.add('hidden');
-                return;
-            }
-            
-            const text = item.textContent.toLowerCase();
-            const folder = item.dataset.folder;
-            const tags = JSON.parse(item.dataset.tags || '[]');
-            
-            const matchesSearch = text.includes(searchTerm);
-            const matchesFolder = selectedFolder === 'all' || folder === selectedFolder;
-            const matchesTag = !state.currentTag || tags.includes(state.currentTag);
-            
-            if (matchesSearch && matchesFolder && matchesTag) {
-                item.classList.remove('hidden');
-            } else {
-                item.classList.add('hidden');
-            }
-        });
+            });
+        }
+    }
+
+    function refreshBookmarkView() {
+        filterBookmarks();
+    }
+
+    function getSearchScore(bookmark, searchTerm) {
+        if (!searchTerm) return 1;
+
+        const title = String(bookmark.title || '').toLowerCase();
+        const url = String(bookmark.url || '').toLowerCase();
+        const tags = (bookmark.tags || []).join(' ').toLowerCase();
+        const folder = String(bookmark.folder || '').toLowerCase();
+
+        let score = 0;
+        if (title.startsWith(searchTerm)) score += 120;
+        if (title.includes(searchTerm)) score += 80;
+        if (url.includes(searchTerm)) score += 40;
+        if (tags.includes(searchTerm)) score += 55;
+        if (folder.includes(searchTerm)) score += 25;
+        if ((bookmark.tags || []).some((tag) => String(tag).toLowerCase() === searchTerm)) score += 70;
+
+        return score;
     }
 
     // Delete bookmark
-    async function deleteBookmark(index) {
+    async function deleteBookmark(bookmarkId) {
+        const index = getBookmarkIndexById(bookmarkId);
+        if (index === -1) return;
+
         state.bookmarks.splice(index, 1);
         await StorageUtils.saveBookmarks(state.bookmarks);
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
         showToast(translations[state.currentLang]['delete'] + '!');
         await updateStats();
     }
 
     // Update bookmark folder
-    async function updateBookmarkFolder(index, newFolder) {
+    async function updateBookmarkFolder(bookmarkId, newFolder) {
+        const index = getBookmarkIndexById(bookmarkId);
+        if (index === -1) return;
+
         state.bookmarks[index].folder = newFolder;
         await StorageUtils.saveBookmarks(state.bookmarks);
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
     }
 
     // Track visit
-    async function trackVisit(index) {
+    async function trackVisit(bookmarkId) {
+        const index = getBookmarkIndexById(bookmarkId);
+        if (index === -1) return;
+
         state.bookmarks[index].visitCount = (state.bookmarks[index].visitCount || 0) + 1;
         state.bookmarks[index].lastVisited = Date.now();
         await StorageUtils.saveBookmarks(state.bookmarks);
+    }
+
+    function getBookmarkIndexById(bookmarkId) {
+        return state.bookmarks.findIndex((bookmark) => bookmark.id === bookmarkId);
     }
 
     // Get favicon URL
@@ -509,10 +672,113 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    function normalizeHttpUrl(url) {
+        try {
+            const parsed = new URL(String(url || '').trim());
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                return null;
+            }
+
+            Array.from(parsed.searchParams.keys()).forEach((paramName) => {
+                const key = paramName.toLowerCase();
+                if (TRACKING_PARAM_EXACT.has(key) || TRACKING_PARAM_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+                    parsed.searchParams.delete(paramName);
+                }
+            });
+
+            parsed.hash = '';
+            parsed.hostname = parsed.hostname.toLowerCase();
+
+            if (parsed.pathname !== '/' && parsed.pathname.endsWith('/')) {
+                parsed.pathname = parsed.pathname.replace(/\/+$/, '');
+            }
+
+            if ((parsed.protocol === 'https:' && parsed.port === '443') || (parsed.protocol === 'http:' && parsed.port === '80')) {
+                parsed.port = '';
+            }
+
+            return parsed.href;
+        } catch {
+            return null;
+        }
+    }
+
+    function isSafeHttpUrl(url) {
+        return normalizeHttpUrl(url) !== null;
+    }
+
+    function canonicalUrl(url) {
+        const normalized = normalizeHttpUrl(url);
+        return normalized ? normalized.toLowerCase() : null;
+    }
+
+    function getDomainTag(url) {
+        try {
+            const hostname = new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+            if (!hostname) return null;
+            const domainRoot = hostname.split('.')[0];
+            return domainRoot && domainRoot.length > 2 ? domainRoot : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function inferTagsFromMeta(url, title) {
+        const suggested = [];
+        const domainTag = getDomainTag(url);
+        if (domainTag) {
+            suggested.push(domainTag);
+        }
+
+        const stopWords = new Set([
+            'the', 'and', 'for', 'with', 'this', 'that', 'from', 'your', 'you', 'are', 'was', 'how',
+            'what', 'when', 'where', 'will', 'can', 'about', 'into', 'out', 'why', 'new', 'best',
+            'guide', 'tips', 'www', 'com', 'org', 'net', 'se', 'en', 'sv', 'tr', 'fr', 'es'
+        ]);
+
+        String(title || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, ' ')
+            .split(/\s+/)
+            .filter((word) => word.length >= 4 && !stopWords.has(word))
+            .slice(0, 8)
+            .forEach((word) => {
+                if (!suggested.includes(word)) {
+                    suggested.push(word);
+                }
+            });
+
+        return suggested.slice(0, 4);
+    }
+
+    function colorFromTagName(name) {
+        let hash = 0;
+        for (let i = 0; i < name.length; i += 1) {
+            hash = (hash << 5) - hash + name.charCodeAt(i);
+            hash |= 0;
+        }
+        const hue = Math.abs(hash) % 360;
+        return `hsl(${hue}, 68%, 48%)`;
+    }
+
+    function mergeTags(...tagLists) {
+        const seen = new Set();
+        const merged = [];
+        tagLists.flat().forEach((tag) => {
+            const value = String(tag || '').trim();
+            if (!value) return;
+            const key = value.toLowerCase();
+            if (seen.has(key)) return;
+            seen.add(key);
+            merged.push(value);
+        });
+        return merged.slice(0, 10);
+    }
+
     // Escape HTML
     function escapeHtml(text) {
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = String(text ?? '');
         return div.innerHTML;
     }
 
@@ -524,9 +790,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.strengthBar.className = 'strength-bar ' + result.strength;
         
         const strengthTexts = {
-            weak: 'Svagt lösenord',
-            medium: 'Medelstarkt lösenord',
-            strong: 'Starkt lösenord'
+            weak: t('password_strength_weak', 'Weak password'),
+            medium: t('password_strength_medium', 'Medium password'),
+            strong: t('password_strength_strong', 'Strong password')
         };
         
         elements.strengthText.textContent = strengthTexts[result.strength];
@@ -541,40 +807,192 @@ document.addEventListener('DOMContentLoaded', async function () {
         modal.classList.remove('active');
     }
 
+    function getCommandPaletteActions() {
+        return [
+            {
+                id: 'save-page',
+                label: t('cmd_save_page', 'Save current page'),
+                icon: 'fa-plus-circle',
+                shortcut: 'Ctrl+D',
+                run: () => elements.addBookmarkBtn.click()
+            },
+            {
+                id: 'focus-search',
+                label: t('cmd_focus_search', 'Focus search'),
+                icon: 'fa-search',
+                shortcut: 'Ctrl+K',
+                run: () => elements.searchBox.focus()
+            },
+            {
+                id: 'new-folder',
+                label: t('cmd_new_folder', 'Create new folder'),
+                icon: 'fa-folder-plus',
+                shortcut: 'Ctrl+N',
+                run: () => elements.newFolderBtn.click()
+            },
+            {
+                id: 'stats',
+                label: t('statistics', 'Statistics'),
+                icon: 'fa-chart-bar',
+                shortcut: '-',
+                run: () => elements.statsBtn.click()
+            },
+            {
+                id: 'backup',
+                label: t('backup_restore', 'Backup & Restore'),
+                icon: 'fa-hdd',
+                shortcut: '-',
+                run: () => elements.backupBtn.click()
+            },
+            {
+                id: 'export',
+                label: t('export', 'Export'),
+                icon: 'fa-file-export',
+                shortcut: '-',
+                run: () => elements.exportBtn.click()
+            },
+            {
+                id: 'import',
+                label: t('import', 'Import'),
+                icon: 'fa-file-import',
+                shortcut: '-',
+                run: () => elements.importBtn.click()
+            },
+            {
+                id: 'theme',
+                label: t('cmd_toggle_theme', 'Toggle theme'),
+                icon: 'fa-circle-half-stroke',
+                shortcut: '-',
+                run: () => elements.themeToggle.click()
+            },
+            {
+                id: 'settings',
+                label: t('settings_title', 'Settings'),
+                icon: 'fa-cog',
+                shortcut: '-',
+                run: () => elements.settingsBtn.click()
+            },
+            {
+                id: 'logout',
+                label: t('logout', 'Logout'),
+                icon: 'fa-right-from-bracket',
+                shortcut: '-',
+                run: () => elements.logoutBtn.click()
+            }
+        ];
+    }
+
+    function renderCommandResults(filterText = '') {
+        const text = String(filterText || '').toLowerCase().trim();
+        const allCommands = getCommandPaletteActions();
+        const filtered = allCommands.filter((command) => {
+            return !text || command.label.toLowerCase().includes(text) || command.id.includes(text);
+        });
+
+        state.activeCommands = filtered;
+        state.commandIndex = Math.max(0, Math.min(state.commandIndex, Math.max(filtered.length - 1, 0)));
+        elements.commandResults.innerHTML = '';
+
+        filtered.forEach((command, index) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = `command-item ${index === state.commandIndex ? 'active' : ''}`;
+
+            const main = document.createElement('span');
+            main.className = 'command-item-main';
+
+            const icon = document.createElement('i');
+            icon.className = `fas ${command.icon}`;
+            const label = document.createElement('span');
+            label.textContent = command.label;
+            main.appendChild(icon);
+            main.appendChild(label);
+
+            const shortcut = document.createElement('span');
+            shortcut.className = 'command-shortcut';
+            shortcut.textContent = command.shortcut;
+
+            item.appendChild(main);
+            item.appendChild(shortcut);
+            item.addEventListener('click', () => executeCommand(command));
+            elements.commandResults.appendChild(item);
+        });
+    }
+
+    function executeCommand(command) {
+        if (!command) return;
+        closeModal(elements.commandPaletteModal);
+        command.run();
+    }
+
+    function openCommandPalette() {
+        state.commandIndex = 0;
+        openModal(elements.commandPaletteModal);
+        renderCommandResults('');
+        setTimeout(() => {
+            elements.commandInput.value = '';
+            elements.commandInput.focus();
+        }, 40);
+    }
+
+    function moveCommandSelection(step) {
+        if (!state.activeCommands.length) return;
+        const lastIndex = state.activeCommands.length - 1;
+        state.commandIndex = Math.max(0, Math.min(lastIndex, state.commandIndex + step));
+        renderCommandResults(elements.commandInput.value);
+    }
+
     // Load backups
     async function loadBackups() {
         const backups = await StorageUtils.getBackups();
         elements.backupsContainer.innerHTML = '';
         
         if (backups.length === 0) {
-            elements.backupsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Inga backuper ännu</p>';
+            const emptyText = document.createElement('p');
+            emptyText.style.textAlign = 'center';
+            emptyText.style.color = 'var(--text-muted)';
+            emptyText.textContent = t('no_backups_yet', 'No backups yet');
+            elements.backupsContainer.appendChild(emptyText);
             return;
         }
         
         backups.reverse().forEach(backup => {
             const item = document.createElement('div');
             item.className = 'backup-item';
-            item.innerHTML = `
-                <span class="backup-date">${new Date(backup.date).toLocaleString()}</span>
-                <div class="backup-actions">
-                    <button class="backup-btn restore" data-id="${backup.id}">Återställ</button>
-                    <button class="backup-btn delete" data-id="${backup.id}">Ta bort</button>
-                </div>
-            `;
+
+            const backupDate = document.createElement('span');
+            backupDate.className = 'backup-date';
+            backupDate.textContent = new Date(backup.date).toLocaleString();
+
+            const backupActions = document.createElement('div');
+            backupActions.className = 'backup-actions';
+
+            const restoreBtn = document.createElement('button');
+            restoreBtn.className = 'backup-btn restore';
+            restoreBtn.textContent = t('restore', 'Restore');
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'backup-btn delete';
+            deleteBtn.textContent = t('delete', 'Delete');
+
+            backupActions.appendChild(restoreBtn);
+            backupActions.appendChild(deleteBtn);
+            item.appendChild(backupDate);
+            item.appendChild(backupActions);
             
-            item.querySelector('.restore').addEventListener('click', async () => {
-                if (confirm('Är du säker på att du vill återställa från denna backup? Nuvarande data kommer att ersättas.')) {
+            restoreBtn.addEventListener('click', async () => {
+                if (confirm(t('restore_backup_confirm', 'Are you sure you want to restore this backup? Current data will be replaced.'))) {
                     showLoader();
                     await StorageUtils.restoreFromBackup(backup.id);
                     state.bookmarks = await StorageUtils.getBookmarks();
-                    displayBookmarks(state.bookmarks);
+                    refreshBookmarkView();
                     hideLoader();
-                    showToast('Backup återställd!');
+                    showToast(t('backup_restored', 'Backup restored!'));
                     closeModal(elements.backupModal);
                 }
             });
             
-            item.querySelector('.delete').addEventListener('click', async () => {
+            deleteBtn.addEventListener('click', async () => {
                 await StorageUtils.deleteBackup(backup.id);
                 loadBackups();
             });
@@ -591,12 +1009,30 @@ document.addEventListener('DOMContentLoaded', async function () {
             const lang = this.dataset.lang;
             applyTranslation(lang);
             StorageUtils.savePreferences({ language: lang });
-            loadFolders();
+            loadFolders().then(() => refreshBookmarkView());
         });
     });
 
     // Theme toggle
     elements.themeToggle.addEventListener('click', toggleTheme);
+
+    elements.commandPaletteBtn.addEventListener('click', openCommandPalette);
+    elements.commandInput.addEventListener('input', (event) => {
+        state.commandIndex = 0;
+        renderCommandResults(event.target.value);
+    });
+    elements.commandInput.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            moveCommandSelection(1);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            moveCommandSelection(-1);
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            executeCommand(state.activeCommands[state.commandIndex]);
+        }
+    });
 
     // Get started
     elements.getStartedBtn.addEventListener('click', () => {
@@ -701,76 +1137,78 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Add bookmark
     elements.addBookmarkBtn.addEventListener('click', async () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-            const currentTab = tabs[0];
-            const selectedFolder = elements.folderSelectAdd.value || state.folders[0]?.name;
-            
-            // Parse tags
-            const tagNames = elements.tagInput.value.split(',').map(t => t.trim()).filter(Boolean);
-            
-            // Create/update tags
-            const bookmarkTags = [];
-            for (const tagName of tagNames) {
-                let tag = state.tags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
-                if (!tag) {
-                    tag = {
-                        id: CryptoUtils.generateUUID(),
-                        name: tagName,
-                        color: `hsl(${Math.random() * 360}, 70%, 50%)`
-                    };
-                    state.tags.push(tag);
-                }
-                bookmarkTags.push(tag.name);
+        const tabMeta = await refreshCurrentTabMeta();
+        if (!tabMeta || !isSafeHttpUrl(tabMeta.url)) {
+            showToast(t('invalid_url', 'Unsupported URL. Only HTTP/HTTPS pages can be saved.'), 'error');
+            return;
+        }
+
+        const normalizedUrl = normalizeHttpUrl(tabMeta.url);
+        const normalizedCanonical = canonicalUrl(normalizedUrl);
+        if (!normalizedUrl || !normalizedCanonical) {
+            showToast(t('invalid_url', 'Unsupported URL. Only HTTP/HTTPS pages can be saved.'), 'error');
+            return;
+        }
+
+        const selectedFolder = elements.folderSelectAdd.value || state.folders[0]?.name;
+        const userTagNames = elements.tagInput.value.split(',').map((tag) => tag.trim()).filter(Boolean);
+        const suggestedTagNames = inferTagsFromMeta(normalizedUrl, tabMeta.title);
+        const tagNames = mergeTags(userTagNames, suggestedTagNames);
+
+        const bookmarkTags = [];
+        for (const tagName of tagNames) {
+            let tag = state.tags.find((entry) => entry.name.toLowerCase() === tagName.toLowerCase());
+            if (!tag) {
+                tag = {
+                    id: CryptoUtils.generateUUID(),
+                    name: tagName,
+                    color: colorFromTagName(tagName)
+                };
+                state.tags.push(tag);
             }
-            await StorageUtils.saveTags(state.tags);
-            
-            // Get favicon
-            let favicon = currentTab.favIconUrl;
-            
-            // Fallback if no favicon found
-            if (!favicon) {
-                try {
-                    const urlObj = new URL(currentTab.url);
-                    let domain = urlObj.hostname;
-                    if (domain && domain.includes('.') && domain !== 'localhost' && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(domain)) {
-                        favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                    }
-                } catch (e) {}
-            }
-            
-            const newBookmark = {
-                id: CryptoUtils.generateUUID(),
-                title: currentTab.title,
-                url: currentTab.url,
-                folder: selectedFolder,
-                tags: bookmarkTags,
-                favicon: favicon,
-                date: new Date().toLocaleDateString(state.currentLang, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                }),
-                timestamp: Date.now(),
-                visitCount: 0,
-                lastVisited: null
-            };
-            
-            const alreadyExists = state.bookmarks.some(b => b.url === newBookmark.url);
-            
-            if (alreadyExists) {
-                showToast(translations[state.currentLang]['already_saved'], 'error');
-                return;
-            }
-            
-            state.bookmarks.push(newBookmark);
-            await StorageUtils.saveBookmarks(state.bookmarks);
-            
-            elements.tagInput.value = '';
-            displayBookmarks(state.bookmarks);
-            showToast(translations[state.currentLang]['save'] + '!');
-            await updateStats();
-            loadTags();
-        });
+            bookmarkTags.push(tag.name);
+        }
+        await StorageUtils.saveTags(state.tags);
+
+        let favicon = tabMeta.favIconUrl;
+        if (!favicon) {
+            favicon = getFavicon(normalizedUrl);
+        }
+
+        const newBookmark = {
+            id: CryptoUtils.generateUUID(),
+            title: tabMeta.title,
+            url: normalizedUrl,
+            folder: selectedFolder,
+            tags: bookmarkTags,
+            favicon,
+            date: new Date().toLocaleDateString(state.currentLang, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }),
+            timestamp: Date.now(),
+            visitCount: 0,
+            lastVisited: null
+        };
+
+        const alreadyExists = state.bookmarks.some((bookmark) => canonicalUrl(bookmark.url) === normalizedCanonical);
+        if (alreadyExists) {
+            showToast(translations[state.currentLang]['already_saved'], 'error');
+            return;
+        }
+
+        state.bookmarks.push(newBookmark);
+        await StorageUtils.saveBookmarks(state.bookmarks);
+
+        elements.tagInput.value = '';
+        state.activeSuggestedTags = inferTagsFromMeta(normalizedUrl, tabMeta.title);
+        updateSmartTagSuggestions();
+
+        refreshBookmarkView();
+        showToast(t('saved_clean_link', 'Saved with smart cleanup and tags!'));
+        await updateStats();
+        loadTags();
     });
 
     // Show/hide all
@@ -794,8 +1232,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.refreshBtn.style.transition = 'transform 0.5s ease';
         
         state.bookmarks = await StorageUtils.getBookmarks();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
         await updateStats();
+        await refreshCurrentTabMeta();
         
         setTimeout(() => {
             elements.refreshBtn.style.transform = 'rotate(0deg)';
@@ -819,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         showLoader();
         await StorageUtils.createBackup();
         hideLoader();
-        showToast('Backup skapad!');
+        showToast(t('backup_created', 'Backup created!'));
         loadBackups();
     });
 
@@ -827,7 +1266,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     elements.autoBackupToggle.addEventListener('change', async () => {
         await StorageUtils.savePreferences({ autoBackup: elements.autoBackupToggle.checked });
         chrome.runtime.sendMessage({ action: 'setupAutoBackup' });
-        showToast(elements.autoBackupToggle.checked ? 'Automatisk backup aktiverad!' : 'Automatisk backup avaktiverad!');
+        showToast(elements.autoBackupToggle.checked
+            ? t('auto_backup_enabled', 'Automatic backup enabled!')
+            : t('auto_backup_disabled', 'Automatic backup disabled!')
+        );
     });
 
     // Settings - open options page
@@ -842,6 +1284,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         searchTimeout = setTimeout(filterBookmarks, 300);
     });
 
+    elements.tagInput.addEventListener('input', () => {
+        updateSmartTagSuggestions();
+    });
+
     // Folder filter
     elements.folderSelect.addEventListener('change', filterBookmarks);
 
@@ -849,19 +1295,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     elements.sortDateBtn.addEventListener('click', () => {
         state.sortBy = 'date';
         updateSortButtons();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
     });
 
     elements.sortNameBtn.addEventListener('click', () => {
         state.sortBy = 'name';
         updateSortButtons();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
     });
 
     elements.sortVisitsBtn.addEventListener('click', () => {
         state.sortBy = 'visits';
         updateSortButtons();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
     });
 
     function updateSortButtons() {
@@ -939,7 +1385,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         await StorageUtils.saveFolders(state.folders);
         
         updateFolderDropdowns();
-        displayBookmarks(state.bookmarks);
+        refreshBookmarkView();
         showToast(translations[state.currentLang]['folder_delete_success']);
     });
 
@@ -984,16 +1430,37 @@ document.addEventListener('DOMContentLoaded', async function () {
         const newUrl = elements.editBookmarkUrl.value.trim();
         
         if (!newTitle || !newUrl) return;
+
+        if (!isSafeHttpUrl(newUrl)) {
+            showToast(t('invalid_url', 'Unsupported URL. Only HTTP/HTTPS links are allowed.'), 'error');
+            return;
+        }
+
+        const normalizedUrl = normalizeHttpUrl(newUrl);
+        const normalizedCanonical = canonicalUrl(newUrl);
+        if (!normalizedUrl || !normalizedCanonical) {
+            showToast(t('invalid_url', 'Unsupported URL. Only HTTP/HTTPS links are allowed.'), 'error');
+            return;
+        }
+
+        const duplicate = state.bookmarks.some((bookmark) => {
+            if (bookmark.id === state.editingBookmarkId) return false;
+            return canonicalUrl(bookmark.url) === normalizedCanonical;
+        });
+        if (duplicate) {
+            showToast(translations[state.currentLang]['already_saved'], 'error');
+            return;
+        }
         
         // Find bookmark
         const bookmarkIndex = state.bookmarks.findIndex(b => b.id === state.editingBookmarkId);
         
         if (bookmarkIndex !== -1) {
             state.bookmarks[bookmarkIndex].title = newTitle;
-            state.bookmarks[bookmarkIndex].url = newUrl;
+            state.bookmarks[bookmarkIndex].url = normalizedUrl;
             
             await StorageUtils.saveBookmarks(state.bookmarks);
-            displayBookmarks(state.bookmarks);
+            refreshBookmarkView();
             closeModal(elements.editBookmarkModal);
             showToast(translations[state.currentLang]['save'] + '!');
         } else {
@@ -1029,7 +1496,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     throw new Error('Invalid format');
                 }
                 
-                const merge = confirm('Vill du slå samman med befintliga bokmärken? Klicka Avbryt för att ersätta alla.');
+                const merge = confirm(t('merge_import_confirm', 'Do you want to merge with existing bookmarks? Click Cancel to replace all.'));
                 
                 showLoader();
                 await StorageUtils.importData(importedData, merge);
@@ -1040,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 
                 updateFolderDropdowns();
                 updateTagList();
-                displayBookmarks(state.bookmarks);
+                refreshBookmarkView();
                 await updateStats();
                 
                 hideLoader();
@@ -1071,6 +1538,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+            e.preventDefault();
+            openCommandPalette();
+            return;
+        }
+
         // Ctrl/Cmd + K - focus search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
@@ -1078,7 +1551,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             elements.searchBox.focus();
         }
         
-        // Escape - clear search
+        // Escape - clear search or close command palette
+        if (e.key === 'Escape' && elements.commandPaletteModal.classList.contains('active')) {
+            closeModal(elements.commandPaletteModal);
+            return;
+        }
+
         if (e.key === 'Escape' && document.activeElement === elements.searchBox) {
             elements.searchBox.value = '';
             filterBookmarks();
@@ -1122,13 +1600,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     applyTranslation(state.currentLang);
     await loadFolders();
     await loadTags();
+    await refreshCurrentTabMeta();
     
     // Listen for messages from other parts of the extension (e.g., options page)
     chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         if (request.action === 'languageChanged') {
             applyTranslation(request.language);
             await loadFolders(); // Reload folders to update translated names
-            await showBookmarks(); // Re-display bookmarks to update folder names in dropdowns
+            refreshBookmarkView();
         } else if (request.action === 'focusSearch') {
             setTimeout(() => elements.searchBox.focus(), 100);
         }

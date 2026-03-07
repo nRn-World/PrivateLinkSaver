@@ -1,16 +1,14 @@
 // Crypto utilities for password hashing and encryption
 const CryptoUtils = {
-    // Hash password using SHA-256 with salt
+    PASSWORD_HASH_ITERATIONS: 210000,
+
+    // Hash password using PBKDF2-SHA256 with salt
     async hashPassword(password, salt = null) {
         if (!salt) {
             salt = this.generateSalt();
         }
-        
-        const encoder = new TextEncoder();
-        const passwordData = encoder.encode(password + salt);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const hashHex = await this.derivePasswordHash(password, salt);
         
         return {
             hash: hashHex,
@@ -21,7 +19,46 @@ const CryptoUtils = {
     // Verify password against hash
     async verifyPassword(password, hash, salt) {
         const result = await this.hashPassword(password, salt);
-        return result.hash === hash;
+        if (result.hash === hash) {
+            return true;
+        }
+
+        // Backward-compatible fallback for legacy SHA-256(password + salt)
+        const legacyHash = await this.hashPasswordLegacy(password, salt);
+        return legacyHash === hash;
+    },
+
+    async derivePasswordHash(password, salt) {
+        const encoder = new TextEncoder();
+        const passwordData = encoder.encode(password);
+
+        const baseKey = await crypto.subtle.importKey(
+            'raw',
+            passwordData,
+            'PBKDF2',
+            false,
+            ['deriveBits']
+        );
+
+        const derivedBits = await crypto.subtle.deriveBits(
+            {
+                name: 'PBKDF2',
+                salt: this.hexToArrayBuffer(salt),
+                iterations: this.PASSWORD_HASH_ITERATIONS,
+                hash: 'SHA-256'
+            },
+            baseKey,
+            256
+        );
+
+        return this.arrayBufferToHex(derivedBits);
+    },
+
+    async hashPasswordLegacy(password, salt) {
+        const encoder = new TextEncoder();
+        const passwordData = encoder.encode(password + salt);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
+        return this.arrayBufferToHex(hashBuffer);
     },
 
     // Generate a random salt
@@ -199,6 +236,12 @@ const CryptoUtils = {
             binary += String.fromCharCode(bytes[i]);
         }
         return btoa(binary);
+    },
+
+    arrayBufferToHex(buffer) {
+        return Array.from(new Uint8Array(buffer))
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('');
     },
 
     base64ToArrayBuffer(base64) {

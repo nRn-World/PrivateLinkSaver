@@ -57,9 +57,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     darkModeToggle.addEventListener('change', async () => {
         await StorageUtils.savePreferences({ darkMode: darkModeToggle.checked });
         document.body.setAttribute('data-theme', darkModeToggle.checked ? 'dark' : 'light');
-        
-        // Notify background script
-        chrome.runtime.sendMessage({ action: 'themeChanged', darkMode: darkModeToggle.checked });
     });
 
     // Language change

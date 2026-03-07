@@ -1,5 +1,11 @@
 // PrivateLinkSaver - Background Service Worker
 
+const TRACKING_PARAM_PREFIXES = ['utm_', 'ga_', 'mc_', 'pk_', 'sc_'];
+const TRACKING_PARAM_EXACT = new Set([
+    'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
+    'igshid', 'ref', 'ref_src', 'source', 'campaign', 'si'
+]);
+
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {
     // Set default badge color
@@ -34,6 +40,8 @@ async function setupAutoBackup() {
         chrome.alarms.create('auto-backup', {
             periodInMinutes: 24 * 60 // Daily
         });
+    } else {
+        chrome.alarms.clear('auto-backup');
     }
 }
 
@@ -53,7 +61,7 @@ async function createAutoBackup() {
             date: new Date().toISOString(),
             auto: true,
             data: {
-                version: '2.0.0',
+                version: '2.1.0',
                 exportDate: new Date().toISOString(),
                 bookmarks: result.bookmarks || [],
                 folders: result.folders || [],
@@ -136,6 +144,18 @@ function escapeXml(str) {
 
 // Save a bookmark
 async function saveBookmark(url, title, tab) {
+    const normalizedUrl = normalizeBookmarkUrl(url);
+    if (!normalizedUrl) {
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-utanbakgrund.png',
+            title: 'PrivateLinkSaver',
+            message: 'Unsupported link type. Only HTTP/HTTPS URLs can be saved.',
+            priority: 1
+        });
+        return;
+    }
+
     // Check if user is logged in
     const result = await chrome.storage.local.get(['isLoggedIn', 'passwordHash']);
     
@@ -155,9 +175,11 @@ async function saveBookmark(url, title, tab) {
     const bookmarks = data.bookmarks || [];
     const currentLang = data.language || 'en';
     const folders = data.folders || [];
+    const safeTitle = String(title || normalizedUrl || 'Untitled').trim();
+    const normalizedCanonical = canonicalUrl(normalizedUrl);
     
     // Check if bookmark already exists
-    const exists = bookmarks.some(bookmark => bookmark.url === url);
+    const exists = bookmarks.some((bookmark) => canonicalUrl(bookmark.url) === normalizedCanonical);
     if (exists) {
         chrome.notifications.create({
             type: 'basic',
@@ -173,13 +195,13 @@ async function saveBookmark(url, title, tab) {
     let favicon = null;
     
     // Use tab favicon if saving the current page
-    if (tab && tab.url === url && tab.favIconUrl) {
+    if (tab && tab.favIconUrl) {
         favicon = tab.favIconUrl;
     }
     
     if (!favicon) {
         try {
-            const urlObj = new URL(url);
+            const urlObj = new URL(normalizedUrl);
             let domain = urlObj.hostname;
             if (domain && domain.includes('.') && domain !== 'localhost' && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(domain)) {
                 favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
@@ -195,10 +217,10 @@ async function saveBookmark(url, title, tab) {
     // Create new bookmark
     const newBookmark = {
         id: generateUUID(),
-        title: title,
-        url: url,
+        title: safeTitle,
+        url: normalizedUrl,
         folder: defaultFolder,
-        tags: [],
+        tags: inferSmartTags(normalizedUrl, safeTitle),
         favicon: favicon,
         date: new Date().toLocaleDateString(currentLang, {
             year: 'numeric',
@@ -215,10 +237,10 @@ async function saveBookmark(url, title, tab) {
     await chrome.storage.local.set({ bookmarks });
     
     // Show success notification
-    const truncatedTitle = title.length > 50 ? title.substring(0, 50) + '...' : title;
+    const truncatedTitle = safeTitle.length > 50 ? safeTitle.substring(0, 50) + '...' : safeTitle;
     chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icons/icon128.png',
+        iconUrl: 'icons/icon-utanbakgrund.png',
         title: 'PrivateLinkSaver Pro',
         message: `Saved: ${truncatedTitle}`,
         priority: 1
@@ -282,4 +304,81 @@ function generateUUID() {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+}
+
+function isSafeHttpUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch (_error) {
+        return false;
+    }
+}
+
+function normalizeBookmarkUrl(url) {
+    try {
+        const parsed = new URL(String(url || '').trim());
+        if (!isSafeHttpUrl(parsed.href)) {
+            return null;
+        }
+
+        Array.from(parsed.searchParams.keys()).forEach((paramName) => {
+            const key = paramName.toLowerCase();
+            if (TRACKING_PARAM_EXACT.has(key) || TRACKING_PARAM_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+                parsed.searchParams.delete(paramName);
+            }
+        });
+
+        parsed.hash = '';
+        parsed.hostname = parsed.hostname.toLowerCase();
+
+        if (parsed.pathname !== '/' && parsed.pathname.endsWith('/')) {
+            parsed.pathname = parsed.pathname.replace(/\/+$/, '');
+        }
+
+        if ((parsed.protocol === 'https:' && parsed.port === '443') || (parsed.protocol === 'http:' && parsed.port === '80')) {
+            parsed.port = '';
+        }
+
+        return parsed.href;
+    } catch (_error) {
+        return null;
+    }
+}
+
+function canonicalUrl(url) {
+    const normalized = normalizeBookmarkUrl(url);
+    return normalized ? normalized.toLowerCase() : null;
+}
+
+function inferSmartTags(url, title) {
+    const tags = [];
+    try {
+        const hostname = new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+        const domainTag = hostname.split('.')[0];
+        if (domainTag && domainTag.length > 2) {
+            tags.push(domainTag);
+        }
+    } catch (_error) {
+        // ignore invalid URL
+    }
+
+    const stopWords = new Set([
+        'the', 'and', 'for', 'with', 'this', 'that', 'from', 'your', 'you',
+        'guide', 'tips', 'what', 'when', 'where', 'about', 'www', 'com'
+    ]);
+
+    String(title || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter((word) => word.length >= 4 && !stopWords.has(word))
+        .slice(0, 5)
+        .forEach((word) => {
+            if (!tags.includes(word)) {
+                tags.push(word);
+            }
+        });
+
+    return tags.slice(0, 4);
 }

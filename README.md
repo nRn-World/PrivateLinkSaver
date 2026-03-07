@@ -9,15 +9,15 @@ A modern and professional Chrome extension to save and organize your links priva
 ## 🌟 Features
 
 ### 🔒 Security
-- **Password Protection**: Secure your bookmarks with SHA-256 hashing
-- **Encryption**: AES-256-GCM encryption for sensitive data
-- **Auto-lock**: Configurable timeout for increased security
+- **Password Protection**: Secure your bookmarks with PBKDF2-SHA256 hashing
+- **Encryption Utilities**: AES-256-GCM helper functions for secure data handling
 
 ### 📁 Organization
 - **Folders**: Create unlimited folders with custom colors
 - **Tags**: Tag your bookmarks for easy filtering
-- **Favorites**: Mark important bookmarks
-- **Search**: Powerful search function with fuzzy matching
+- **Search**: Powerful search function
+- **Smart Save**: Automatic URL cleanup + smart tag suggestions
+- **Command Palette**: Fast actions with `Ctrl+Shift+P`
 
 ### 🎨 Customization
 - **Dark/Light Theme**: Switch between themes or follow system settings
@@ -30,7 +30,7 @@ A modern and professional Chrome extension to save and organize your links priva
 - **Visit Counter**: Track how often you visit your bookmarks
 
 ### 💾 Data Management
-- **Export/Import**: JSON, CSV, HTML formats
+- **Export/Import**: JSON format
 - **Automatic Backup**: Daily backups
 - **Restore**: Restore from previous backups
 
@@ -93,10 +93,11 @@ A modern and professional Chrome extension to save and organize your links priva
 
 ## 🔒 Security
 
-- **Password**: Hashed with SHA-256 and a unique 16-byte salt
+- **Password**: Hashed with PBKDF2-SHA256 and a unique 16-byte salt (legacy SHA-256 hashes are still recognized)
 - **Encryption**: AES-256-GCM for sensitive data
 - **Local Storage**: All data is saved locally in your browser
-- **No Servers**: No data is sent to external servers
+- **No Tracking Servers**: Bookmark/content data is not uploaded to external servers
+- **Favicon Requests**: The extension can request site favicons from Google's favicon endpoint for display
 
 ## 📁 Project Structure
 
@@ -115,10 +116,9 @@ PrivateLinkSaver/
 │   ├── crypto.js         # Encryption
 │   └── translations.js   # Translations
 ├── icons/
-│   ├── icon16.png
-│   ├── icon32.png
-│   ├── icon48.png
-│   └── icon128.png
+│   ├── icon-utanbakgrund.png
+│   ├── icon-utantext-utanbakgrund.png
+│   └── kaffe-icon.png
 ├── _locales/             # Translations
 │   ├── sv/
 │   ├── en/
@@ -187,11 +187,12 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 Created 2026 by **© nRn World**
 
 📧 [bynrnworld@gmail.com](mailto:bynrnworld@gmail.com)
+- Buy Me a Coffee: [buymeacoffee.com/nrnworld](https://buymeacoffee.com/nrnworld)
 
 ## 🙏 Support
 
 If you like this project, consider to:
 
-*   ⭐ Star the project on GitHub
-*   ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)
-*   📢 Share with your friends
+- ⭐ Star the project on GitHub
+- ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)
+- 📢 Share with your friends

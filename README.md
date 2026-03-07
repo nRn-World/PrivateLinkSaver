@@ -157,8 +157,17 @@ Contributions are welcome.
 
 This project is licensed under MIT. See `LICENSE`.
 
-## Author
+👨‍💻 **Author**  
+Created 2026 by © nRn World
 
+📧 bynrnworld@gmail.com
+
+🙏 **Support**  
+If you like this project, consider:
+
+⭐ Starring the project on GitHub  
+☕ Buying me a coffee  
+📢 Sharing with your friends
 Robin Ayzit / nRn World
 
 - Buy Me a Coffee: https://buymeacoffee.com/nrnworld

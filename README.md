@@ -1,66 +1,89 @@
 # PrivateLinkSaver
 
-A clean, privacy-first Chrome extension for saving and organizing links locally.
+PrivateLinkSaver is a privacy-first Chrome extension for saving and organizing links with a fast, modern workflow.
+
+It is built for users who want clean bookmarking without cloud lock-in, subscriptions, or external storage dependencies.
 
 ![Version](https://img.shields.io/badge/version-2.0.1-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
 ![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Why PrivateLinkSaver?
+## Table of Contents
 
-PrivateLinkSaver is built for people who want a fast bookmark workflow without cloud lock-in.
-Your data stays in the browser, protected by password-based access and local storage.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Security and Privacy](#security-and-privacy)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Release Packaging](#release-packaging)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
 
-## Core Features
+## Overview
 
-### Security & Privacy
-- Password protection with **PBKDF2-SHA256** hashing (legacy SHA-256 hashes still supported)
-- Local-first architecture using `chrome.storage.local`
-- No tracking/analytics SDKs
-- Optional AES-GCM crypto utilities for sensitive workflows
+PrivateLinkSaver helps you capture links in one click, organize them with folders and tags, and find them instantly with smart search.
 
-### Smart Bookmarking
-- One-click save from popup, context menu, and keyboard shortcut
-- Smart URL cleanup (removes common tracking parameters)
-- Duplicate protection using canonical URL matching
-- Automatic tag suggestions from domain/title
+Everything runs locally inside the browser extension environment.
 
-### Organization & Search
-- Folder-based organization with custom colors
-- Tag filtering and quick folder switching
-- Search with relevance scoring (title/url/tags/folder)
-- Sort by date, name, and visit count
+## Key Features
+
+### Smart Saving
+- Save current page from popup, context menu, or shortcut
+- Canonical URL normalization and tracking-parameter cleanup
+- Duplicate prevention based on canonical URL matching
+- Smart tag suggestions inferred from page title and domain
+
+### Organization and Search
+- Folder system with custom colors
+- Tag filtering and quick folder actions
+- Relevance-ranked search (title, URL, tags, folder)
+- Sort by date, title, and visit count
 
 ### Productivity
-- **Command Palette** (`Ctrl+Shift+P`) for fast actions
-- Omnibox support (`pls` keyword)
+- Command Palette (`Ctrl+Shift+P`) for quick actions
+- Omnibox support via keyword `pls`
 - Backup and restore tools
-- Import/export in JSON format
+- JSON import/export
 
-### UI / UX
-- Modern, lightweight popup UI
-- Light and dark theme support
-- Multi-language support: English, Swedish, Turkish, Spanish, French
+### User Experience
+- Clean modern popup interface
+- Light/dark theme support
+- Multi-language UI: English, Swedish, Turkish, Spanish, French
+
+## Security and Privacy
+
+- Password protection using PBKDF2-SHA256 hashing
+- Legacy SHA-256 password hashes remain supported for backward compatibility
+- Data is stored locally via `chrome.storage.local`
+- No analytics SDKs or remote user tracking
+- Favicon previews can use Google's favicon endpoint for visual display
+
+For policy details, see `PRIVACY.md`.
 
 ## Installation
 
-### Option A: Load Unpacked (development)
-1. Clone/download this repository
+### Option A: Load Unpacked (recommended for development)
+1. Clone or download this repository
 2. Open `chrome://extensions`
 3. Enable **Developer mode**
 4. Click **Load unpacked**
 5. Select the project folder (the folder containing `manifest.json`)
 
-### Option B: Chrome Web Store package
-1. Create a zip where `manifest.json` is in the root of the zip
-2. Upload that zip in Chrome Web Store Developer Dashboard
+### Option B: Chrome Web Store submission
+1. Create a ZIP with extension files where `manifest.json` is at ZIP root
+2. Upload ZIP in the Chrome Web Store Developer Dashboard
 
 ## Usage
 
-1. Open the extension from the toolbar
-2. Register a password (first run)
-3. Save your current page with one click
-4. Organize with folders/tags and find links quickly with search
+1. Open the extension from the Chrome toolbar
+2. Register a password on first launch
+3. Save your current page
+4. Organize bookmarks with folders/tags
+5. Use search, sort, and command palette for quick navigation
 
 ## Keyboard Shortcuts
 
@@ -69,13 +92,13 @@ Your data stays in the browser, protected by password-based access and local sto
 | `Ctrl+Shift+S` | Save current page |
 | `Ctrl+Shift+B` | Open PrivateLinkSaver |
 | `Ctrl+Shift+F` | Quick search |
-| `Ctrl+Shift+P` | Command palette |
+| `Ctrl+Shift+P` | Open command palette |
 | `Ctrl+K` | Focus search |
-| `Ctrl+N` | New folder |
+| `Ctrl+N` | Create new folder |
 | `Ctrl+D` | Save current page |
-| `Esc` | Clear search / close modal |
+| `Esc` | Clear search or close modal |
 
-## Project Structure
+## Architecture
 
 ```text
 PrivateLinkSave/
@@ -98,43 +121,45 @@ PrivateLinkSave/
 `- README.md
 ```
 
-## Security Notes
-
-- Password hashes are stored locally (never sent to your server)
-- Bookmark favicon previews can use Google's favicon endpoint for display
-- The extension does not run external analytics trackers
-
 ## Development
 
-Tech stack:
+### Stack
 - Manifest V3
 - Vanilla JavaScript
 - Web Crypto API
 - Chrome Storage API
 
-Recommended local flow:
-1. Edit files
+### Local workflow
+1. Update code
 2. Reload extension in `chrome://extensions`
-3. Test popup/actions
+3. Validate key flows (save/edit/delete/search/backup)
 4. Commit and push
+
+## Release Packaging
+
+When preparing a store upload ZIP:
+
+- Include only extension files and assets
+- Keep `manifest.json` at ZIP root
+- Exclude `.git`, editor folders, and local artifacts
 
 ## Contributing
 
-Pull requests are welcome.
+Contributions are welcome.
 
 1. Fork the repository
-2. Create a branch: `git checkout -b feature/my-improvement`
-3. Commit changes
+2. Create a branch: `git checkout -b feature/your-change`
+3. Commit updates
 4. Push branch
-5. Open pull request
+5. Open a pull request
 
 ## License
 
-MIT License. See `LICENSE` for details.
+This project is licensed under MIT. See `LICENSE`.
 
 ## Author
 
-Created by Robin Ayzit / nRn World
+Robin Ayzit / nRn World
 
 - Buy Me a Coffee: https://buymeacoffee.com/nrnworld
 - Email: bynrnworld@gmail.com

@@ -15,6 +15,7 @@ It is built for users who want clean bookmarking without cloud lock-in, subscrip
 - [Security and Privacy](#security-and-privacy)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Screenshots](#screenshots)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Architecture](#architecture)
 - [Development](#development)
@@ -84,6 +85,22 @@ For policy details, see `PRIVACY.md`.
 3. Save your current page
 4. Organize bookmarks with folders/tags
 5. Use search, sort, and command palette for quick navigation
+
+## Screenshots
+
+Click any image to view it in full size.
+
+| First Launch | Create Password |
+|---|---|
+| <a href="Screenshot/Start1.png"><img src="Screenshot/Start1.png" alt="First Launch" width="360" /></a> | <a href="Screenshot/Create%20Password.png"><img src="Screenshot/Create%20Password.png" alt="Create Password" width="360" /></a> |
+
+| Login | Popup Menu |
+|---|---|
+| <a href="Screenshot/Login.png"><img src="Screenshot/Login.png" alt="Login" width="360" /></a> | <a href="Screenshot/Menu.png"><img src="Screenshot/Menu.png" alt="Popup Menu" width="360" /></a> |
+
+| Settings |
+|---|
+| <a href="Screenshot/Settings.png"><img src="Screenshot/Settings.png" alt="Settings" width="360" /></a> |
 
 ## Keyboard Shortcuts
 

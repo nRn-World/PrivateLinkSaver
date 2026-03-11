@@ -176,6 +176,7 @@ This project is licensed under MIT. See `LICENSE`.
 
 👨‍💻 **Author**  
 Created 2026 by © nRn World
+
 📧 bynrnworld@gmail.com
 
 ## 🙏 Support

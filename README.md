@@ -174,6 +174,10 @@ Contributions are welcome.
 
 This project is licensed under MIT. See `LICENSE`.
 
+👨‍💻 **Author**  
+Created 2026 by © nRn World
+📧 bynrnworld@gmail.com
+
 ## 🙏 Support
 
 If you like this project, consider:
@@ -181,3 +185,5 @@ If you like this project, consider:
 * ⭐ Star the project on GitHub  
 * ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)  
 * 📢 Share with your friends  
+* ☕ Buying me a coffee  
+* 📢 Sharing with your friends

@@ -2,9 +2,9 @@
 
 PrivateLinkSaver is a privacy-first Chrome extension for saving and organizing links with a fast, modern workflow.
 
-It is built for users who want clean bookmarking without cloud lock-in, subscriptions, or external storage dependencies.
+It is built for users who want clean bookmarking with optional zero-knowledge cloud sync for backup and multi-device access.
 
-![Version](https://img.shields.io/badge/version-2.0.1-blue)
+![Version](https://img.shields.io/badge/version-2.2.0-blue)
 ![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -48,20 +48,25 @@ Everything runs locally inside the browser extension environment.
 - Command Palette (`Ctrl+Shift+P`) for quick actions
 - Omnibox support via keyword `pls`
 - Backup and restore tools
-- JSON import/export
+- JSON import/export with password encryption
+- **Cloud Sync** - Zero-knowledge encrypted backup and sync across devices via Firebase
 
 ### User Experience
-- Clean modern popup interface
+- Clean modern popup interface with SVG icons
 - Light/dark theme support
 - Multi-language UI: English, Swedish, Turkish, Spanish, French
+- Event delegation for smooth performance with large bookmark collections
 
 ## Security and Privacy
 
-- Password protection using PBKDF2-SHA256 hashing
+- Password protection using PBKDF2-SHA256 hashing (210,000 iterations)
 - Legacy SHA-256 password hashes remain supported for backward compatibility
 - Data is stored locally via `chrome.storage.local`
+- **Cloud Sync** uses AES-256-GCM encryption - data is encrypted locally before being sent to Firebase
+- Cloud encryption keys are derived from your password using PBKDF2 - your password is never stored or transmitted
 - No analytics SDKs or remote user tracking
 - Favicon previews can use Google's favicon endpoint for visual display
+- Cryptographically secure random generation using `crypto.getRandomValues()`
 
 For policy details, see `PRIVACY.md`.
 
@@ -85,6 +90,7 @@ For policy details, see `PRIVACY.md`.
 3. Save your current page
 4. Organize bookmarks with folders/tags
 5. Use search, sort, and command palette for quick navigation
+6. **(Optional)** Set up Cloud Sync in Settings for backup and multi-device sync
 
 ## Screenshots
 
@@ -118,7 +124,7 @@ Click any image to view it in full size.
 ## Architecture
 
 ```text
-PrivateLinkSave/
+PrivateLinkSaver/
 |- manifest.json
 |- popup.html
 |- options.html
@@ -128,6 +134,10 @@ PrivateLinkSave/
 |  |- options.js
 |  |- storage.js
 |  |- crypto.js
+|  |- auth.js
+|  |- firebase-app-compat.js
+|  |- firebase-auth-compat.js
+|  |- firebase-firestore-compat.js
 |  `- translations.js
 |- styles/
 |  `- popup.css
@@ -143,8 +153,9 @@ PrivateLinkSave/
 ### Stack
 - Manifest V3
 - Vanilla JavaScript
-- Web Crypto API
+- Web Crypto API (AES-256-GCM, PBKDF2-SHA256)
 - Chrome Storage API
+- Firebase Authentication & Firestore (for optional cloud sync)
 
 ### Local workflow
 1. Update code

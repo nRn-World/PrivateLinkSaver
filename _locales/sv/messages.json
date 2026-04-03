@@ -1,0 +1,48 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Spara och organisera dina länkar privat och säkert med lösenordsskydd",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Spara aktuell sida till bokmärken",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "Öppna PrivateLinkSaver popup",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Snabbsökning i bokmärken",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Spara länk till PrivateLinkSaver",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Spara sida till PrivateLinkSaver",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Sparad: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "Denna sida är redan sparad!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Vänligen logga in för att spara bokmärken",
+    "description": "Notification login required"
+  }
+}

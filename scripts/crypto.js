@@ -201,23 +201,58 @@ const CryptoUtils = {
         }
     },
 
-    // Simple encryption for export (Base64 encoding)
+    // Robust encryption for export using password
     async encryptExport(data, password) {
         try {
-            const jsonString = JSON.stringify(data);
-            const encoded = btoa(unescape(encodeURIComponent(jsonString)));
-            return encoded;
+            const salt = this.generateSalt();
+            const key = await this.deriveKeyFromPassword(password, salt);
+            const encrypted = await this.encryptData(data, key);
+            
+            if (!encrypted) return null;
+            
+            // Format as a single JSON object for easy sharing
+            return JSON.stringify({
+                version: '3.0.0',
+                encrypted: encrypted.encrypted,
+                iv: encrypted.iv,
+                salt: salt,
+                type: 'encrypted_backup'
+            });
         } catch (error) {
             console.error('Export encryption error:', error);
             return null;
         }
     },
 
-    // Simple decryption for import
-    async decryptImport(encryptedData, password) {
+    // Decryption for import
+    async decryptImport(backupData, password) {
         try {
-            const decoded = decodeURIComponent(escape(atob(encryptedData)));
-            return JSON.parse(decoded);
+            // Check if it's already a JSON object
+            let backup;
+            if (typeof backupData === 'string') {
+                try {
+                    backup = JSON.parse(backupData);
+                } catch {
+                    // Fallback to legacy plain-text Base64 (from old versions)
+                    const decoded = decodeURIComponent(escape(atob(backupData)));
+                    return JSON.parse(decoded);
+                }
+            } else {
+                backup = backupData;
+            }
+
+            // If it's the new encrypted format
+            if (backup.type === 'encrypted_backup' && backup.encrypted && backup.iv && backup.salt) {
+                const key = await this.deriveKeyFromPassword(password, backup.salt);
+                return await this.decryptData(backup.encrypted, backup.iv, key);
+            }
+
+            // Fallback for older JSON format (plain text)
+            if (backup.bookmarks || backup.folders || backup.tags) {
+                return backup;
+            }
+
+            return null;
         } catch (error) {
             console.error('Import decryption error:', error);
             return null;

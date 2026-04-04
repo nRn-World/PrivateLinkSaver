@@ -1,7 +1,10 @@
 // Translation dictionary for multiple languages
+// Added encryption support labels
 const translations = {
   'sv': {
     'app_title': 'PrivateLinkSaver',
+    'enter_password_to_export': 'Ange ditt lösenord för att kryptera exporten:',
+    'enter_password_to_import': 'Ange ditt lösenord för att dekryptera importen:',
     'welcome_title': 'Välkommen till PrivateLinkSaver',
     'welcome_subtitle': 'Spara och organisera dina länkar på ett säkert sätt',
     'feature_secure': 'Säker lösenordsskydd',
@@ -150,6 +153,8 @@ const translations = {
   },
   'en': {
     'app_title': 'PrivateLinkSaver',
+    'enter_password_to_export': 'Please enter your password to encrypt the export:',
+    'enter_password_to_import': 'Please enter the password used for this backup:',
     'welcome_title': 'Welcome to PrivateLinkSaver',
     'welcome_subtitle': 'Save and organize your links securely',
     'feature_secure': 'Secure password protection',

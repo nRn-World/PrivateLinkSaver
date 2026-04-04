@@ -1,4 +1,6 @@
 // Auth utilities for cloud sync with Firebase
+// Security note: Firebase API keys are public by design in client-side apps.
+// Protect data using Firebase Security Rules.
 const CloudAuth = {
     firebaseConfig: {
         apiKey: "AIzaSyCeu9QJB5jrrBlQMdJXaPULT-kVKtq9Kh0",

@@ -512,6 +512,7 @@
                         </button>
                     </div>
                     <button id="options-cloud-forgot-btn" class="text-link" data-translate="cloud_forgot">Forgot password?</button>
+                    <div id="options-login-status" style="text-align: center; padding: 8px; font-size: 12px; min-height: 20px;"></div>
                 </div>
                 <div class="cloud-info" style="display: flex; align-items: flex-start; gap: 8px; padding: 12px; background: rgba(14, 165, 233, 0.1); border-radius: 8px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
                     <i class="fas fa-info-circle" style="color: var(--primary-color); margin-top: 2px;"></i>
@@ -529,11 +530,20 @@
                         <p id="options-cloud-email-display"></p>
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px; padding: 16px 0;">
-                    <button id="options-cloud-sync-btn" class="btn btn-primary" style="flex: 1;">
+                <div style="display: flex; gap: 8px; padding: 16px 0; flex-wrap: wrap;">
+                    <button id="options-cloud-sync-btn" class="btn btn-primary" style="flex: 1; min-width: 120px;">
                         <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg> <span data-translate="sync_now">Sync Now</span>
                     </button>
-                    <button id="options-cloud-logout-btn" class="btn btn-outline" style="flex: 1;">
+                    <button id="options-cloud-backup-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
+                        <i class="fas fa-upload"></i> <span data-translate="save_cloud_backup">Save Backup to Cloud</span>
+                    </button>
+                    <button id="options-cloud-download-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
+                        <i class="fas fa-download"></i> <span data-translate="download_cloud_backup">Download Backup from Cloud</span>
+                    </button>
+                    <button id="options-cloud-verify-btn" class="btn btn-outline" style="flex: 1; min-width: 120px; display: none; border-color: var(--warning-color); color: var(--warning-color);">
+                        <i class="fas fa-envelope"></i> <span data-translate="verify_email">Verify Email</span>
+                    </button>
+                    <button id="options-cloud-logout-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
                         <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>
                     </button>
                 </div>
@@ -623,12 +633,23 @@
     <div class="footer">
         <p>PrivateLinkSaver</p>
         <p>Created 2026 by Robin Ayzit</p>
+        <div style="margin-top: 8px; text-align: center;">
+            <span id="footer-email-display" style="color: var(--primary-color); font-weight: 500; cursor: pointer; user-select: none;">
+                bynrnworld@gmail.com
+                <svg id="footer-copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6; vertical-align: middle; margin-left: 4px;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </span>
+            <span id="footer-copied-msg" style="display: none; color: #10b981; font-size: 12px; margin-left: 8px;">Copied!</span>
+        </div>
     </div>
 
     <script src="scripts/firebase-app-compat.js"></script>
     <script src="scripts/firebase-auth-compat.js"></script>
     <script src="scripts/firebase-firestore-compat.js"></script>
     <script src="scripts/translations.js"></script>
+    <script src="scripts/crypto.js"></script>
     <script src="scripts/storage.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/options.js"></script>

@@ -96,6 +96,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         commandIndex: 0,
         activeCommands: [],
         cloudEncryptionKey: null,
+        cloudPassword: null,
+        cloudSalt: null,
         cloudLoggedIn: false
     };
 
@@ -438,6 +440,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         await updateStats();
         await refreshCurrentTabMeta();
+    await updateCloudUI();
     }
 
     // Display bookmarks
@@ -1455,11 +1458,28 @@ document.addEventListener('DOMContentLoaded', async function () {
             showLoader();
             try {
                 await CloudAuth.login(email, password);
-                state.cloudEncryptionKey = await getCloudEncryptionKey(password);
+
+                const verified = await CloudAuth.isEmailVerified();
+                if (!verified) {
+                    await firebase.auth().signOut();
+                    hideLoader();
+                    showToast('Please verify your email address before logging in.', 'error');
+                    return;
+                }
+
+                let salt = generateSalt();
+                const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
+                if (cloudKeyData.cloudEncryptionSalt && cloudKeyData.cloudEncryptionSalt !== 'derived') {
+                    salt = cloudKeyData.cloudEncryptionSalt;
+                }
+                state.cloudEncryptionKey = await getCloudEncryptionKey(password, salt);
+                state.cloudPassword = password;
+                state.cloudSalt = salt;
                 state.cloudLoggedIn = true;
+                await StorageUtils.set({ cloudEncryptionSalt: salt });
                 hideLoader();
                 showToast('Logged in successfully!');
-                updateCloudUI();
+                await updateCloudUI();
                 await showBookmarks();
             } catch (error) {
                 hideLoader();
@@ -1487,16 +1507,85 @@ document.addEventListener('DOMContentLoaded', async function () {
             showLoader();
             try {
                 await CloudAuth.register(email, password);
-                state.cloudEncryptionKey = await getCloudEncryptionKey(password);
+                const salt = generateSalt();
+                state.cloudEncryptionKey = await getCloudEncryptionKey(password, salt);
+                state.cloudPassword = password;
+                state.cloudSalt = salt;
                 state.cloudLoggedIn = true;
+                await StorageUtils.set({ cloudEncryptionSalt: salt });
                 hideLoader();
-                showToast('Account created successfully!');
-                updateCloudUI();
-                await showBookmarks();
+                showToast('Account created! Please check your email for the verification link.');
+
+                // Show verification dialog
+                await showEmailVerificationDialogPopup(email, password, salt);
             } catch (error) {
                 hideLoader();
                 showToast(error.message, 'error');
             }
+        });
+    }
+
+    // Email verification dialog for popup
+    async function showEmailVerificationDialogPopup(email, password, salt) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+
+        const dialog = document.createElement('div');
+        dialog.style.cssText = 'background:#fff;border-radius:16px;padding:32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center;color:#1e293b;font-family:Inter,sans-serif;';
+        dialog.innerHTML = `
+            <div style="font-size:48px;margin-bottom:16px;">📧</div>
+            <h3 style="margin:0 0 8px;font-size:20px;">Verify Your Email</h3>
+            <p style="margin:0 0 8px;font-size:14px;color:#64748b;line-height:1.5;">A verification email has been sent to<br><strong>${email}</strong></p>
+            <p style="margin:0 0 24px;font-size:13px;color:#64748b;">Click the link in the email, then confirm below.</p>
+            <div id="popup-verify-status" style="margin-bottom:16px;font-size:13px;min-height:20px;"></div>
+            <div style="display:flex;gap:12px;">
+                <button id="popup-verify-cancel-btn" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:transparent;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>
+                <button id="popup-verify-confirm-btn" style="flex:1;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">I've Verified</button>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        const statusEl = dialog.querySelector('#popup-verify-status');
+        const cancelBtn = dialog.querySelector('#popup-verify-cancel-btn');
+        const confirmBtn = dialog.querySelector('#popup-verify-confirm-btn');
+
+        return new Promise((resolve) => {
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                resolve(false);
+            });
+
+            confirmBtn.addEventListener('click', async () => {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Checking...';
+                statusEl.textContent = '';
+                statusEl.style.color = '';
+
+                try {
+                    const verified = await CloudAuth.isEmailVerified();
+                    if (verified) {
+                        statusEl.textContent = 'Email verified! You can now use cloud sync.';
+                        statusEl.style.color = '#10b981';
+                        setTimeout(async () => {
+                            document.body.removeChild(overlay);
+                            await updateCloudUI();
+                            resolve(true);
+                        }, 1000);
+                    } else {
+                        statusEl.textContent = 'Email not verified yet. Please check your inbox and click the verification link.';
+                        statusEl.style.color = '#ef4444';
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = "I've Verified";
+                    }
+                } catch (error) {
+                    statusEl.textContent = 'Check failed: ' + error.message;
+                    statusEl.style.color = '#ef4444';
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "I've Verified";
+                }
+            });
         });
     }
 
@@ -1527,50 +1616,50 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Helper to derive encryption key from password
-    async function getCloudEncryptionKey(password) {
+    async function getCloudEncryptionKey(password, salt) {
         const encoder = new TextEncoder();
-        const passwordData = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
-        const keyMaterial = await crypto.subtle.importKey(
-            'raw',
-            encoder.encode(hashHex),
-            { name: 'PBKDF2', length: 256 },
-            false,
-            ['deriveKey']
-        );
         
         return await crypto.subtle.deriveKey(
             {
                 name: 'PBKDF2',
-                salt: encoder.encode('cloud-sync-salt'),
+                salt: encoder.encode(salt),
                 iterations: 100000,
                 hash: 'SHA-256'
             },
-            keyMaterial,
+            await crypto.subtle.importKey(
+                'raw',
+                encoder.encode(password),
+                { name: 'PBKDF2', length: 256 },
+                false,
+                ['deriveKey']
+            ),
             { name: 'AES-GCM', length: 256 },
             true,
             ['encrypt', 'decrypt']
         );
     }
 
-    function updateCloudUI() {
-        const user = CloudAuth.getCurrentUser();
+    function generateSalt() {
+        const array = crypto.getRandomValues(new Uint8Array(16));
+        return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function updateCloudUI() {
+        const user = await CloudAuth.getCurrentUser();
         if (user && elements.cloudSyncStatus) {
+            const emailVerified = user.emailVerified;
             elements.cloudSyncStatus.style.display = 'block';
             elements.cloudSyncStatus.innerHTML = `
                 <div class="cloud-status">
                     <div class="cloud-status-info">
                         <svg class="icon" viewBox="0 0 24 24"><use href="#icon-cloud"></use></svg>
                         <div>
-                            <div style="font-weight: 600;">${user.email}</div>
-                            <div class="cloud-email-display">Cloud sync enabled</div>
+                            <div style="font-weight: 600;">${user.email}${!emailVerified ? ' <span style="color:#f59e0b;font-size:11px;">(not verified)</span>' : ''}</div>
+                            <div class="cloud-email-display">${emailVerified ? 'Cloud sync enabled' : 'Please verify your email first'}</div>
                         </div>
                     </div>
                     <div class="cloud-status-actions">
-                        <button id="cloud-sync-btn" class="btn btn-sm btn-outline">
+                        <button id="cloud-sync-btn" class="btn btn-sm btn-outline" ${!emailVerified ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
                             <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg>
                         </button>
                         <button id="cloud-logout-btn" class="btn btn-sm btn-danger">
@@ -1582,11 +1671,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             document.getElementById('cloud-sync-btn')?.addEventListener('click', async () => {
                 if (!state.cloudEncryptionKey) return;
+                const verified = await CloudAuth.isEmailVerified();
+                if (!verified) {
+                    showToast('Please verify your email before syncing.', 'error');
+                    return;
+                }
                 showToast('Syncing...', 'info');
                 try {
                     const localData = await StorageUtils.exportAllData();
-                    await CloudStorage.syncToCloud(localData, state.cloudEncryptionKey);
-                    const result = await CloudStorage.syncFromCloud(state.cloudEncryptionKey);
+                    await CloudStorage.syncToCloud(localData, state.cloudEncryptionKey, state.cloudSalt);
+                    const result = await CloudStorage.syncFromCloud(state.cloudEncryptionKey, state.cloudPassword);
                     if (result.hasCloudData && !result.decryptError && result.data) {
                         await StorageUtils.importData(result.data, true);
                         state.bookmarks = await StorageUtils.getBookmarks();
@@ -1809,6 +1903,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     await loadFolders();
     await loadTags();
     await refreshCurrentTabMeta();
+    await updateCloudUI();
     
     // Listen for messages from other parts of the extension (e.g., options page)
     chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {

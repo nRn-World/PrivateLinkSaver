@@ -164,6 +164,43 @@ const CryptoUtils = {
         }
     },
 
+    // Try to decrypt with legacy key derivation (for backward compatibility)
+    async decryptDataLegacy(encryptedData, iv, password) {
+        try {
+            const encoder = new TextEncoder();
+            const passwordData = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                encoder.encode(hashHex),
+                { name: 'PBKDF2', length: 256 },
+                false,
+                ['deriveKey']
+            );
+            
+            const legacyKey = await crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: encoder.encode('cloud-sync-salt'),
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                true,
+                ['encrypt', 'decrypt']
+            );
+            
+            return await this.decryptData(encryptedData, iv, legacyKey);
+        } catch (error) {
+            console.error('Legacy decryption error:', error);
+            return null;
+        }
+    },
+
     // Simple encryption for export (Base64 encoding)
     async encryptExport(data, password) {
         try {

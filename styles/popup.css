@@ -1167,6 +1167,20 @@ input[type="email"]:focus {
 
 .add-bookmark-row .folder-select {
   flex: 1;
+  padding: 8px var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.add-bookmark-row .folder-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 
 .tag-input-wrapper {

@@ -31,33 +31,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cloudPassword = null;
     let cloudSalt = null;
 
-    // Helper to derive encryption key from password
+    // Helper to derive encryption key from password - uses CryptoUtils for consistency
     async function getCloudEncryptionKey(password, salt) {
-        const encoder = new TextEncoder();
-        
-        return await crypto.subtle.deriveKey(
-            {
-                name: 'PBKDF2',
-                salt: encoder.encode(salt),
-                iterations: 100000,
-                hash: 'SHA-256'
-            },
-            await crypto.subtle.importKey(
-                'raw',
-                encoder.encode(password),
-                { name: 'PBKDF2', length: 256 },
-                false,
-                ['deriveKey']
-            ),
-            { name: 'AES-GCM', length: 256 },
-            true,
-            ['encrypt', 'decrypt']
-        );
+        return await CryptoUtils.deriveKeyFromPassword(password, salt);
     }
 
     function generateSalt() {
-        const array = crypto.getRandomValues(new Uint8Array(16));
-        return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+        return CryptoUtils.generateSalt();
     }
 
     // Apply translation
@@ -286,7 +266,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div style="font-size:48px;margin-bottom:16px;">📧</div>
             <h3 style="margin:0 0 8px;font-size:20px;">Verify Your Email</h3>
             <p style="margin:0 0 8px;font-size:14px;color:var(--text-secondary,#64748b);line-height:1.5;">A verification email has been sent to<br><strong>${email}</strong></p>
-            <p style="margin:0 0 24px;font-size:13px;color:var(--text-secondary,#64748b);">Click the link in the email, then confirm below.</p>
+            <p style="margin:0 0 8px;font-size:13px;color:var(--text-secondary,#64748b);">Click the link in the email, then confirm below.</p>
+            <p style="margin:0 0 24px;font-size:12px;color:var(--warning-color,#f59e0b);background:rgba(245,158,11,0.1);border-radius:6px;padding:8px 10px;line-height:1.5;">⚠️ ${(translations[languageSelect.value] || translations['en'])['check_spam'] || 'Check your spam folder, the email often ends up there.'}</p>
             <div id="verify-status" style="margin-bottom:16px;font-size:13px;min-height:20px;"></div>
             <div style="display:flex;gap:12px;">
                 <button id="verify-cancel-btn" style="flex:1;padding:12px;border:1px solid var(--border-color,#e2e8f0);border-radius:8px;background:transparent;color:var(--text-secondary,#64748b);font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>

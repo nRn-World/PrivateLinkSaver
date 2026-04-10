@@ -632,12 +632,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const folder = String(bookmark.folder || '').toLowerCase();
 
         let score = 0;
-        if (title.startsWith(searchTerm)) score += 120;
-        if (title.includes(searchTerm)) score += 80;
-        if (url.includes(searchTerm)) score += 40;
-        if (tags.includes(searchTerm)) score += 55;
-        if (folder.includes(searchTerm)) score += 25;
-        if ((bookmark.tags || []).some((tag) => String(tag).toLowerCase() === searchTerm)) score += 70;
+        if (title.startsWith(searchTerm)) score += 150;
+        if (title.includes(searchTerm)) score += 100;
+        if (url.includes(searchTerm)) score += 60;
+        if (tags.includes(searchTerm)) score += 75;
+        if (folder.includes(searchTerm)) score += 30;
+        if ((bookmark.tags || []).some((tag) => String(tag).toLowerCase() === searchTerm)) score += 90;
 
         return score;
     }
@@ -1932,4 +1932,260 @@ document.addEventListener('DOMContentLoaded', async function () {
         await StorageUtils.savePreferences({ firstTime: true });
         showWelcomeScreen();
     }
+
+    // ===== Chrome Bookmarks Import =====
+
+    async function checkAndRequestBookmarksPermission() {
+        return new Promise((resolve) => {
+            chrome.permissions.contains({ permissions: ['bookmarks'] }, (granted) => {
+                if (granted) { resolve(true); return; }
+                chrome.permissions.request({ permissions: ['bookmarks'] }, (approved) => {
+                    if (!approved) {
+                        showToast(t('bookmarks_permission_required', 'Permission required to access Chrome bookmarks'), 'error');
+                    }
+                    resolve(approved);
+                });
+            });
+        });
+    }
+
+    async function openChromeBookmarksModal() {
+        const granted = await checkAndRequestBookmarksPermission();
+        if (!granted) return;
+
+        const treeContainer = document.getElementById('chrome-bookmarks-tree');
+        treeContainer.innerHTML = '';
+
+        try {
+            chrome.bookmarks.getTree((tree) => {
+                renderBookmarkTree(tree, treeContainer);
+                document.getElementById('chrome-bookmarks-modal').classList.add('active');
+            });
+        } catch (err) {
+            showToast(t('save_error', 'Could not load Chrome bookmarks'), 'error');
+        }
+    }
+
+    function closeChromeBookmarksModal() {
+        document.getElementById('chrome-bookmarks-modal').classList.remove('active');
+        document.getElementById('chrome-bookmarks-tree').innerHTML = '';
+    }
+
+    document.getElementById('chrome-import-btn').addEventListener('click', openChromeBookmarksModal);
+    document.getElementById('chrome-bookmarks-close-btn').addEventListener('click', closeChromeBookmarksModal);
+
+    function folderHasValidLinks(node) {
+        if (node.url) return StorageUtils.isSafeHttpUrl(node.url);
+        return (node.children || []).some(folderHasValidLinks);
+    }
+
+    function collectValidLinks(node) {
+        if (node.url) {
+            return StorageUtils.isSafeHttpUrl(node.url) ? [node] : [];
+        }
+        return (node.children || []).flatMap(collectValidLinks);
+    }
+
+    function renderBookmarkTree(nodes, container) {
+        nodes.forEach((node) => {
+            const el = renderBookmarkNode(node);
+            if (el) container.appendChild(el);
+        });
+    }
+
+    function renderBookmarkNode(node) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chrome-tree-node';
+
+        if (!node.url) {
+            // Folder node
+            const row = document.createElement('div');
+            row.className = 'chrome-tree-folder';
+
+            const toggle = document.createElement('button');
+            toggle.className = 'chrome-tree-toggle';
+            toggle.textContent = '▶';
+
+            const icon = document.createElement('i');
+            icon.className = 'chrome-tree-icon fas fa-folder';
+
+            const title = document.createElement('span');
+            title.className = 'chrome-tree-title';
+            title.textContent = node.title || 'Folder';
+
+            const actions = document.createElement('div');
+            actions.className = 'chrome-node-actions';
+
+            if (folderHasValidLinks(node)) {
+                const importBtn = document.createElement('button');
+                importBtn.className = 'chrome-import-btn-sm';
+                importBtn.textContent = t('import_folder', 'Import Folder');
+                importBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    importFolder(node);
+                });
+                actions.appendChild(importBtn);
+            }
+
+            row.appendChild(toggle);
+            row.appendChild(icon);
+            row.appendChild(title);
+            row.appendChild(actions);
+
+            const children = document.createElement('div');
+            children.className = 'chrome-tree-children';
+            renderBookmarkTree(node.children || [], children);
+
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = children.classList.toggle('open');
+                toggle.classList.toggle('open', isOpen);
+                icon.className = `chrome-tree-icon fas fa-folder${isOpen ? '-open' : ''}`;
+            });
+
+            wrapper.appendChild(row);
+            wrapper.appendChild(children);
+        } else {
+            // Link node
+            if (!StorageUtils.isSafeHttpUrl(node.url)) return null;
+
+            const row = document.createElement('div');
+            row.className = 'chrome-tree-link';
+
+            const spacer = document.createElement('span');
+            spacer.style.width = '16px';
+            spacer.style.flexShrink = '0';
+
+            const favicon = document.createElement('img');
+            favicon.className = 'chrome-tree-favicon';
+            try {
+                const domain = new URL(node.url).hostname;
+                favicon.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
+            } catch (_) {
+                favicon.style.display = 'none';
+            }
+            favicon.alt = '';
+
+            const title = document.createElement('span');
+            title.className = 'chrome-tree-title';
+            title.textContent = node.title || node.url;
+
+            const actions = document.createElement('div');
+            actions.className = 'chrome-node-actions';
+
+            const importBtn = document.createElement('button');
+            importBtn.className = 'chrome-import-btn-sm';
+            importBtn.textContent = t('import_link', 'Import Link');
+            importBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                importSingleLink(node);
+            });
+            actions.appendChild(importBtn);
+
+            row.appendChild(spacer);
+            row.appendChild(favicon);
+            row.appendChild(title);
+            row.appendChild(actions);
+            wrapper.appendChild(row);
+        }
+
+        return wrapper;
+    }
+
+    async function importSingleLink(node) {
+        const normalizedUrl = StorageUtils.normalizeBookmarkUrl(node.url);
+        if (!normalizedUrl) return;
+
+        const existing = await StorageUtils.getBookmarks();
+        const canonical = StorageUtils.canonicalUrl(normalizedUrl);
+        const isDuplicate = existing.some((b) => StorageUtils.canonicalUrl(b.url) === canonical);
+
+        if (isDuplicate) {
+            showToast(t('link_already_exists', 'Link already exists'), 'warning');
+            return;
+        }
+
+        const folderName = elements.folderSelectAdd.value || state.folders[0]?.name || 'General';
+        const newBookmark = {
+            id: CryptoUtils.generateUUID(),
+            title: String(node.title || normalizedUrl).trim(),
+            url: normalizedUrl,
+            folder: folderName,
+            tags: [],
+            favicon: null,
+            date: new Date().toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }),
+            timestamp: Date.now(),
+            visitCount: 0,
+            lastVisited: null
+        };
+
+        await StorageUtils.saveBookmarks([...existing, newBookmark]);
+        await refreshAfterImport();
+        showToast(t('import_success', 'Imported!'), 'success');
+    }
+
+    async function importFolder(node) {
+        const validLinks = collectValidLinks(node);
+        if (validLinks.length === 0) {
+            showToast(t('folder_empty', 'Folder has no importable links'), 'info');
+            return;
+        }
+
+        // Ensure folder exists
+        const existingFolders = await StorageUtils.getFolders();
+        const folderName = String(node.title || 'Imported').trim();
+        const folderExists = existingFolders.some((f) => f.name.toLowerCase() === folderName.toLowerCase());
+
+        if (!folderExists) {
+            const newFolder = {
+                id: CryptoUtils.generateUUID(),
+                name: folderName,
+                color: '#3498db',
+                isDefault: false,
+                key: undefined
+            };
+            await StorageUtils.saveFolders([...existingFolders, newFolder]);
+        }
+
+        // Import links
+        const existing = await StorageUtils.getBookmarks();
+        const existingCanonicals = new Set(existing.map((b) => StorageUtils.canonicalUrl(b.url)));
+        let imported = 0;
+        let skipped = 0;
+        const toAdd = [];
+
+        for (const linkNode of validLinks) {
+            const normalizedUrl = StorageUtils.normalizeBookmarkUrl(linkNode.url);
+            if (!normalizedUrl) { skipped++; continue; }
+            const canonical = StorageUtils.canonicalUrl(normalizedUrl);
+            if (existingCanonicals.has(canonical)) { skipped++; continue; }
+            existingCanonicals.add(canonical);
+            toAdd.push({
+                id: CryptoUtils.generateUUID(),
+                title: String(linkNode.title || normalizedUrl).trim(),
+                url: normalizedUrl,
+                folder: folderName,
+                tags: [],
+                favicon: null,
+                date: new Date().toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' }),
+                timestamp: Date.now(),
+                visitCount: 0,
+                lastVisited: null
+            });
+            imported++;
+        }
+
+        await StorageUtils.saveBookmarks([...existing, ...toAdd]);
+        await refreshAfterImport();
+        showToast(`${t('import_success', 'Imported')}: ${imported} | ${t('skipped', 'Skipped')}: ${skipped}`, imported > 0 ? 'success' : 'info');
+    }
+
+    async function refreshAfterImport() {
+        state.bookmarks = await StorageUtils.getBookmarks();
+        state.folders = await StorageUtils.getFolders();
+        updateFolderDropdowns();
+        refreshBookmarkView();
+        await updateStats();
+    }
+
 });

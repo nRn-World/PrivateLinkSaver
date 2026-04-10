@@ -97,7 +97,7 @@ const CryptoUtils = {
             {
                 name: 'PBKDF2',
                 salt: this.hexToArrayBuffer(salt),
-                iterations: 100000,
+                iterations: this.PASSWORD_HASH_ITERATIONS, // consistent with hashPassword
                 hash: 'SHA-256'
             },
             baseKey,
@@ -335,12 +335,8 @@ const CryptoUtils = {
         return bytes.buffer;
     },
 
-    // Generate UUID
+    // Generate UUID (cryptographically secure)
     generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
-            const v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+        return crypto.randomUUID();
     }
 };

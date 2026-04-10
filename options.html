@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrivateLinkSaver - Settings</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="vendor/all.min.css">
+    <link rel="stylesheet" href="vendor/inter.css">
     <style>
         :root {
             --primary-color: #0ea5e9;
@@ -59,10 +59,8 @@
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            display: block;
+            text-align: center;
             color: var(--primary-color);
         }
 
@@ -72,6 +70,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 16px auto;
         }
 
         .header-logo {
@@ -429,12 +428,10 @@
     </svg>
 
     <div class="header">
-        <h1>
-            <div class="header-logo-wrapper">
-                <img src="icons/icon-utantext-utanbakgrund.png" class="header-logo" alt="PrivateLinkSaver">
-            </div>
-            <span data-translate="app_title">PrivateLinkSaver</span>
-        </h1>
+        <div class="header-logo-wrapper">
+            <img src="icons/icon-utantext-utanbakgrund.png" class="header-logo" alt="PrivateLinkSaver">
+        </div>
+        <h1 data-translate="app_title">PrivateLinkSaver</h1>
         <p data-translate="settings_title">Settings and Configuration</p>
     </div>
 

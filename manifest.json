@@ -1,24 +1,24 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "__MSG_extDescription__",
   "author": "Robin Ayzit",
   "homepage_url": "https://buymeacoffee.com/nrnworld",
   "default_locale": "en",
   "icons": {
-    "16": "icons/icon-utanbakgrund.png",
-    "32": "icons/icon-utanbakgrund.png",
-    "48": "icons/icon-utanbakgrund.png",
-    "128": "icons/icon-utanbakgrund.png"
+    "16": "icons/FullLogo_Transparent.png",
+    "32": "icons/FullLogo_Transparent.png",
+    "48": "icons/FullLogo_Transparent.png",
+    "128": "icons/icon128.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon-utanbakgrund.png",
-      "32": "icons/icon-utanbakgrund.png",
-      "48": "icons/icon-utanbakgrund.png",
-      "128": "icons/icon-utanbakgrund.png"
+      "16": "icons/FullLogo_Transparent.png",
+      "32": "icons/FullLogo_Transparent.png",
+      "48": "icons/FullLogo_Transparent.png",
+      "128": "icons/icon128.png"
     },
     "default_title": "__MSG_extName__",
     "default_badge_color": "#0ea5e9"

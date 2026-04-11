@@ -75,7 +75,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         cloudLoginBtn: document.getElementById('cloud-login-btn'),
         cloudRegisterBtn: document.getElementById('cloud-register-btn'),
         cloudForgotBtn: document.getElementById('cloud-forgot-btn'),
-        backToLoginBtn: document.getElementById('back-to-login-btn')
+        backToLoginBtn: document.getElementById('back-to-login-btn'),
+        folderColorPicker: document.getElementById('folder-color-picker'),
+        folderColorHex: document.getElementById('folder-color-hex')
     };
 
     // State variables
@@ -335,6 +337,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             elements.folderSelectAdd.appendChild(option);
         });
         
+        // Initialize color
+        const updateSelectColor = (select) => {
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption && selectedOption.style.color) {
+                select.style.color = selectedOption.style.color;
+            } else {
+                select.style.color = 'inherit';
+            }
+        };
+
+        updateSelectColor(elements.folderSelect);
+        updateSelectColor(elements.folderSelectAdd);
+        
         // Update stats
         if (elements.totalFolders) elements.totalFolders.textContent = state.folders.length;
         if (elements.quickFolderCount) elements.quickFolderCount.textContent = state.folders.length;
@@ -537,9 +552,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             <div class="bookmark-meta">
                 <span class="bookmark-date">${escapeHtml(bookmark.date)}</span>
                 ${visitCount > 0 ? `<span><i class="fas fa-eye"></i> ${visitCount}</span>` : ''}
-                <select class="bookmark-folder-select">
+                <select class="bookmark-folder-select" style="color: ${state.folders.find(f => f.name === bookmark.folder)?.color || 'inherit'}">
                     ${state.folders.map(f => `
-                        <option value="${escapeHtml(f.name)}" ${f.name === bookmark.folder ? 'selected' : ''}>${escapeHtml(f.name)}</option>
+                        <option value="${escapeHtml(f.name)}" ${f.name === bookmark.folder ? 'selected' : ''} style="color: ${f.color}">${escapeHtml(f.name)}</option>
                     `).join('')}
                 </select>
             </div>
@@ -557,7 +572,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
         
         el.querySelector('.bookmark-folder-select').addEventListener('change', async (e) => {
-            await updateBookmarkFolder(bookmark.id, e.target.value);
+            const newFolder = e.target.value;
+            const folderData = state.folders.find(f => f.name === newFolder);
+            if (folderData) {
+                e.target.style.color = folderData.color;
+            } else {
+                e.target.style.color = 'inherit';
+            }
+            await updateBookmarkFolder(bookmark.id, newFolder);
         });
         
         return el;
@@ -1060,9 +1082,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // Get started
-    elements.getStartedBtn.addEventListener('click', () => {
+    elements.getStartedBtn.addEventListener('click', async () => {
         elements.welcomeScreen.style.display = 'none';
-        elements.registerSection.style.display = 'block';
+        const { hash } = await StorageUtils.getPasswordData();
+        if (hash) {
+            showBookmarks();
+        } else {
+            elements.registerSection.style.display = 'block';
+        }
     });
 
     // Show register
@@ -1119,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.newPassword.value = '';
         elements.confirmPassword.value = '';
         elements.registerSection.style.display = 'none';
-        elements.loginSection.style.display = 'block'; // Show login section after successful registration
+        showBookmarks(); // Show bookmarks directly after successful registration
     });
 
     // Login
@@ -1313,8 +1340,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateSmartTagSuggestions();
     });
 
-    // Folder filter
-    elements.folderSelect.addEventListener('change', filterBookmarks);
+    // Folder selection color updates
+    elements.folderSelect.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        e.target.style.color = selectedOption.style.color || 'inherit';
+        filterBookmarks();
+    });
+
+    elements.folderSelectAdd.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        e.target.style.color = selectedOption.style.color || 'inherit';
+    });
 
     // Sort buttons
     elements.sortDateBtn.addEventListener('click', () => {
@@ -1328,7 +1364,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateSortButtons();
         refreshBookmarkView();
     });
-
     elements.sortVisitsBtn.addEventListener('click', () => {
         state.sortBy = 'visits';
         updateSortButtons();
@@ -1358,8 +1393,39 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             state.selectedFolderColor = btn.dataset.color;
+            
+            // Sync custom inputs
+            if (elements.folderColorPicker) elements.folderColorPicker.value = btn.dataset.color;
+            if (elements.folderColorHex) elements.folderColorHex.value = btn.dataset.color.replace('#', '');
         });
     });
+
+    // Custom color picker logic
+    if (elements.folderColorPicker) {
+        elements.folderColorPicker.addEventListener('input', (e) => {
+            const color = e.target.value;
+            state.selectedFolderColor = color;
+            if (elements.folderColorHex) elements.folderColorHex.value = color.replace('#', '');
+            
+            // Remove active state from predefined options
+            document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+        });
+    }
+
+    if (elements.folderColorHex) {
+        elements.folderColorHex.addEventListener('input', (e) => {
+            let hex = e.target.value.trim();
+            if (!hex.startsWith('#')) hex = '#' + hex;
+            
+            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                state.selectedFolderColor = hex;
+                if (elements.folderColorPicker) elements.folderColorPicker.value = hex;
+                
+                // Remove active state from predefined options
+                document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+            }
+        });
+    }
 
     // Save folder
     elements.saveFolderBtn.addEventListener('click', async () => {
@@ -1921,14 +1987,25 @@ document.addEventListener('DOMContentLoaded', async function () {
     const { hash } = await StorageUtils.getPasswordData();
     const prefs = await StorageUtils.getPreferences();
     
-    if (isLoggedIn && hash) {
-        if (prefs.firstTime) {
-            showWelcomeScreen();
-            await StorageUtils.savePreferences({ firstTime: false });
+    // If a password hash exists, we should either show bookmarks or the login screen
+    if (hash) {
+        if (isLoggedIn) {
+            if (prefs.firstTime) {
+                showWelcomeScreen();
+                await StorageUtils.savePreferences({ firstTime: false });
+            } else {
+                showBookmarks();
+            }
         } else {
-            showBookmarks();
+            // Not logged in but password exists -> Show login section
+            elements.loginSection.style.display = 'block';
+            elements.welcomeScreen.style.display = 'none';
+            elements.registerSection.style.display = 'none';
+            elements.bookmarksSection.style.display = 'none';
+            await updateStats();
         }
     } else {
+        // No password yet -> New installation flow
         await StorageUtils.savePreferences({ firstTime: true });
         showWelcomeScreen();
     }

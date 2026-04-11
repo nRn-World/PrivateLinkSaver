@@ -222,6 +222,7 @@ body {
 
 .lang-btn {
   background: var(--surface-color);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 4px 8px;
@@ -243,6 +244,7 @@ body {
 
 .lang-btn.active {
   background: var(--primary-gradient);
+  color: white;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
@@ -353,8 +355,8 @@ h2 {
 }
 
 .logo-icon {
-  width: 140px;
-  height: 140px;
+  width: 200px;
+  height: 200px;
   margin: 0 auto var(--spacing-md);
   display: flex;
   align-items: center;
@@ -1764,4 +1766,82 @@ input[type="email"]:focus {
 
 .chrome-tree-children.open {
     display: block;
+}
+
+/* Custom Color Picker */
+.custom-color-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px dashed var(--border-color);
+}
+
+.section-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+}
+
+.custom-color-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.color-input-wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.color-input-wrapper:hover {
+  border-color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+#folder-color-picker {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.color-hex-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 140px;
+}
+
+.color-hex-wrapper i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+#folder-color-hex {
+  width: 100%;
+  padding: 8px 8px 8px 24px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+#folder-color-hex:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }

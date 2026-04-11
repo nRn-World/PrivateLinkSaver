@@ -1,5 +1,6 @@
-<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,20 +9,48 @@
     <link rel="stylesheet" href="vendor/inter.css">
     <link rel="stylesheet" href="styles/popup.css">
 </head>
+
 <body>
     <!-- SVG Icons -->
     <svg style="display:none;">
         <defs>
-        <symbol id="icon-cloud" viewBox="0 0 24 24"><path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></symbol>
-        <symbol id="icon-sign-in" viewBox="0 0 24 24"><path fill="currentColor" d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></symbol>
-        <symbol id="icon-sign-out" viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></symbol>
-        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
-        <symbol id="icon-edit" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
-        <symbol id="icon-copy" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></symbol>
-        <symbol id="icon-trash" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
-        <symbol id="icon-check" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
-        <symbol id="icon-warning" viewBox="0 0 24 24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
-        <symbol id="icon-sync" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></symbol>
+            <symbol id="icon-cloud" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" />
+            </symbol>
+            <symbol id="icon-sign-in" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z" />
+            </symbol>
+            <symbol id="icon-sign-out" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+            </symbol>
+            <symbol id="icon-arrow-left" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+            </symbol>
+            <symbol id="icon-edit" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+            </symbol>
+            <symbol id="icon-copy" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+            </symbol>
+            <symbol id="icon-trash" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </symbol>
+            <symbol id="icon-check" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </symbol>
+            <symbol id="icon-warning" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+            </symbol>
+            <symbol id="icon-sync" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+            </symbol>
         </defs>
     </svg>
 
@@ -52,11 +81,11 @@
         <!-- Welcome Screen -->
         <div class="card welcome-screen" id="welcome-screen">
             <div class="welcome-icon">
-                <img src="icons/icon-utanbakgrund.png" alt="App Icon" class="app-icon">
+                <img src="icons/FullLogo.png" alt="App Icon" class="app-icon">
             </div>
             <h2 data-translate="welcome_title">Welcome to PrivateLinkSaver</h2>
             <p class="subtitle" data-translate="welcome_subtitle">Save and organize your links securely</p>
-            
+
             <div class="feature-list">
                 <div class="feature-item">
                     <i class="fas fa-lock"></i>
@@ -85,12 +114,11 @@
         <div class="card auth-card" id="login-section">
             <div class="logo">
                 <div class="logo-icon">
-                    <img src="icons/icon-utanbakgrund.png" alt="App Icon" class="app-icon">
+                    <img src="icons/FullLogo.png" alt="App Icon" class="app-icon">
                 </div>
-                <h2 data-translate="app_title">PrivateLinkSaver</h2>
             </div>
             <p class="subtitle" data-translate="enter_password">Enter your password to continue</p>
-            
+
             <div class="login-form">
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
@@ -103,7 +131,7 @@
                     <i class="fas fa-unlock"></i> <span data-translate="unlock">Unlock</span>
                 </button>
             </div>
-            
+
             <div class="auth-footer">
                 <button id="show-register-btn" class="text-link" data-translate="register_new_password">
                     <i class="fas fa-user-plus"></i> Register new password
@@ -119,12 +147,14 @@
                 </div>
                 <h2 data-translate="register_password">Create Password</h2>
             </div>
-            <p class="subtitle" data-translate="create_new_password">Create a secure password to protect your bookmarks</p>
-            
+            <p class="subtitle" data-translate="create_new_password">Create a secure password to protect your bookmarks
+            </p>
+
             <div class="register-form">
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="new-password" data-translate-placeholder="new_password" placeholder="New Password">
+                    <input type="password" id="new-password" data-translate-placeholder="new_password"
+                        placeholder="New Password">
                 </div>
                 <div class="password-strength" id="password-strength">
                     <div class="strength-bar"></div>
@@ -132,7 +162,8 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="confirm-password" data-translate-placeholder="confirm_password" placeholder="Confirm Password">
+                    <input type="password" id="confirm-password" data-translate-placeholder="confirm_password"
+                        placeholder="Confirm Password">
                 </div>
                 <div class="button-group">
                     <button id="register-btn" class="btn btn-primary">
@@ -152,12 +183,15 @@
         <div class="card auth-card" id="cloud-account-section" style="display:none;">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg class="icon" viewBox="0 0 24 24"><use href="#icon-cloud"></use></svg>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <use href="#icon-cloud"></use>
+                    </svg>
                 </div>
                 <h2 data-translate="cloud_account">Cloud Account</h2>
             </div>
-            <p class="subtitle" data-translate="cloud_account_subtitle">Create an account to sync and backup your bookmarks</p>
-            
+            <p class="subtitle" data-translate="cloud_account_subtitle">Create an account to sync and backup your
+                bookmarks</p>
+
             <div class="cloud-form">
                 <div class="input-group">
                     <i class="fas fa-envelope input-icon"></i>
@@ -165,7 +199,8 @@
                 </div>
                 <div class="input-group">
                     <i class="fas fa-lock input-icon"></i>
-                    <input type="password" id="cloud-password" data-translate-placeholder="cloud_password" placeholder="Account Password">
+                    <input type="password" id="cloud-password" data-translate-placeholder="cloud_password"
+                        placeholder="Account Password">
                     <button type="button" class="password-toggle" id="toggle-cloud-password">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -179,14 +214,17 @@
                     </button>
                 </div>
                 <div class="auth-footer" style="margin-top: 12px;">
-                    <button id="cloud-forgot-btn" class="text-link" data-translate="cloud_forgot">Forgot password?</button>
+                    <button id="cloud-forgot-btn" class="text-link" data-translate="cloud_forgot">Forgot
+                        password?</button>
                 </div>
                 <div class="cloud-info">
                     <i class="fas fa-info-circle"></i>
-                    <span data-translate="cloud_info">Your data is encrypted locally before being synced. We never see your bookmarks.</span>
+                    <span data-translate="cloud_info">Your data is encrypted locally before being synced. We never see
+                        your bookmarks.</span>
                 </div>
             </div>
-            <div class="auth-footer" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+            <div class="auth-footer"
+                style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
                 <button id="back-to-login-btn" class="text-link">
                     <i class="fas fa-arrow-left"></i> <span data-translate="back_to_login">Back to Login</span>
                 </button>
@@ -226,7 +264,8 @@
                 <div class="add-bookmark-row">
                     <select id="folder-select-add" class="folder-select"></select>
                     <div class="tag-input-wrapper">
-                        <input type="text" id="tag-input" placeholder="Add tags..." data-translate-placeholder="add_tags">
+                        <input type="text" id="tag-input" placeholder="Add tags..."
+                            data-translate-placeholder="add_tags">
                     </div>
                 </div>
                 <div class="smart-tag-suggestions" id="smart-tag-suggestions"></div>
@@ -255,7 +294,8 @@
             <div class="search-filter-section">
                 <div class="search-box-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-box" class="search-box" placeholder="Search bookmarks..." data-translate-placeholder="search">
+                    <input type="text" id="search-box" class="search-box" placeholder="Search bookmarks..."
+                        data-translate-placeholder="search">
                     <kbd class="shortcut-hint">Ctrl+K</kbd>
                 </div>
                 <div class="search-actions">
@@ -372,7 +412,8 @@
                 <div class="modal-body">
                     <div class="input-group">
                         <i class="fas fa-folder input-icon"></i>
-                        <input type="text" id="folder-name" placeholder="Folder Name" data-translate-placeholder="folder_name">
+                        <input type="text" id="folder-name" placeholder="Folder Name"
+                            data-translate-placeholder="folder_name">
                     </div>
                     <div class="color-picker" id="folder-colors">
                         <button class="color-option active" data-color="#8e44ad" style="background: #8e44ad;"></button>
@@ -381,6 +422,18 @@
                         <button class="color-option" data-color="#e74c3c" style="background: #e74c3c;"></button>
                         <button class="color-option" data-color="#f39c12" style="background: #f39c12;"></button>
                         <button class="color-option" data-color="#1abc9c" style="background: #1abc9c;"></button>
+                    </div>
+                    <div class="custom-color-section">
+                        <p class="section-label" data-translate="custom_color">Or choose custom color:</p>
+                        <div class="custom-color-controls">
+                            <div class="color-input-wrapper">
+                                <input type="color" id="folder-color-picker" value="#8e44ad">
+                            </div>
+                            <div class="color-hex-wrapper">
+                                <i class="fas fa-hashtag"></i>
+                                <input type="text" id="folder-color-hex" placeholder="8e44ad" maxlength="7">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -401,11 +454,13 @@
                 <div class="modal-body">
                     <div class="input-group">
                         <i class="fas fa-heading input-icon"></i>
-                        <input type="text" id="edit-bookmark-title" placeholder="Title" data-translate-placeholder="bookmark_title">
+                        <input type="text" id="edit-bookmark-title" placeholder="Title"
+                            data-translate-placeholder="bookmark_title">
                     </div>
                     <div class="input-group">
                         <i class="fas fa-link input-icon"></i>
-                        <input type="text" id="edit-bookmark-url" placeholder="URL" data-translate-placeholder="bookmark_url">
+                        <input type="text" id="edit-bookmark-url" placeholder="URL"
+                            data-translate-placeholder="bookmark_url">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -428,7 +483,8 @@
                         <h4 data-translate="create_backup">Create Backup</h4>
                         <p data-translate="backup_description">Save a copy of all your bookmarks</p>
                         <button id="create-backup-btn" class="btn btn-primary">
-                            <i class="fas fa-download"></i> <span data-translate="download_backup">Download Backup</span>
+                            <i class="fas fa-download"></i> <span data-translate="download_backup">Download
+                                Backup</span>
                         </button>
                     </div>
                     <div class="backup-section">
@@ -455,7 +511,8 @@
                     <button class="close-btn" id="chrome-bookmarks-close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p class="chrome-import-hint" data-translate="chrome_import_hint">Click a folder or link to import it into PrivateLinkSaver.</p>
+                    <p class="chrome-import-hint" data-translate="chrome_import_hint">Click a folder or link to import
+                        it into PrivateLinkSaver.</p>
                     <div id="chrome-bookmarks-tree"></div>
                 </div>
             </div>
@@ -465,16 +522,19 @@
         <div id="command-palette-modal" class="modal">
             <div class="modal-content command-palette-content">
                 <div class="modal-header">
-                    <h3><i class="fas fa-terminal"></i> <span data-translate="command_palette">Command Palette</span></h3>
+                    <h3><i class="fas fa-terminal"></i> <span data-translate="command_palette">Command Palette</span>
+                    </h3>
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body command-palette-body">
                     <div class="input-group command-input-group">
                         <i class="fas fa-search input-icon"></i>
-                        <input type="text" id="command-input" placeholder="Type an action..." data-translate-placeholder="command_palette_placeholder">
+                        <input type="text" id="command-input" placeholder="Type an action..."
+                            data-translate-placeholder="command_palette_placeholder">
                     </div>
                     <div id="command-results" class="command-results"></div>
-                    <p class="command-hint" data-translate="command_palette_hint">Press Enter to run the first command</p>
+                    <p class="command-hint" data-translate="command_palette_hint">Press Enter to run the first command
+                    </p>
                 </div>
             </div>
         </div>
@@ -489,4 +549,5 @@
     <script src="scripts/auth.js"></script>
     <script src="scripts/popup.js"></script>
 </body>
+
 </html>

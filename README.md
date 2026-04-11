@@ -1,201 +1,96 @@
-# PrivateLinkSaver
+<div align="center">
+  <img src="icons/FullLogo.png" alt="PrivateLinkSaver Logo" width="300">
+  <br />
+  <p><strong>Secure. Private. Fast. The modern way to manage your links.</strong></p>
 
-PrivateLinkSaver is a privacy-first Chrome extension for saving and organizing links with a fast, modern workflow.
+  [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
+  [![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+  [![Cloud](https://img.shields.io/badge/cloud-sync-0ea5e9.svg?style=flat-square)](https://firebase.google.com/)
+</div>
 
-It is built for users who want clean bookmarking with optional zero-knowledge cloud sync for backup and multi-device access.
+---
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue)
-![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-green)
+## 🔒 Your Private Web Vault
 
-## Table of Contents
+**PrivateLinkSaver** is a privacy-first browser extension designed for developers and power users who need to organize their digital life without compromising security. Every link save is encrypted, and your data remains under your absolute control.
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Security and Privacy](#security-and-privacy)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Screenshots](#screenshots)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Architecture](#architecture)
-- [Development](#development)
-- [Release Packaging](#release-packaging)
-- [Contributing](#contributing)
-- [License](#license)
-- [Author](#author)
+### ✨ Key Highlights
 
-## Overview
+- 🛡️ **Zero-Knowledge Security** – All data is encrypted locally before any optional sync.
+- ☁️ **Encrypted Cloud Sync** – Secure backup and sync across devices via Firebase.
+- 📂 **Smart Organization** – Folders with custom colors, tags, and intelligent suggestions.
+- ⚡ **Turbocharged Workflow** – Command Palette, Omnibox keywords, and deep keyboard integration.
+- 🌍 **Multilingual** – Support for English, Svenska, Türkçe, Español, and Français.
 
-PrivateLinkSaver helps you capture links in one click, organize them with folders and tags, and find them instantly with smart search.
+---
 
-Everything runs locally inside the browser extension environment.
+## 📸 Interface Preview
 
-## Key Features
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>Welcome Screen</b><br/><img src="Screenshot/Start1.png" width="220"></td>
+      <td align="center"><b>Main Dashboard</b><br/><img src="Screenshot/Menu_Store_v2.jpg" width="220"></td>
+      <td align="center"><b>Clean Menu</b><br/><img src="Screenshot/Menu2_Store_v2.jpg" width="220"></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Configuration</b><br/><img src="Screenshot/Settings_Store_v2.jpg" width="220"></td>
+      <td align="center"><b>Visual Folders</b><br/><img src="Screenshot/Settings2_Store_v2.jpg" width="220"></td>
+      <td align="center"><b>Search</b><br/><img src="Screenshot/Start1.png" width="220"></td>
+    </tr>
+  </table>
+</div>
 
-### Smart Saving
-- Save current page from popup, context menu, or shortcut
-- Canonical URL normalization and tracking-parameter cleanup
-- Duplicate prevention based on canonical URL matching
-- Smart tag suggestions inferred from page title and domain
+---
 
-### Organization and Search
-- Folder system with custom colors
-- Tag filtering and quick folder actions
-- Relevance-ranked search (title, URL, tags, folder)
-- Sort by date, title, and visit count
+## 🚀 Getting Started
 
-### Productivity
-- Command Palette (`Ctrl+Shift+P`) for quick actions
-- Omnibox support via keyword `pls`
-- Backup and restore tools
-- JSON import/export with password encryption
-- **Cloud Sync** - Zero-knowledge encrypted backup and sync across devices via Firebase
+### Installation
+1.  **Download/Clone** this repository to your local machine.
+2.  Open Chrome and navigate to `chrome://extensions`.
+3.  Enable **Developer Mode** (top-right toggle).
+4.  Click **Load unpacked** and select the extension folder.
 
-### User Experience
-- Clean modern popup interface with SVG icons
-- Light/dark theme support
-- Multi-language UI: English, Swedish, Turkish, Spanish, French
-- Event delegation for smooth performance with large bookmark collections
+### First Launch
+1.  Open the extension from the toolbar.
+2.  Set your master password (this derives your local encryption key).
+3.  Start saving links with `Ctrl+Shift+S`.
 
-## Security and Privacy
+---
 
-- Password protection using PBKDF2-SHA256 hashing (210,000 iterations)
-- Legacy SHA-256 password hashes remain supported for backward compatibility
-- Data is stored locally via `chrome.storage.local`
-- **Cloud Sync** uses AES-256-GCM encryption - data is encrypted locally before being sent to Firebase
-- Cloud encryption keys are derived from your password using PBKDF2 - your password is never stored or transmitted
-- No analytics SDKs or remote user tracking
-- Favicon previews can use Google's favicon endpoint for visual display
-- Cryptographically secure random generation using `crypto.getRandomValues()`
-
-For policy details, see `PRIVACY.md`.
-
-## Installation
-
-### Option A: Load Unpacked (recommended for development)
-1. Clone or download this repository
-2. Open `chrome://extensions`
-3. Enable **Developer mode**
-4. Click **Load unpacked**
-5. Select the project folder (the folder containing `manifest.json`)
-
-### Option B: Chrome Web Store submission
-1. Create a ZIP with extension files where `manifest.json` is at ZIP root
-2. Upload ZIP in the Chrome Web Store Developer Dashboard
-
-## Usage
-
-1. Open the extension from the Chrome toolbar
-2. Register a password on first launch
-3. Save your current page
-4. Organize bookmarks with folders/tags
-5. Use search, sort, and command palette for quick navigation
-6. **(Optional)** Set up Cloud Sync in Settings for backup and multi-device sync
-
-## Screenshots
-
-Click any image to view it in full size.
-
-| First Launch | Create Password |
-|---|---|
-| <a href="Screenshot/Start1.png"><img src="Screenshot/Start1.png" alt="First Launch" width="360" /></a> | <a href="Screenshot/Create%20Password.png"><img src="Screenshot/Create%20Password.png" alt="Create Password" width="360" /></a> |
-
-| Login | Popup Menu |
-|---|---|
-| <a href="Screenshot/Login.png"><img src="Screenshot/Login.png" alt="Login" width="360" /></a> | <a href="Screenshot/Menu.png"><img src="Screenshot/Menu.png" alt="Popup Menu" width="360" /></a> |
-
-| Settings |
-|---|
-| <a href="Screenshot/Settings.png"><img src="Screenshot/Settings.png" alt="Settings" width="360" /></a> |
-
-## Keyboard Shortcuts
+## ⌨️ Productivity Shortcuts
 
 | Shortcut | Action |
-|---|---|
-| `Ctrl+Shift+S` | Save current page |
-| `Ctrl+Shift+B` | Open PrivateLinkSaver |
-| `Ctrl+Shift+F` | Quick search |
-| `Ctrl+Shift+P` | Open command palette |
-| `Ctrl+K` | Focus search |
-| `Ctrl+N` | Create new folder |
-| `Ctrl+D` | Save current page |
-| `Esc` | Clear search or close modal |
+| :--- | :--- |
+| `Ctrl+Shift+S` | **Quick Save** current page |
+| `Ctrl+Shift+B` | **Open** Extension Panel |
+| `Ctrl+Shift+F` | **Quick Search** |
+| `Ctrl+Shift+P` | **Command Palette** |
+| `Ctrl+K` | Focus Search Input |
+| `Ctrl+N` | Create New Folder |
 
-## Architecture
+---
 
-```text
-PrivateLinkSaver/
-|- manifest.json
-|- popup.html
-|- options.html
-|- scripts/
-|  |- background.js
-|  |- popup.js
-|  |- options.js
-|  |- storage.js
-|  |- crypto.js
-|  |- auth.js
-|  |- firebase-app-compat.js
-|  |- firebase-auth-compat.js
-|  |- firebase-firestore-compat.js
-|  `- translations.js
-|- styles/
-|  `- popup.css
-|- icons/
-|- _locales/
-|- PRIVACY.md
-|- LICENSE
-`- README.md
-```
+## 🛠️ Technology Stack
 
-## Development
+- **Platform:** Manifest V3 (Latest Standards)
+- **Engine:** Vanilla JavaScript (No Bloat)
+- **Crypto:** Web Crypto API (AES-256-GCM, PBKDF2-SHA256)
+- **Sync:** Firebase Auth & Firestore (End-to-End Encrypted)
 
-### Stack
-- Manifest V3
-- Vanilla JavaScript
-- Web Crypto API (AES-256-GCM, PBKDF2-SHA256)
-- Chrome Storage API
-- Firebase Authentication & Firestore (for optional cloud sync)
+---
 
-### Local workflow
-1. Update code
-2. Reload extension in `chrome://extensions`
-3. Validate key flows (save/edit/delete/search/backup)
-4. Commit and push
+## 🙏 Support & Community
 
-## Release Packaging
+Created with ❤️ by **© nRn World** (2026).
 
-When preparing a store upload ZIP:
+- ⭐ **Star this repo** if you find it useful!
+- 📧 Support & Contact: `bynrnworld@gmail.com`
+- ☕ **[Buy me a coffee](https://buymeacoffee.com/nrnworld)** to support further development.
 
-- Include only extension files and assets
-- Keep `manifest.json` at ZIP root
-- Exclude `.git`, editor folders, and local artifacts
+---
 
-## Contributing
-
-Contributions are welcome.
-
-1. Fork the repository
-2. Create a branch: `git checkout -b feature/your-change`
-3. Commit updates
-4. Push branch
-5. Open a pull request
-
-## License
-
-This project is licensed under MIT. See `LICENSE`.
-
-👨‍💻 **Author**  
-Created 2026 by © nRn World
-
-📧 bynrnworld@gmail.com
-
-## 🙏 Support
-
-If you like this project, consider:
-
-* ⭐ Star the project on GitHub  
-* ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)  
-* 📢 Share with your friends  
-* ☕ Buying me a coffee  
-* 📢 Sharing with your friends
+<div align="center">
+  <p><i>Privacy is not a feature, it's a right.</i></p>
+</div>

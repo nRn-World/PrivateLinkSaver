@@ -30,14 +30,14 @@
 <div align="center">
   <table>
     <tr>
-      <td align="center"><b>Welcome Screen</b><br/><img src="Screenshot/Start1.png" width="220"></td>
-      <td align="center"><b>Main Dashboard</b><br/><img src="Screenshot/Menu_Store_v2.jpg" width="220"></td>
-      <td align="center"><b>Clean Menu</b><br/><img src="Screenshot/Menu2_Store_v2.jpg" width="220"></td>
+      <td align="center"><b>Login Screen</b><br/><img src="Screenshot/Start1.png" width="220"></td>
+      <td align="center"><b>Main Dashboard</b><br/><img src="Screenshot/Menu.png" width="220"></td>
+      <td align="center"><b>Filtered View</b><br/><img src="Screenshot/Menu2.png" width="220"></td>
     </tr>
     <tr>
-      <td align="center"><b>Configuration</b><br/><img src="Screenshot/Settings_Store_v2.jpg" width="220"></td>
-      <td align="center"><b>Visual Folders</b><br/><img src="Screenshot/Settings2_Store_v2.jpg" width="220"></td>
-      <td align="center"><b>Search</b><br/><img src="Screenshot/Start1.png" width="220"></td>
+      <td align="center"><b>General Settings</b><br/><img src="Screenshot/Settings.png" width="220"></td>
+      <td align="center"><b>Cloud Config</b><br/><img src="Screenshot/Settings2.png" width="220"></td>
+      <td align="center"><b>Quick Access</b><br/><img src="Screenshot/Menu.png" width="220"></td>
     </tr>
   </table>
 </div>

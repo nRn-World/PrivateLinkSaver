@@ -5,11 +5,103 @@ const TRACKING_PARAM_EXACT = new Set([
     'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
     'igshid', 'ref', 'ref_src', 'source', 'campaign', 'si'
 ]);
+const AUTO_LOGOUT_OPTIONS = new Set([5, 15, 30, 60]);
+const DEFAULT_AUTO_LOGOUT_MINUTES = 15;
+const AUTO_LOGOUT_ALARM = 'session-auto-logout-check';
+const SESSION_ACTIVITY_THROTTLE_MS = 15000;
+
+let lastSessionTouchAt = 0;
+
+function normalizeAutoLogoutMinutes(value) {
+    if (value === 'never' || value === 0 || value === '0') {
+        return 0;
+    }
+
+    const parsed = Number(value);
+    if (AUTO_LOGOUT_OPTIONS.has(parsed)) {
+        return parsed;
+    }
+
+    return DEFAULT_AUTO_LOGOUT_MINUTES;
+}
+
+async function setupSessionAlarm() {
+    const result = await chrome.storage.local.get('autoLogoutMinutes');
+    const autoLogoutMinutes = normalizeAutoLogoutMinutes(result.autoLogoutMinutes);
+
+    if (autoLogoutMinutes > 0) {
+        chrome.alarms.create(AUTO_LOGOUT_ALARM, { periodInMinutes: 1 });
+    } else {
+        chrome.alarms.clear(AUTO_LOGOUT_ALARM);
+    }
+}
+
+async function recordSessionActivity(force = false) {
+    const result = await chrome.storage.local.get('isLoggedIn');
+    if (!result.isLoggedIn) {
+        return;
+    }
+
+    const now = Date.now();
+    if (!force && now - lastSessionTouchAt < SESSION_ACTIVITY_THROTTLE_MS) {
+        return;
+    }
+
+    lastSessionTouchAt = now;
+    await chrome.storage.local.set({ sessionLastActiveAt: now });
+}
+
+async function handleAutoLogout(showNotification = false) {
+    const result = await chrome.storage.local.get(['isLoggedIn', 'sessionLastActiveAt', 'autoLogoutMinutes']);
+    const autoLogoutMinutes = normalizeAutoLogoutMinutes(result.autoLogoutMinutes);
+    const lastActiveAt = Number(result.sessionLastActiveAt) || 0;
+
+    if (!result.isLoggedIn || autoLogoutMinutes === 0 || !lastActiveAt) {
+        return false;
+    }
+
+    if (Date.now() - lastActiveAt < autoLogoutMinutes * 60 * 1000) {
+        return false;
+    }
+
+    lastSessionTouchAt = 0;
+    await chrome.storage.local.set({
+        isLoggedIn: false,
+        autoLogoutNoticeMinutes: autoLogoutMinutes,
+        autoLogoutNoticeAt: Date.now()
+    });
+
+    if (showNotification) {
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: 'PrivateLinkSaver',
+            message: `Signed out after ${autoLogoutMinutes} minutes of inactivity.`,
+            priority: 1
+        });
+    }
+
+    return true;
+}
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {
     // Set default badge color
     chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
+
+    // Set default auto-logout to 15 minutes if not already set
+    chrome.storage.local.get('autoLogoutMinutes', (result) => {
+        if (result.autoLogoutMinutes === undefined) {
+            chrome.storage.local.set({ autoLogoutMinutes: 15 });
+        }
+    });
+
+    // Always start with English language on first install
+    chrome.storage.local.get('language', (result) => {
+        if (result.language === undefined) {
+            chrome.storage.local.set({ language: 'en' });
+        }
+    });
     
     // Create context menus
     chrome.contextMenus.removeAll(() => {
@@ -28,8 +120,17 @@ chrome.runtime.onInstalled.addListener((details) => {
     
     // Set up auto-backup alarm if enabled
     setupAutoBackup();
+    setupSessionAlarm();
+    handleAutoLogout();
     
     // Update badge with current bookmark count
+    updateBadge();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    setupAutoBackup();
+    setupSessionAlarm();
+    handleAutoLogout();
     updateBadge();
 });
 
@@ -49,6 +150,8 @@ async function setupAutoBackup() {
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === 'auto-backup') {
         createAutoBackup();
+    } else if (alarm.name === AUTO_LOGOUT_ALARM) {
+        handleAutoLogout(true);
     }
 });
 
@@ -61,8 +164,8 @@ async function createAutoBackup() {
             date: new Date().toISOString(),
             auto: true,
             data: {
-                version: '2.2.0',
-                exportDate: new Date().toISOString(),
+                 version: '2.4.2',
+                 exportDate: new Date().toISOString(),
                 bookmarks: result.bookmarks || [],
                 folders: result.folders || [],
                 tags: result.tags || []
@@ -155,6 +258,18 @@ function escapeXml(str) {
 
 // Save a bookmark
 async function saveBookmark(url, title, tab) {
+    const sessionExpired = await handleAutoLogout();
+    if (sessionExpired) {
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: 'PrivateLinkSaver',
+            message: 'Please unlock PrivateLinkSaver again to save bookmarks.',
+            priority: 1
+        });
+        return;
+    }
+
     const normalizedUrl = normalizeBookmarkUrl(url);
     if (!normalizedUrl) {
         chrome.notifications.create({
@@ -258,7 +373,7 @@ async function saveBookmark(url, title, tab) {
         });
         return;
     }
-    
+
     // Show success notification
     const truncatedTitle = safeTitle.length > 50 ? safeTitle.substring(0, 50) + '...' : safeTitle;
     chrome.notifications.create({
@@ -271,6 +386,7 @@ async function saveBookmark(url, title, tab) {
     
     // Update badge
     updateBadge();
+    recordSessionActivity(true);
 }
 
 // Update badge with bookmark count
@@ -280,7 +396,7 @@ async function updateBadge() {
     const count = bookmarks.length;
     
     if (bookmarks.length > 0) {
-        chrome.action.setBadgeText({ text: bookmarks.length.toString() });
+        chrome.action.setBadgeText({ text: '' });
         chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
     } else {
         chrome.action.setBadgeText({ text: '' });
@@ -289,8 +405,15 @@ async function updateBadge() {
 
 // Listen for storage changes to update badge
 chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'local' && changes.bookmarks) {
-        updateBadge();
+    if (areaName === 'local') {
+        if (changes.bookmarks) {
+            updateBadge();
+        }
+
+        if (changes.autoLogoutMinutes) {
+            setupSessionAlarm();
+            handleAutoLogout();
+        }
     }
 });
 
@@ -298,6 +421,11 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'updateBadge') {
         updateBadge().then(() => sendResponse({ success: true }));
+        return true;
+    } else if (request.action === 'updateSessionSettings') {
+        setupSessionAlarm()
+            .then(() => handleAutoLogout())
+            .then(() => sendResponse({ success: true }));
         return true;
     } else if (request.action === 'saveCurrentPage') {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

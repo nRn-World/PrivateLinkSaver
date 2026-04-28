@@ -5,6 +5,10 @@ const StorageUtils = {
         'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
         'igshid', 'ref', 'ref_src', 'source', 'campaign', 'si'
     ]),
+    AUTO_LOGOUT_OPTIONS: Object.freeze([5, 15, 30, 60]),
+    DEFAULT_AUTO_LOGOUT_MINUTES: 15,
+    SESSION_ACTIVITY_THROTTLE_MS: 15000,
+    _lastSessionTouchAt: 0,
 
     // Get data from chrome.storage.local
     async get(keys) {
@@ -44,6 +48,19 @@ const StorageUtils = {
                 resolve();
             });
         });
+    },
+
+    normalizeAutoLogoutMinutes(value) {
+        if (value === 'never' || value === 0 || value === '0') {
+            return 0;
+        }
+
+        const parsed = Number(value);
+        if (this.AUTO_LOGOUT_OPTIONS.includes(parsed)) {
+            return parsed;
+        }
+
+        return this.DEFAULT_AUTO_LOGOUT_MINUTES;
     },
 
     isSafeHttpUrl(url) {
@@ -263,23 +280,125 @@ const StorageUtils = {
 
     // Save login status
     async saveLoginStatus(status) {
-        await this.set({ isLoggedIn: status });
+        if (status) {
+            const now = Date.now();
+            this._lastSessionTouchAt = now;
+            await this.set({
+                isLoggedIn: true,
+                sessionLastActiveAt: now
+            });
+            return;
+        }
+
+        this._lastSessionTouchAt = 0;
+        await this.set({ isLoggedIn: false });
+    },
+
+    async recordSessionActivity(force = false) {
+        const loginState = await this.get('isLoggedIn');
+        if (!loginState.isLoggedIn) {
+            return;
+        }
+
+        const now = Date.now();
+        if (!force && now - this._lastSessionTouchAt < this.SESSION_ACTIVITY_THROTTLE_MS) {
+            return;
+        }
+
+        this._lastSessionTouchAt = now;
+        await this.set({ sessionLastActiveAt: now });
+    },
+
+    async getSessionInfo() {
+        const result = await this.get(['isLoggedIn', 'sessionLastActiveAt', 'autoLogoutMinutes']);
+        return {
+            isLoggedIn: Boolean(result.isLoggedIn),
+            lastActiveAt: Number(result.sessionLastActiveAt) || 0,
+            autoLogoutMinutes: this.normalizeAutoLogoutMinutes(result.autoLogoutMinutes)
+        };
+    },
+
+    async enforceAutoLogout() {
+        const session = await this.getSessionInfo();
+        if (!session.isLoggedIn || session.autoLogoutMinutes === 0 || !session.lastActiveAt) {
+            return { expired: false, minutes: session.autoLogoutMinutes };
+        }
+
+        const expiresAfterMs = session.autoLogoutMinutes * 60 * 1000;
+        if (Date.now() - session.lastActiveAt < expiresAfterMs) {
+            return { expired: false, minutes: session.autoLogoutMinutes };
+        }
+
+        this._lastSessionTouchAt = 0;
+        await this.set({
+            isLoggedIn: false,
+            autoLogoutNoticeMinutes: session.autoLogoutMinutes,
+            autoLogoutNoticeAt: Date.now()
+        });
+
+        return { expired: true, minutes: session.autoLogoutMinutes };
+    },
+
+    async consumeAutoLogoutNotice() {
+        const result = await this.get(['autoLogoutNoticeMinutes', 'autoLogoutNoticeAt']);
+        const minutes = Number(result.autoLogoutNoticeMinutes) || 0;
+        const noticedAt = Number(result.autoLogoutNoticeAt) || 0;
+
+        if (!minutes || !noticedAt) {
+            return null;
+        }
+
+        await this.remove(['autoLogoutNoticeMinutes', 'autoLogoutNoticeAt']);
+        return { minutes, noticedAt };
+    },
+
+    initializeSessionActivityTracking() {
+        if (typeof document === 'undefined') {
+            return () => {};
+        }
+
+        const trackActivity = () => {
+            this.recordSessionActivity().catch(() => {});
+        };
+
+        const activityEvents = ['pointerdown', 'keydown', 'touchstart', 'focus'];
+        activityEvents.forEach((eventName) => {
+            window.addEventListener(eventName, trackActivity, true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                trackActivity();
+            }
+        });
+
+        return () => {
+            activityEvents.forEach((eventName) => {
+                window.removeEventListener(eventName, trackActivity, true);
+            });
+        };
     },
 
     // Get user preferences
     async getPreferences() {
-        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup']);
+        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup', 'autoLogoutMinutes']);
         return {
             language: result.language || 'en',
             darkMode: result.darkMode !== undefined ? result.darkMode : true,
             firstTime: result.firstTime !== false,
-            autoBackup: result.autoBackup || false
+            autoBackup: result.autoBackup || false,
+            autoLogoutMinutes: this.normalizeAutoLogoutMinutes(result.autoLogoutMinutes)
         };
     },
 
     // Save user preferences
     async savePreferences(prefs) {
-        await this.set(prefs);
+        const nextPrefs = { ...prefs };
+        if (Object.prototype.hasOwnProperty.call(nextPrefs, 'autoLogoutMinutes')) {
+            nextPrefs.autoLogoutMinutes = this.normalizeAutoLogoutMinutes(nextPrefs.autoLogoutMinutes);
+        }
+
+        await this.set(nextPrefs);
     },
 
     // Get statistics
@@ -323,15 +442,15 @@ const StorageUtils = {
         };
     },
 
-    // Export all data
-    async exportAllData() {
-        const bookmarks = await this.getBookmarks();
-        const folders = await this.getFolders();
-        const tags = await this.getTags();
-        
-        return {
-            version: '2.2.0',
-            exportDate: new Date().toISOString(),
+     // Export all data
+     async exportAllData() {
+         const bookmarks = await this.getBookmarks();
+         const folders = await this.getFolders();
+         const tags = await this.getTags();
+         
+         return {
+             version: '2.4.2',
+             exportDate: new Date().toISOString(),
             bookmarks,
             folders,
             tags

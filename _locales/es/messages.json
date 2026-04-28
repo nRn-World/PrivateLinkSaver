@@ -44,5 +44,25 @@
   "notificationLoginRequired": {
     "message": "Por favor inicie sesión para guardar marcadores",
     "description": "Notification login required"
+  },
+  "auto_logout_5": {
+    "message": "5 minutos",
+    "description": "Auto logout 5 minutos"
+  },
+  "auto_logout_15": {
+    "message": "15 minutos",
+    "description": "Auto logout 15 minutos"
+  },
+  "auto_logout_30": {
+    "message": "30 minutos",
+    "description": "Auto logout 30 minutos"
+  },
+  "auto_logout_60": {
+    "message": "60 minutos",
+    "description": "Auto logout 60 minutos"
+  },
+  "auto_logout_never": {
+    "message": "Nunca",
+    "description": "Auto logout nunca"
   }
 }

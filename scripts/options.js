@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const darkModeToggle = document.getElementById('dark-mode');
     const languageSelect = document.getElementById('language');
     const autoBackupToggle = document.getElementById('auto-backup');
+    const autoLogoutSelect = document.getElementById('auto-logout');
     const storageText = document.getElementById('storage-text');
     const storageBar = document.getElementById('storage-bar');
     const storagePercent = document.getElementById('storage-percent');
@@ -31,13 +32,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cloudPassword = null;
     let cloudSalt = null;
 
-    // Helper to derive encryption key from password - uses CryptoUtils for consistency
+    // Helper to derive encryption key from password
     async function getCloudEncryptionKey(password, salt) {
-        return await CryptoUtils.deriveKeyFromPassword(password, salt);
+        const encoder = new TextEncoder();
+        
+        return await crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: encoder.encode(salt),
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            await crypto.subtle.importKey(
+                'raw',
+                encoder.encode(password),
+                { name: 'PBKDF2', length: 256 },
+                false,
+                ['deriveKey']
+            ),
+            { name: 'AES-GCM', length: 256 },
+            true,
+            ['encrypt', 'decrypt']
+        );
     }
 
     function generateSalt() {
-        return CryptoUtils.generateSalt();
+        const array = crypto.getRandomValues(new Uint8Array(16));
+        return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     // Apply translation
@@ -62,6 +83,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         languageSelect.value = prefs.language;
         applyTranslation(prefs.language);
         autoBackupToggle.checked = prefs.autoBackup;
+        
+        // Populate auto-logout dropdown
+        const autoLogoutOptions = [
+            { value: 5, label: chrome.i18n.getMessage('auto_logout_5') || '5 minutes' },
+            { value: 15, label: chrome.i18n.getMessage('auto_logout_15') || '15 minutes' },
+            { value: 30, label: chrome.i18n.getMessage('auto_logout_30') || '30 minutes' },
+            { value: 60, label: chrome.i18n.getMessage('auto_logout_60') || '60 minutes' },
+            { value: 0, label: chrome.i18n.getMessage('auto_logout_never') || 'Never' }
+        ];
+        
+        autoLogoutSelect.innerHTML = '';
+        autoLogoutOptions.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.value;
+            opt.textContent = option.label;
+            autoLogoutSelect.appendChild(opt);
+        });
+        
+        // Set current value
+        const currentAutoLogout = prefs.autoLogoutMinutes === 0 ? 0 : (prefs.autoLogoutMinutes || 15);
+        autoLogoutSelect.value = currentAutoLogout;
         
         // Apply dark mode
         if (prefs.darkMode) {
@@ -89,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadCloudState() {
-        const user = await CloudAuth.getCurrentUser();
+        const user = CloudAuth.getCurrentUser();
         if (user) {
             cloudLoginForm.style.display = 'none';
             cloudLoggedIn.style.display = 'block';
@@ -167,6 +209,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoBackupToggle.addEventListener('change', async () => {
         await StorageUtils.savePreferences({ autoBackup: autoBackupToggle.checked });
         chrome.runtime.sendMessage({ action: 'setupAutoBackup' });
+    });
+
+    // Auto logout change
+    autoLogoutSelect.addEventListener('change', async () => {
+        const minutes = parseInt(autoLogoutSelect.value);
+        await StorageUtils.savePreferences({ autoLogoutMinutes: minutes });
+        chrome.runtime.sendMessage({ action: 'updateSessionSettings' });
     });
 
     // Toggle cloud password visibility
@@ -266,8 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div style="font-size:48px;margin-bottom:16px;">📧</div>
             <h3 style="margin:0 0 8px;font-size:20px;">Verify Your Email</h3>
             <p style="margin:0 0 8px;font-size:14px;color:var(--text-secondary,#64748b);line-height:1.5;">A verification email has been sent to<br><strong>${email}</strong></p>
-            <p style="margin:0 0 8px;font-size:13px;color:var(--text-secondary,#64748b);">Click the link in the email, then confirm below.</p>
-            <p style="margin:0 0 24px;font-size:12px;color:var(--warning-color,#f59e0b);background:rgba(245,158,11,0.1);border-radius:6px;padding:8px 10px;line-height:1.5;">⚠️ ${(translations[languageSelect.value] || translations['en'])['check_spam'] || 'Check your spam folder, the email often ends up there.'}</p>
+            <p style="margin:0 0 24px;font-size:13px;color:var(--text-secondary,#64748b);">Click the link in the email, then confirm below.</p>
             <div id="verify-status" style="margin-bottom:16px;font-size:13px;min-height:20px;"></div>
             <div style="display:flex;gap:12px;">
                 <button id="verify-cancel-btn" style="flex:1;padding:12px;border:1px solid var(--border-color,#e2e8f0);border-radius:8px;background:transparent;color:var(--text-secondary,#64748b);font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>

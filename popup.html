@@ -339,9 +339,16 @@
 
             <!-- Data Actions -->
             <div class="data-actions">
-                <button id="export-btn" class="btn btn-outline btn-sm">
-                    <i class="fas fa-file-export"></i> <span data-translate="export">Export</span>
-                </button>
+                <div class="export-group" style="display: flex; gap: 2px;">
+                    <button id="export-btn" class="btn btn-outline btn-sm">
+                        <i class="fas fa-file-export"></i> <span data-translate="export">Export</span>
+                    </button>
+                    <select id="export-format" class="btn btn-outline btn-sm" style="background: var(--bg-color); color: var(--text-secondary); border-color: var(--border-color); cursor: pointer; padding-left: 4px; padding-right: 4px; margin-right: 4px;">
+                        <option value="json">.json</option>
+                        <option value="html">.html</option>
+                        <option value="csv">.csv</option>
+                    </select>
+                </div>
                 <button id="import-btn" class="btn btn-outline btn-sm">
                     <i class="fas fa-file-import"></i> <span data-translate="import">Import</span>
                 </button>
@@ -351,7 +358,7 @@
                 <button id="chrome-import-btn" class="btn btn-outline btn-sm">
                     <i class="fas fa-chrome"></i> <span data-translate="chrome_import">Chrome Bookmarks</span>
                 </button>
-                <input type="file" id="file-input" class="file-input" accept=".json">
+                <input type="file" id="file-input" class="file-input" accept=".json,.html,.csv">
             </div>
 
             <!-- Bookmarks Container -->

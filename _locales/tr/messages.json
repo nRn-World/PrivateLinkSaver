@@ -44,5 +44,25 @@
   "notificationLoginRequired": {
     "message": "Yer imi kaydetmek için lütfen giriş yapın",
     "description": "Notification login required"
+  },
+  "auto_logout_5": {
+    "message": "5 dakika",
+    "description": "Auto logout 5 dakika"
+  },
+  "auto_logout_15": {
+    "message": "15 dakika",
+    "description": "Auto logout 15 dakika"
+  },
+  "auto_logout_30": {
+    "message": "30 dakika",
+    "description": "Auto logout 30 dakika"
+  },
+  "auto_logout_60": {
+    "message": "60 dakika",
+    "description": "Auto logout 60 dakika"
+  },
+  "auto_logout_never": {
+    "message": "Asla",
+    "description": "Auto logout asla"
   }
 }

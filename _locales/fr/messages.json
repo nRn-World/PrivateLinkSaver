@@ -44,5 +44,25 @@
   "notificationLoginRequired": {
     "message": "Veuillez vous connecter pour enregistrer des favoris",
     "description": "Notification login required"
+  },
+  "auto_logout_5": {
+    "message": "5 minutes",
+    "description": "Auto logout 5 minutes"
+  },
+  "auto_logout_15": {
+    "message": "15 minutes",
+    "description": "Auto logout 15 minutes"
+  },
+  "auto_logout_30": {
+    "message": "30 minutes",
+    "description": "Auto logout 30 minutes"
+  },
+  "auto_logout_60": {
+    "message": "60 minutes",
+    "description": "Auto logout 60 minutes"
+  },
+  "auto_logout_never": {
+    "message": "Jamais",
+    "description": "Auto logout jamais"
   }
 }

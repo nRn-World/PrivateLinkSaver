@@ -1,10 +1,7 @@
 // Translation dictionary for multiple languages
-// Added encryption support labels
 const translations = {
   'sv': {
     'app_title': 'PrivateLinkSaver',
-    'enter_password_to_export': 'Ange ditt lösenord för att kryptera exporten:',
-    'enter_password_to_import': 'Ange ditt lösenord för att dekryptera importen:',
     'welcome_title': 'Välkommen till PrivateLinkSaver',
     'welcome_subtitle': 'Spara och organisera dina länkar på ett säkert sätt',
     'feature_secure': 'Säker lösenordsskydd',
@@ -149,21 +146,10 @@ const translations = {
     'cloud_not_verified': 'Verifiera din e-post innan synkronisering',
     'cloud_sync': 'Molnsynkronisering',
     'cloud_login_title': 'Molnkonto (Säkerhetskopiering & Synk)',
-    'cloud_login_desc': 'Skapa ett konto för att synkronisera och säkerhetskopiera dina bokmärken mellan enheter',
-    'chrome_import': 'Chrome-bokmärken',
-    'chrome_import_hint': 'Klicka på en mapp eller länk för att importera den till PrivateLinkSaver.',
-    'import_folder': 'Importera mapp',
-    'import_link': 'Importera länk',
-    'bookmarks_permission_required': 'Behörighet krävs för att komma åt Chrome-bokmärken',
-    'link_already_exists': 'Länken finns redan',
-    'folder_empty': 'Mappen har inga importerbara länkar',
-    'skipped': 'Hoppade över',
-    'check_spam': 'Kontrollera skräpposten, för mailet hamnar oftast där.'
+    'cloud_login_desc': 'Skapa ett konto för att synkronisera och säkerhetskopiera dina bokmärken mellan enheter'
   },
   'en': {
     'app_title': 'PrivateLinkSaver',
-    'enter_password_to_export': 'Please enter your password to encrypt the export:',
-    'enter_password_to_import': 'Please enter the password used for this backup:',
     'welcome_title': 'Welcome to PrivateLinkSaver',
     'welcome_subtitle': 'Save and organize your links securely',
     'feature_secure': 'Secure password protection',
@@ -308,16 +294,7 @@ const translations = {
     'cloud_not_verified': 'Verify your email before syncing',
     'cloud_sync': 'Cloud Sync',
     'cloud_login_title': 'Cloud Account (Backup & Sync)',
-    'cloud_login_desc': 'Create an account to sync and backup your bookmarks across devices',
-    'chrome_import': 'Chrome Bookmarks',
-    'chrome_import_hint': 'Click a folder or link to import it into PrivateLinkSaver.',
-    'import_folder': 'Import Folder',
-    'import_link': 'Import Link',
-    'bookmarks_permission_required': 'Permission required to access Chrome bookmarks',
-    'link_already_exists': 'Link already exists',
-    'folder_empty': 'Folder has no importable links',
-    'skipped': 'Skipped',
-    'check_spam': 'Check your spam folder, the email often ends up there.'
+    'cloud_login_desc': 'Create an account to sync and backup your bookmarks across devices'
   },
   'tr': {
     'app_title': 'PrivateLinkSaver',
@@ -445,16 +422,7 @@ const translations = {
     'cloud_not_verified': 'Senkronizasyondan önce e-postanızı doğrulayın',
     'cloud_sync': 'Bulut senkronizasyonu',
     'cloud_login_title': 'Bulut Hesabı (Yedekleme ve Senkronizasyon)',
-    'cloud_login_desc': 'Yer imlerinizi cihazlar arasında senkronize etmek ve yedeklemek için hesap oluşturun',
-    'chrome_import': 'Chrome Yer İmleri',
-    'chrome_import_hint': 'PrivateLinkSaver\'a aktarmak için bir klasör veya bağlantıya tıklayın.',
-    'import_folder': 'Klasörü İçe Aktar',
-    'import_link': 'Bağlantıyı İçe Aktar',
-    'bookmarks_permission_required': 'Chrome yer imlerine erişmek için izin gerekli',
-    'link_already_exists': 'Bağlantı zaten mevcut',
-    'folder_empty': 'Klasörde içe aktarılabilir bağlantı yok',
-    'skipped': 'Atlandı',
-    'check_spam': 'Spam klasörünüzü kontrol edin, e-posta genellikle oraya düşer.'
+    'cloud_login_desc': 'Yer imlerinizi cihazlar arasında senkronize etmek ve yedeklemek için hesap oluşturun'
   },
   'es': {
     'app_title': 'PrivateLinkSaver',
@@ -582,16 +550,7 @@ const translations = {
     'cloud_not_verified': 'Verifica tu correo antes de sincronizar',
     'cloud_sync': 'Sincronización en la nube',
     'cloud_login_title': 'Cuenta en la nube (Respaldo y sincronización)',
-    'cloud_login_desc': 'Crea una cuenta para sincronizar y respaldar tus marcadores entre dispositivos',
-    'chrome_import': 'Marcadores de Chrome',
-    'chrome_import_hint': 'Haz clic en una carpeta o enlace para importarlo a PrivateLinkSaver.',
-    'import_folder': 'Importar carpeta',
-    'import_link': 'Importar enlace',
-    'bookmarks_permission_required': 'Se requiere permiso para acceder a los marcadores de Chrome',
-    'link_already_exists': 'El enlace ya existe',
-    'folder_empty': 'La carpeta no tiene enlaces importables',
-    'skipped': 'Omitidos',
-    'check_spam': 'Revisa tu carpeta de spam, el correo suele acabar ahí.'
+    'cloud_login_desc': 'Crea una cuenta para sincronizar y respaldar tus marcadores entre dispositivos'
   },
   'fr': {
     'app_title': 'PrivateLinkSaver',
@@ -719,16 +678,7 @@ const translations = {
     'cloud_not_verified': "Vérifiez votre e-mail avant de synchroniser",
     'cloud_sync': 'Synchronisation cloud',
     'cloud_login_title': 'Compte Cloud (Sauvegarde et synchronisation)',
-    'cloud_login_desc': 'Créez un compte pour synchroniser et sauvegarder vos favoris entre appareils',
-    'chrome_import': 'Favoris Chrome',
-    'chrome_import_hint': 'Cliquez sur un dossier ou un lien pour l\'importer dans PrivateLinkSaver.',
-    'import_folder': 'Importer le dossier',
-    'import_link': 'Importer le lien',
-    'bookmarks_permission_required': 'Permission requise pour accéder aux favoris Chrome',
-    'link_already_exists': 'Le lien existe déjà',
-    'folder_empty': 'Le dossier n\'a pas de liens importables',
-    'skipped': 'Ignorés',
-    'check_spam': 'Vérifiez vos spams, l\'e-mail s\'y retrouve souvent.'
+    'cloud_login_desc': 'Créez un compte pour synchroniser et sauvegarder vos favoris entre appareils'
   }
 };
 

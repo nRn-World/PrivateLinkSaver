@@ -164,7 +164,7 @@ async function createAutoBackup() {
             date: new Date().toISOString(),
             auto: true,
             data: {
-                 version: '2.4.2',
+                 version: '2.4.3',
                  exportDate: new Date().toISOString(),
                 bookmarks: result.bookmarks || [],
                 folders: result.folders || [],

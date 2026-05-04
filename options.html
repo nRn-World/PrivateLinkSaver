@@ -654,19 +654,9 @@
         </div>
         <div id="app-version-display" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span id="version-text">Loading version...</span>
+            <span id="version-text">Version 2.5.0</span>
         </div>
     </div>
-    <script>
-        // Display version from manifest
-        (function() {
-            try {
-                const manifest = chrome.runtime.getManifest();
-                const vEl = document.getElementById('version-text');
-                if (vEl) vEl.textContent = 'Version ' + manifest.version;
-            } catch(e) {}
-        })();
-    </script>
 
     <!-- Firebase Modular SDK for Manifest V3 (no external script loading) -->
     <script src="scripts/firebase-init.js"></script>

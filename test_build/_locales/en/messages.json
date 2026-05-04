@@ -1,0 +1,68 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Save and organize your links privately and securely with password protection",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Save current page to bookmarks",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "Open PrivateLinkSaver popup",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Quick search in bookmarks",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Save link to PrivateLinkSaver",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Save page to PrivateLinkSaver",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Saved: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "This page is already saved!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Please log in to save bookmarks",
+    "description": "Notification login required"
+  },
+  "auto_logout_5": {
+    "message": "5 minutes",
+    "description": "Auto logout 5 minutes"
+  },
+  "auto_logout_15": {
+    "message": "15 minutes",
+    "description": "Auto logout 15 minutes"
+  },
+  "auto_logout_30": {
+    "message": "30 minutes",
+    "description": "Auto logout 30 minutes"
+  },
+  "auto_logout_60": {
+    "message": "60 minutes",
+    "description": "Auto logout 60 minutes"
+  },
+  "auto_logout_never": {
+    "message": "Never",
+    "description": "Auto logout never"
+  }
+}

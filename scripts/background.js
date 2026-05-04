@@ -164,7 +164,7 @@ async function createAutoBackup() {
             date: new Date().toISOString(),
             auto: true,
             data: {
-                 version: '2.4.3',
+                 version: '2.5.0',
                  exportDate: new Date().toISOString(),
                 bookmarks: result.bookmarks || [],
                 folders: result.folders || [],
@@ -391,16 +391,8 @@ async function saveBookmark(url, title, tab) {
 
 // Update badge with bookmark count
 async function updateBadge() {
-    const result = await chrome.storage.local.get('bookmarks');
-    const bookmarks = result.bookmarks || [];
-    const count = bookmarks.length;
-    
-    if (bookmarks.length > 0) {
-        chrome.action.setBadgeText({ text: '' });
-        chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
-    } else {
-        chrome.action.setBadgeText({ text: '' });
-    }
+    // Never show a badge count - keep icon clean
+    chrome.action.setBadgeText({ text: '' });
 }
 
 // Listen for storage changes to update badge

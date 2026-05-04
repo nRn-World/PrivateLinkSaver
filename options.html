@@ -471,6 +471,22 @@
                 </div>
                 <select id="auto-logout"></select>
             </div>
+
+            <div class="setting-item" style="border-bottom: none;">
+                <div class="setting-info">
+                    <h3>Version</h3>
+                    <p>Current installed version of PrivateLinkSaver</p>
+                </div>
+                <span id="options-version-badge" style="
+                    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+                    color: white;
+                    font-size: 12px;
+                    font-weight: 700;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    letter-spacing: 0.5px;
+                ">v2.5.0</span>
+            </div>
         </div>
 
         <!-- Cloud Sync -->
@@ -636,11 +652,24 @@
             </span>
             <span id="footer-copied-msg" style="display: none; color: #10b981; font-size: 12px; margin-left: 8px;">Copied!</span>
         </div>
+        <div id="app-version-display" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="version-text">Loading version...</span>
+        </div>
     </div>
+    <script>
+        // Display version from manifest
+        (function() {
+            try {
+                const manifest = chrome.runtime.getManifest();
+                const vEl = document.getElementById('version-text');
+                if (vEl) vEl.textContent = 'Version ' + manifest.version;
+            } catch(e) {}
+        })();
+    </script>
 
-    <script src="scripts/firebase-app-compat.js"></script>
-    <script src="scripts/firebase-auth-compat.js"></script>
-    <script src="scripts/firebase-firestore-compat.js"></script>
+    <!-- Firebase Modular SDK for Manifest V3 (no external script loading) -->
+    <script src="scripts/firebase-init.js"></script>
     <script src="scripts/translations.js"></script>
     <script src="scripts/crypto.js"></script>
     <script src="scripts/storage.js"></script>

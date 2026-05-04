@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateLinkSaver - Settings</title>
+    <link rel="stylesheet" href="vendor/all.min.css">
+    <link rel="stylesheet" href="vendor/inter.css">
+    <style>
+        :root {
+            --primary-color: #0ea5e9;
+            --primary-light: #38bdf8;
+            --primary-dark: #0284c7;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: block;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .header-logo-wrapper {
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 5px auto;
+        }
+
+        .header-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .settings-card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-card h2 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-card h2 i {
+            color: var(--primary-color);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .setting-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Select */
+        select {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .danger-zone {
+            border: 1px solid var(--danger-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .danger-zone h3 {
+            color: var(--danger-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .danger-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .storage-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .storage-used {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .storage-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .shortcut-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .shortcut-item kbd {
+            padding: 4px 10px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Support Section */
+        .support-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .support-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .support-content {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .coffee-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .support-text h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+        }
+
+        .support-text p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .coffee-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .coffee-cta::before {
+            content: '☕';
+            font-size: 16px;
+        }
+
+        .support-link:hover .coffee-cta {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        [data-theme="dark"] .support-section {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%);
+        }
+
+        [data-theme="dark"] .coffee-icon {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Icons -->
+    <svg style="display:none;">
+        <defs>
+        <symbol id="icon-cloud" viewBox="0 0 24 24"><path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></symbol>
+        <symbol id="icon-sign-in" viewBox="0 0 24 24"><path fill="currentColor" d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></symbol>
+        <symbol id="icon-sign-out" viewBox="0 0 24 24"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></symbol>
+        <symbol id="icon-sync" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></symbol>
+        </defs>
+    </svg>
+
+    <div class="header">
+        <div class="header-logo-wrapper">
+            <img src="icons/FullLogo.png" class="header-logo" alt="PrivateLinkSaver">
+        </div>
+        <p data-translate="settings_title">Settings and Configuration</p>
+    </div>
+
+    <div class="container">
+        <!-- General Settings -->
+        <div class="settings-card">
+            <h2><i class="fas fa-cog"></i> <span data-translate="general_settings">General Settings</span></h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="dark_mode">Dark Mode</h3>
+                    <p data-translate="toggle_theme">Toggle between dark and light theme</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="language">Language</h3>
+                    <p data-translate="select_language">Select your preferred language</p>
+                </div>
+                <select id="language">
+                    <option value="sv">Svenska</option>
+                    <option value="en">English</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="auto_backup">Automatic Backup</h3>
+                    <p data-translate="auto_backup_desc">Create automatic backup every day</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-backup">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="auto_logout">Auto Logout</h3>
+                    <p data-translate="auto_logout_desc">Automatically lock PrivateLinkSaver after inactivity</p>
+                </div>
+                <select id="auto-logout"></select>
+            </div>
+        </div>
+
+        <!-- Cloud Sync -->
+        <div class="settings-card" id="cloud-settings-card">
+            <h2><span class="icon-placeholder">☁️</span> <span data-translate="cloud_sync">Cloud Sync</span></h2>
+            
+            <div id="cloud-login-form">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 data-translate="cloud_login_title">Cloud Account (Backup & Sync)</h3>
+                        <p data-translate="cloud_login_desc">Create an account to sync and backup your bookmarks across devices</p>
+                    </div>
+                </div>
+                <div style="padding: 16px 0;">
+                    <div class="input-group" style="margin-bottom: 12px;">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="options-cloud-email" data-translate-placeholder="email" placeholder="Email">
+                    </div>
+                    <div class="input-group" style="margin-bottom: 12px;">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="options-cloud-password" data-translate-placeholder="cloud_password" placeholder="Account Password">
+                        <button type="button" class="password-toggle" id="toggle-options-cloud-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button id="options-cloud-login-btn" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-sign-in-alt"></i> <span data-translate="cloud_login">Login</span>
+                        </button>
+                        <button id="options-cloud-register-btn" class="btn btn-outline" style="flex: 1;">
+                            <i class="fas fa-user-plus"></i> <span data-translate="cloud_register">Create Account</span>
+                        </button>
+                    </div>
+                    <button id="options-cloud-forgot-btn" class="text-link" data-translate="cloud_forgot">Forgot password?</button>
+                    <div id="options-login-status" style="text-align: center; padding: 8px; font-size: 12px; min-height: 20px;"></div>
+                </div>
+                <div class="cloud-info" style="display: flex; align-items: flex-start; gap: 8px; padding: 12px; background: rgba(14, 165, 233, 0.1); border-radius: 8px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                    <i class="fas fa-info-circle" style="color: var(--primary-color); margin-top: 2px;"></i>
+                    <span data-translate="cloud_info">Your data is encrypted locally before being synced. We never see your bookmarks.</span>
+                </div>
+            </div>
+
+            <div id="cloud-logged-in" style="display: none;">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 style="display: flex; align-items: center; gap: 8px;">
+                            <svg class="icon cloud-icon" viewBox="0 0 24 24"><use href="#icon-cloud"></use></svg>
+                            <span data-translate="cloud_connected">Cloud Connected</span>
+                        </h3>
+                        <p id="options-cloud-email-display"></p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; padding: 16px 0; flex-wrap: wrap;">
+                    <button id="options-cloud-sync-btn" class="btn btn-primary" style="flex: 1; min-width: 120px;">
+                        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg> <span data-translate="sync_now">Sync Now</span>
+                    </button>
+                    <button id="options-cloud-backup-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
+                        <i class="fas fa-upload"></i> <span data-translate="save_cloud_backup">Save Backup to Cloud</span>
+                    </button>
+                    <button id="options-cloud-download-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
+                        <i class="fas fa-download"></i> <span data-translate="download_cloud_backup">Download Backup from Cloud</span>
+                    </button>
+                    <button id="options-cloud-verify-btn" class="btn btn-outline" style="flex: 1; min-width: 120px; display: none; border-color: var(--warning-color); color: var(--warning-color);">
+                        <i class="fas fa-envelope"></i> <span data-translate="verify_email">Verify Email</span>
+                    </button>
+                    <button id="options-cloud-logout-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
+                        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>
+                    </button>
+                </div>
+                <div id="options-sync-status" style="text-align: center; padding: 8px; font-size: 12px; color: var(--text-secondary);"></div>
+            </div>
+        </div>
+
+        <!-- Storage -->
+        <div class="settings-card">
+            <h2><i class="fas fa-hdd"></i> <span data-translate="storage">Storage</span></h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-translate="storage_usage">Storage Used</h3>
+                    <p data-translate="storage_desc">See how much space your bookmarks are using</p>
+                </div>
+                <span id="storage-text">0 MB / 5 MB</span>
+            </div>
+            
+            <div class="storage-bar">
+                <div class="storage-used" id="storage-bar" style="width: 0%"></div>
+            </div>
+            <div class="storage-info">
+                <span id="storage-percent">0% used</span>
+                <span>Max 5 MB</span>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="settings-card">
+            <h2><i class="fas fa-keyboard"></i> <span data-translate="keyboard_shortcuts">Keyboard Shortcuts</span></h2>
+            
+            <div class="shortcut-list">
+                <div class="shortcut-item">
+                    <span data-translate="add_current_page">Save Current Page</span>
+                    <kbd>Ctrl+Shift+S</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="open_extension">Open PrivateLinkSaver</span>
+                    <kbd>Ctrl+Shift+B</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="quick_search">Quick Search</span>
+                    <kbd>Ctrl+Shift+F</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="focus_search">Focus Search Field</span>
+                    <kbd>Ctrl+K</kbd>
+                </div>
+                <div class="shortcut-item">
+                    <span data-translate="new_folder">New Folder</span>
+                    <kbd>Ctrl+N</kbd>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-card">
+            <h2><i class="fas fa-exclamation-triangle"></i> <span data-translate="danger_zone">Danger Zone</span></h2>
+            
+            <div class="danger-zone">
+                <h3><i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data">Delete All Data</span></h3>
+                <p data-translate="delete_data_warning">This will permanently delete all your bookmarks, folders, and settings. This action cannot be undone.</p>
+                <button class="btn btn-danger" id="clear-data">
+                    <i class="fas fa-trash-alt"></i> <span data-translate="delete_all_data_btn">Delete All Data</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Section -->
+    <div class="container">
+        <div class="settings-card support-section">
+            <a href="https://buymeacoffee.com/nrnworld" target="_blank" rel="noopener noreferrer" class="support-link">
+                <div class="support-content">
+                    <img src="icons/kaffe-icon.png" alt="Coffee Icon" class="coffee-icon" onerror="this.style.display='none'">
+                    <div class="support-text">
+                        <h2><i class="fas fa-coffee"></i> <span data-translate="support_title">THE WALL OF FAME</span></h2>
+                        <p data-translate="support_description">Support the development of PrivateLinkSaver by buying me a coffee. Your contribution helps keep this extension free and continuously improving!</p>
+                        <span class="coffee-cta" data-translate="support_cta">Click here to buy me a coffee</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>PrivateLinkSaver</p>
+        <p>Created 2026 by Robin Ayzit</p>
+        <div style="margin-top: 8px; text-align: center;">
+            <span id="footer-email-display" style="color: var(--primary-color); font-weight: 500; cursor: pointer; user-select: none;">
+                bynrnworld@gmail.com
+                <svg id="footer-copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6; vertical-align: middle; margin-left: 4px;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </span>
+            <span id="footer-copied-msg" style="display: none; color: #10b981; font-size: 12px; margin-left: 8px;">Copied!</span>
+        </div>
+    </div>
+
+    <!-- Firebase Modular SDK for Manifest V3 (no external script loading) -->
+    <script src="scripts/firebase-init.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/crypto.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/options.js"></script>
+
+</body>
+</html>

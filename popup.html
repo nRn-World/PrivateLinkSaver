@@ -547,14 +547,29 @@
         </div>
     </div>
 
-    <script src="scripts/firebase-app-compat.js"></script>
-    <script src="scripts/firebase-auth-compat.js"></script>
-    <script src="scripts/firebase-firestore-compat.js"></script>
+    <!-- Version display -->
+    <div style="text-align:center; padding: 6px 0 10px; font-size: 11px; color: var(--text-muted, #94a3b8); font-family: Inter, sans-serif;">
+        <span id="popup-version-text">PrivateLinkSaver</span>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Firebase Modular SDK for Manifest V3 (no external script loading) -->
+    <script src="scripts/firebase-init.js"></script>
     <script src="scripts/translations.js"></script>
     <script src="scripts/crypto.js"></script>
     <script src="scripts/storage.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/popup.js"></script>
+    <script>
+        // Show version at bottom
+        (function() {
+            try {
+                const manifest = chrome.runtime.getManifest();
+                const vEl = document.getElementById('popup-version-text');
+                if (vEl) vEl.textContent = 'v' + manifest.version;
+            } catch(e) {}
+        })();
+    </script>
 </body>
 
 </html>

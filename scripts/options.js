@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadCloudState() {
-        const user = CloudAuth.getCurrentUser();
+        const user = await CloudAuth.getCurrentUser();
         if (user) {
             cloudLoginForm.style.display = 'none';
             cloudLoggedIn.style.display = 'block';
@@ -167,6 +167,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             cloudLoginForm.style.display = 'block';
             cloudLoggedIn.style.display = 'none';
+            cloudEncryptionKey = null;
+            cloudPassword = null;
+            cloudSalt = null;
         }
     }
 
@@ -402,8 +405,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cloud sync
     cloudSyncBtn.addEventListener('click', async () => {
-        if (!cloudEncryptionKey) {
+        const currentUser = await CloudAuth.getCurrentUser();
+        if (!currentUser) {
+            cloudEncryptionKey = null;
             showSyncStatus('Please login first to sync', 'error');
+            await loadCloudState();
+            return;
+        }
+        if (!cloudEncryptionKey) {
+            showSyncStatus('Session expired. Please login again.', 'error');
+            await loadCloudState();
             return;
         }
 
@@ -453,8 +464,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cloud save backup (upload current data to cloud)
     cloudSaveBackupBtn.addEventListener('click', async () => {
-        if (!cloudEncryptionKey) {
+        const currentUser = await CloudAuth.getCurrentUser();
+        if (!currentUser || !cloudEncryptionKey) {
             showSyncStatus('Please login first to save backup', 'error');
+            await loadCloudState();
             return;
         }
 
@@ -488,8 +501,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cloud download backup (download cloud data as file)
     cloudDownloadBtn.addEventListener('click', async () => {
-        if (!cloudEncryptionKey) {
+        const currentUser = await CloudAuth.getCurrentUser();
+        if (!currentUser || !cloudEncryptionKey) {
             showSyncStatus('Please login first to download backup', 'error');
+            await loadCloudState();
             return;
         }
 
@@ -532,14 +547,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cloud logout
     cloudLogoutBtn.addEventListener('click', async () => {
+        cloudLogoutBtn.disabled = true;
+        cloudLogoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Logging out...</span>';
         try {
+            // Sign out from Firebase
+            if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+                await firebase.auth().signOut();
+            }
             await CloudAuth.logout();
             cloudEncryptionKey = null;
+            cloudPassword = null;
+            cloudSalt = null;
             await StorageUtils.set({ cloudEncryptionSalt: null });
             showSyncStatus('Logged out successfully', 'success');
             await loadCloudState();
         } catch (error) {
-            showSyncStatus(error.message, 'error');
+            showSyncStatus('Logout failed: ' + error.message, 'error');
+        } finally {
+            cloudLogoutBtn.disabled = false;
+            cloudLogoutBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>';
         }
     });
 

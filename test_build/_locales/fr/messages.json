@@ -1,0 +1,68 @@
+{
+  "extName": {
+    "message": "PrivateLinkSaver",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Enregistrez et organisez vos liens en privé et en toute sécurité avec protection par mot de passe",
+    "description": "Extension description"
+  },
+  "cmdSavePage": {
+    "message": "Enregistrer la page actuelle dans les favoris",
+    "description": "Save current page command"
+  },
+  "cmdOpenPopup": {
+    "message": "Ouvrir la fenêtre popup PrivateLinkSaver",
+    "description": "Open popup command"
+  },
+  "cmdQuickSearch": {
+    "message": "Recherche rapide dans les favoris",
+    "description": "Quick search command"
+  },
+  "contextSaveLink": {
+    "message": "Enregistrer le lien dans PrivateLinkSaver",
+    "description": "Context menu save link"
+  },
+  "contextSavePage": {
+    "message": "Enregistrer la page dans PrivateLinkSaver",
+    "description": "Context menu save page"
+  },
+  "notificationSaved": {
+    "message": "Enregistré: $title$",
+    "description": "Notification saved",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Page Title"
+      }
+    }
+  },
+  "notificationExists": {
+    "message": "Cette page est déjà enregistrée!",
+    "description": "Notification already exists"
+  },
+  "notificationLoginRequired": {
+    "message": "Veuillez vous connecter pour enregistrer des favoris",
+    "description": "Notification login required"
+  },
+  "auto_logout_5": {
+    "message": "5 minutes",
+    "description": "Auto logout 5 minutes"
+  },
+  "auto_logout_15": {
+    "message": "15 minutes",
+    "description": "Auto logout 15 minutes"
+  },
+  "auto_logout_30": {
+    "message": "30 minutes",
+    "description": "Auto logout 30 minutes"
+  },
+  "auto_logout_60": {
+    "message": "60 minutes",
+    "description": "Auto logout 60 minutes"
+  },
+  "auto_logout_never": {
+    "message": "Jamais",
+    "description": "Auto logout jamais"
+  }
+}

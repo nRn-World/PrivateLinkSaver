@@ -28,7 +28,14 @@ const CloudAuth = {
                 if (!firebase.apps || !firebase.apps.length) {
                     firebase.initializeApp(this.firebaseConfig);
                 }
-                await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                const auth = firebase.auth();
+                if (auth && auth.setPersistence) {
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+                }
+                // Restore session from persistent storage
+                if (auth && auth._restoreAuthState) {
+                    await auth._restoreAuthState();
+                }
                 this.initialized = true;
             } catch (error) {
                 console.error("Firebase init error:", error);
@@ -40,12 +47,16 @@ const CloudAuth = {
 
     async getCurrentUser() {
         await this.init();
-        return firebase.auth().currentUser;
+        const auth = firebase.auth();
+        if (!auth) return null;
+        return auth.currentUser;
     },
 
     async onAuthStateChanged(callback) {
         await this.init();
-        return firebase.auth().onAuthStateChanged(callback);
+        const auth = firebase.auth();
+        if (!auth) { callback(null); return () => {}; }
+        return auth.onAuthStateChanged(callback);
     },
 
     async register(email, password) {
@@ -70,7 +81,9 @@ const CloudAuth = {
 
     async resendVerificationEmail() {
         await this.init();
-        const user = firebase.auth().currentUser;
+        const auth = firebase.auth();
+        if (!auth) return false;
+        const user = auth.currentUser;
         if (user && !user.emailVerified) {
             await user.sendEmailVerification();
             return true;
@@ -80,7 +93,9 @@ const CloudAuth = {
 
     async isEmailVerified() {
         await this.init();
-        const user = firebase.auth().currentUser;
+        const auth = firebase.auth();
+        if (!auth) return false;
+        const user = auth.currentUser;
         if (user) {
             await user.reload();
             return user.emailVerified;
@@ -90,7 +105,10 @@ const CloudAuth = {
 
     async logout() {
         await this.init();
-        await firebase.auth().signOut();
+        const auth = firebase.auth();
+        if (auth) {
+            await auth.signOut();
+        }
     },
 
     async resetPassword(email) {
@@ -98,7 +116,21 @@ const CloudAuth = {
         if (!firebase.apps || !firebase.apps.length) {
             throw new Error('Firebase is not initialized. Please reload the page.');
         }
-        await firebase.auth().sendPasswordResetEmail(email);
+        const apiKey = this.firebaseConfig.apiKey;
+        const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                requestType: 'PASSWORD_RESET',
+                email: email
+            })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            const errMsg = error.error?.message || 'Failed to send reset email';
+            if (errMsg === 'EMAIL_NOT_FOUND') throw new Error('No account found with this email address.');
+            throw new Error(errMsg);
+        }
     }
 };
 
@@ -107,17 +139,42 @@ const CloudStorage = {
         if (!navigator.onLine) return { success: false, offline: true };
         try {
             await CloudAuth.init();
-            const user = firebase.auth().currentUser;
+            const auth = firebase.auth();
+            if (!auth) return { success: false, error: "Firebase not initialized" };
+            const user = auth.currentUser;
             if (!user) return { success: false, error: "Not logged in" };
 
             const encryptedData = await CryptoUtils.encryptData(data, encryptionKey);
-            const db = firebase.firestore();
-            await db.collection("users").doc(user.uid).collection("data").doc("bookmarks").set({
-                encrypted: encryptedData.encrypted,
-                iv: encryptedData.iv,
-                salt: salt || "",
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            
+            // Use REST API instead of Firestore SDK
+            const idToken = await user.getIdToken();
+            const projectId = CloudAuth.firebaseConfig.projectId;
+            const docPath = `users/${user.uid}/data/bookmarks`;
+            const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${docPath}`;
+            
+            const firestoreData = {
+                fields: {
+                    encrypted: { stringValue: encryptedData.encrypted },
+                    iv: { stringValue: encryptedData.iv },
+                    salt: { stringValue: salt || "" },
+                    updatedAt: { timestampValue: new Date().toISOString() }
+                }
+            };
+
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+                body: JSON.stringify(firestoreData)
             });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || 'Failed to save to cloud');
+            }
+
             return { success: true };
         } catch (error) {
             console.error("Sync to cloud error:", error);
@@ -129,20 +186,45 @@ const CloudStorage = {
         if (!navigator.onLine) return { data: null, hasCloudData: false, offline: true };
         try {
             await CloudAuth.init();
-            const user = firebase.auth().currentUser;
+            const auth = firebase.auth();
+            if (!auth) return { data: null, hasCloudData: false, error: "Firebase not initialized" };
+            const user = auth.currentUser;
             if (!user) return { data: null, hasCloudData: false, error: "Not logged in" };
 
-            const db = firebase.firestore();
-            const doc = await db.collection("users").doc(user.uid).collection("data").doc("bookmarks").get();
+            const idToken = await user.getIdToken();
+            const projectId = CloudAuth.firebaseConfig.projectId;
+            const docPath = `users/${user.uid}/data/bookmarks`;
+            const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${docPath}`;
 
-            if (!doc.exists) return { data: null, hasCloudData: false };
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${idToken}`
+                }
+            });
 
-            const docData = doc.data();
-            let decryptedData = await CryptoUtils.decryptData(docData.encrypted, docData.iv, encryptionKey);
+            if (response.status === 404) {
+                return { data: null, hasCloudData: false };
+            }
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || 'Failed to read from cloud');
+            }
+
+            const docData = await response.json();
+            const fields = docData.fields;
+            if (!fields || !fields.encrypted) {
+                return { data: null, hasCloudData: false };
+            }
+
+            const encrypted = fields.encrypted.stringValue;
+            const iv = fields.iv.stringValue;
+
+            let decryptedData = await CryptoUtils.decryptData(encrypted, iv, encryptionKey);
 
             // Fallback to legacy decryption if current key fails
             if (decryptedData === null && password) {
-                decryptedData = await CryptoUtils.decryptDataLegacy(docData.encrypted, docData.iv, password);
+                decryptedData = await CryptoUtils.decryptDataLegacy(encrypted, iv, password);
             }
 
             if (decryptedData === null) {
@@ -158,4 +240,4 @@ const CloudStorage = {
 };
 
 // Start initialization as soon as the script is loaded
-CloudAuth.init();
+CloudAuth.init().catch(console.error);

@@ -485,7 +485,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             elements.bookmarksContainer.appendChild(item);
         });
 
-        chrome.action.setBadgeText({ text: state.bookmarks.length.toString() });
+        // Never show count on badge - keep it clean
+        chrome.action.setBadgeText({ text: '' });
     }
 
     // Event delegation for bookmark actions
@@ -1170,6 +1171,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         if (isValid) {
             await StorageUtils.saveLoginStatus(true);
+            await StorageUtils.recordSessionActivity(true); // Record activity on login
             elements.password.value = '';
             showBookmarks();
         } else {
@@ -1990,7 +1992,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     // If a password hash exists, we should either show bookmarks or the login screen
     if (hash) {
         if (isLoggedIn) {
-            if (prefs.firstTime) {
+            // Check if session has expired (auto logout)
+            const autoLogoutResult = await StorageUtils.enforceAutoLogout();
+            if (autoLogoutResult.expired) {
+                // Session expired - show login
+                elements.loginSection.style.display = 'block';
+                elements.welcomeScreen.style.display = 'none';
+                elements.registerSection.style.display = 'none';
+                elements.bookmarksSection.style.display = 'none';
+                const mins = autoLogoutResult.minutes;
+                showToast(`Auto-locked after ${mins} minute${mins !== 1 ? 's' : ''} of inactivity`, 'warning');
+                await updateStats();
+            } else if (prefs.firstTime) {
                 showWelcomeScreen();
                 await StorageUtils.savePreferences({ firstTime: false });
             } else {
@@ -2009,6 +2022,24 @@ document.addEventListener('DOMContentLoaded', async function () {
         await StorageUtils.savePreferences({ firstTime: true });
         showWelcomeScreen();
     }
+
+    // Start session activity tracking (updates sessionLastActiveAt on user interaction)
+    StorageUtils.initializeSessionActivityTracking();
+
+    // Periodically check if auto logout should fire (every 30 seconds)
+    setInterval(async () => {
+        const loggedIn = await StorageUtils.getLoginStatus();
+        if (!loggedIn) return;
+        const result = await StorageUtils.enforceAutoLogout();
+        if (result.expired) {
+            const mins = result.minutes;
+            showToast(`Auto-locked after ${mins} minute${mins !== 1 ? 's' : ''} of inactivity`, 'warning');
+            elements.loginSection.style.display = 'block';
+            elements.bookmarksSection.style.display = 'none';
+            elements.welcomeScreen.style.display = 'none';
+            elements.registerSection.style.display = 'none';
+        }
+    }, 30000);
 
     // ===== Chrome Bookmarks Import =====
 

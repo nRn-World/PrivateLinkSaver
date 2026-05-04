@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "2.4.2",
+  "description": "__MSG_extDescription__",
+  "author": "Robin Ayzit",
+  "homepage_url": "https://buymeacoffee.com/nrnworld",
+  "default_locale": "en",
+  "icons": {
+    "16": "icons/FullLogo_Transparent.png",
+    "32": "icons/FullLogo_Transparent.png",
+    "48": "icons/FullLogo_Transparent.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/FullLogo_Transparent.png",
+      "32": "icons/FullLogo_Transparent.png",
+      "48": "icons/FullLogo_Transparent.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "__MSG_extName__",
+    "default_badge_color": "#0ea5e9"
+  },
+  "background": {
+    "service_worker": "scripts/background.js",
+    "type": "module"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "storage",
+    "tabs",
+    "contextMenus",
+    "activeTab",
+    "notifications",
+    "alarms"
+  ],
+  "optional_permissions": [
+    "bookmarks"
+  ],
+  "commands": {
+    "save-current-page": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "__MSG_cmdSavePage__"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      }
+    },
+    "quick-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "__MSG_cmdQuickSearch__"
+    }
+  },
+  "omnibox": {
+    "keyword": "pls"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"],
+      "use_dynamic_url": true
+    }
+  ]
+}

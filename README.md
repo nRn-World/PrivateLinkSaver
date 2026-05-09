@@ -3,7 +3,7 @@
   <br />
   <p><strong>Secure. Private. Fast. The modern way to manage your links.</strong></p>
 
-  [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
+  [![Version](https://img.shields.io/badge/version-2.5.2-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
   [![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
   [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
   [![Cloud](https://img.shields.io/badge/cloud-sync-0ea5e9.svg?style=flat-square)](https://firebase.google.com/)

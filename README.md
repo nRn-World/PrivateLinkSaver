@@ -5,7 +5,7 @@
 
   [![Version](https://img.shields.io/badge/version-2.5.2-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
   [![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-  [![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey.svg?style=flat-square)](LICENSE)
+  [![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-orange.svg?style=flat-square)](LICENSE)
   [![Cloud](https://img.shields.io/badge/cloud-sync-0ea5e9.svg?style=flat-square)](https://firebase.google.com/)
 </div>
 

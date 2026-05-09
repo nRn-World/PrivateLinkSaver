@@ -2,7 +2,7 @@
 # Run this script from: D:\APPS By nRn World\Chrome\PrivateLinkSaver
 
 $src = "D:\APPS By nRn World\Chrome\PrivateLinkSaver"
-$version = "2.5.0"
+$version = "2.5.2"
 $zipPath = "$src\PrivateLinkSaver_v$version.zip"
 
 Write-Host "========================================" -ForegroundColor Cyan
@@ -51,17 +51,15 @@ Write-Host "`n[2/3] Committing changes to Git..." -ForegroundColor Yellow
 Set-Location $src
 
 git add -A
-git commit -m "v$version - Fix Cloud Sync, Auto Logout, Badge, Version display
+git commit -m "v$version - UI Cleanup and Bookmark Management Improvements
 
 Changes:
-- Fixed Cloud Sync: login, logout, sync, save backup, download backup all work
-- Fixed Firebase auth persistence (session survives page reload)
-- Fixed all Firebase REST API calls to include API key
-- Fixed Auto Logout: session activity tracking + periodic 30s check in popup
-- Removed badge count from extension icon (always blank now)
-- Added version display in Settings (General Settings card)
-- Added version display in Settings footer
-- Added version display in popup footer
+- Removed Cloud Sync UI from popup (only accessible in Settings now)
+- Fixed 'Chrome Bookmarks' button layout (text no longer cut off)
+- Improved Chrome Bookmark Import: automatically creates folders and assigns links
+- Improved individual bookmark import: defaults to parent folder name from Chrome
+- Changed Folder Deletion: deleting a folder now permanently deletes all its bookmarks
+- Added 'bookmarks' optional permission to manifest.json
 - Bumped version to $version"
 
 # ---- 3. Git push ----

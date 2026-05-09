@@ -838,8 +838,20 @@ input[type="email"]:focus {
 /* Data Actions */
 .data-actions {
   display: flex;
-  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
+}
+
+.data-actions .btn {
+  flex: 1;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.export-group {
+  flex: 1;
+  min-width: fit-content;
 }
 
 .file-input {
@@ -1844,4 +1856,9 @@ input[type="email"]:focus {
 #folder-color-hex:focus {
   outline: none;
   border-color: var(--primary-color);
+}
+
+/* Force-hide cloud sync elements in popup as per user request */
+#cloud-sync-status, #cloud-account-section {
+  display: none !important;
 }

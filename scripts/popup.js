@@ -1463,13 +1463,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         if (!confirm(translations[state.currentLang]['folder_delete_confirm'])) return;
         
-        // Move bookmarks to first folder
-        const firstFolder = state.folders[0]?.name;
-        state.bookmarks.forEach(b => {
-            if (b.folder === selectedFolder) {
-                b.folder = firstFolder;
-            }
-        });
+        // Delete all bookmarks in this folder
+        state.bookmarks = state.bookmarks.filter(b => b.folder !== selectedFolder);
         
         // Remove folder
         state.folders = state.folders.filter(f => f.name !== selectedFolder);
@@ -1527,6 +1522,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await CloudAuth.login(email, password);
 
+                /* 
                 const verified = await CloudAuth.isEmailVerified();
                 if (!verified) {
                     await firebase.auth().signOut();
@@ -1534,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     showToast('Please verify your email address before logging in.', 'error');
                     return;
                 }
+                */
 
                 let salt = generateSalt();
                 const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
@@ -1713,69 +1710,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function updateCloudUI() {
-        const user = await CloudAuth.getCurrentUser();
-        if (user && elements.cloudSyncStatus) {
-            const emailVerified = user.emailVerified;
-            elements.cloudSyncStatus.style.display = 'block';
-            elements.cloudSyncStatus.innerHTML = `
-                <div class="cloud-status">
-                    <div class="cloud-status-info">
-                        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-cloud"></use></svg>
-                        <div>
-                            <div style="font-weight: 600;">${user.email}${!emailVerified ? ' <span style="color:#f59e0b;font-size:11px;">(not verified)</span>' : ''}</div>
-                            <div class="cloud-email-display">${emailVerified ? 'Cloud sync enabled' : 'Please verify your email first'}</div>
-                        </div>
-                    </div>
-                    <div class="cloud-status-actions">
-                        <button id="cloud-sync-btn" class="btn btn-sm btn-outline" ${!emailVerified ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
-                            <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg>
-                        </button>
-                        <button id="cloud-logout-btn" class="btn btn-sm btn-danger">
-                            <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('cloud-sync-btn')?.addEventListener('click', async () => {
-                if (!state.cloudEncryptionKey) return;
-                const verified = await CloudAuth.isEmailVerified();
-                if (!verified) {
-                    showToast('Please verify your email before syncing.', 'error');
-                    return;
-                }
-                showToast('Syncing...', 'info');
-                try {
-                    const localData = await StorageUtils.exportAllData();
-                    await CloudStorage.syncToCloud(localData, state.cloudEncryptionKey, state.cloudSalt);
-                    const result = await CloudStorage.syncFromCloud(state.cloudEncryptionKey, state.cloudPassword);
-                    if (result.hasCloudData && !result.decryptError && result.data) {
-                        await StorageUtils.importData(result.data, true);
-                        state.bookmarks = await StorageUtils.getBookmarks();
-                        refreshBookmarkView();
-                        showToast('Sync completed!');
-                    } else if (result.decryptError) {
-                        showToast(t('cloud_decrypt_error'), 'error');
-                    } else {
-                        showToast('Upload complete');
-                    }
-                } catch (error) {
-                    if (error.offline) {
-                        showToast(t('cloud_offline'), 'warning');
-                    } else {
-                        showToast('Sync failed: ' + error.message, 'error');
-                    }
-                }
-            });
-
-            document.getElementById('cloud-logout-btn')?.addEventListener('click', async () => {
-                await CloudAuth.logout();
-                state.cloudEncryptionKey = null;
-                state.cloudLoggedIn = false;
-                elements.cloudSyncStatus.style.display = 'none';
-                showToast('Logged out');
-            });
-        } else if (elements.cloudSyncStatus) {
+        // Cloud sync UI is now only available in the settings/options page.
+        if (elements.cloudSyncStatus) {
             elements.cloudSyncStatus.style.display = 'none';
         }
     }
@@ -2094,16 +2030,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         return (node.children || []).flatMap(collectValidLinks);
     }
 
-    function renderBookmarkTree(nodes, container) {
+    function renderBookmarkTree(nodes, container, parentFolderTitle = null) {
         nodes.forEach((node) => {
-            const el = renderBookmarkNode(node);
+            const el = renderBookmarkNode(node, parentFolderTitle);
             if (el) container.appendChild(el);
         });
     }
 
-    function renderBookmarkNode(node) {
+    function renderBookmarkNode(node, parentFolderTitle = null) {
         const wrapper = document.createElement('div');
         wrapper.className = 'chrome-tree-node';
+
+        const currentFolderTitle = node.url ? parentFolderTitle : (node.title || parentFolderTitle);
 
         if (!node.url) {
             // Folder node
@@ -2142,7 +2080,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const children = document.createElement('div');
             children.className = 'chrome-tree-children';
-            renderBookmarkTree(node.children || [], children);
+            renderBookmarkTree(node.children || [], children, currentFolderTitle);
 
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -2186,7 +2124,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             importBtn.textContent = t('import_link', 'Import Link');
             importBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                importSingleLink(node);
+                importSingleLink(node, currentFolderTitle);
             });
             actions.appendChild(importBtn);
 
@@ -2200,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return wrapper;
     }
 
-    async function importSingleLink(node) {
+    async function importSingleLink(node, overrideFolderName = null) {
         const normalizedUrl = StorageUtils.normalizeBookmarkUrl(node.url);
         if (!normalizedUrl) return;
 
@@ -2213,7 +2151,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
-        const folderName = elements.folderSelectAdd.value || state.folders[0]?.name || 'General';
+        const folderName = overrideFolderName || elements.folderSelectAdd.value || state.folders[0]?.name || 'General';
         const newBookmark = {
             id: CryptoUtils.generateUUID(),
             title: String(node.title || normalizedUrl).trim(),
@@ -2239,6 +2177,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
 
+        showLoader();
+
         // Ensure folder exists
         const existingFolders = await StorageUtils.getFolders();
         const folderName = String(node.title || 'Imported').trim();
@@ -2252,7 +2192,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 isDefault: false,
                 key: undefined
             };
-            await StorageUtils.saveFolders([...existingFolders, newFolder]);
+            const updatedFolders = [...existingFolders, newFolder];
+            await StorageUtils.saveFolders(updatedFolders);
+            state.folders = updatedFolders; // Update state immediately
         }
 
         // Import links
@@ -2268,6 +2210,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             const canonical = StorageUtils.canonicalUrl(normalizedUrl);
             if (existingCanonicals.has(canonical)) { skipped++; continue; }
             existingCanonicals.add(canonical);
+            
+            // Find parent folder name for this specific link if we want to be even smarter
+            // But for now, as requested, we put everything in the folder they clicked to import
+            
             toAdd.push({
                 id: CryptoUtils.generateUUID(),
                 title: String(linkNode.title || normalizedUrl).trim(),
@@ -2283,8 +2229,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             imported++;
         }
 
-        await StorageUtils.saveBookmarks([...existing, ...toAdd]);
+        if (toAdd.length > 0) {
+            await StorageUtils.saveBookmarks([...existing, ...toAdd]);
+        }
+        
         await refreshAfterImport();
+        hideLoader();
         showToast(`${t('import_success', 'Imported')}: ${imported} | ${t('skipped', 'Skipped')}: ${skipped}`, imported > 0 ? 'success' : 'info');
     }
 

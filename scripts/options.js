@@ -139,14 +139,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Check email verification
             if (!user.emailVerified) {
-                cloudEmailDisplay.innerHTML = `${user.email} <span style="color: var(--warning-color); font-size: 11px;">(Email not verified)</span>`;
-                cloudSyncBtn.disabled = true;
-                cloudSaveBackupBtn.disabled = true;
-                cloudDownloadBtn.disabled = true;
+                cloudEmailDisplay.innerHTML = `${user.email}`;
+                cloudSyncBtn.disabled = false;
+                cloudSaveBackupBtn.disabled = false;
+                cloudDownloadBtn.disabled = false;
 
                 const verifyBtn = document.getElementById('options-cloud-verify-btn');
                 if (verifyBtn) {
-                    verifyBtn.style.display = 'inline-flex';
+                    verifyBtn.style.display = 'none';
                 }
             } else {
                 cloudSyncBtn.disabled = false;
@@ -244,12 +244,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             await CloudAuth.login(email, password);
 
+            /*
             const verified = await CloudAuth.isEmailVerified();
             if (!verified) {
                 await firebase.auth().signOut();
                 showLoginStatus('Please verify your email address before logging in.', 'error');
                 return;
             }
+            */
 
             let salt = generateSalt();
             const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
@@ -418,11 +420,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        /*
         const verified = await CloudAuth.isEmailVerified();
         if (!verified) {
             showSyncStatus('Please verify your email before syncing. Click "Verify Email".', 'error');
             return;
         }
+        */
 
         cloudSyncBtn.disabled = true;
         cloudSyncBtn.textContent = 'Syncing...';
@@ -471,11 +475,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        /*
         const verified = await CloudAuth.isEmailVerified();
         if (!verified) {
             showSyncStatus('Please verify your email before saving. Click "Verify Email".', 'error');
             return;
         }
+        */
 
         cloudSaveBackupBtn.disabled = true;
         cloudSaveBackupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Saving...</span>';
@@ -508,11 +514,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        /*
         const verified = await CloudAuth.isEmailVerified();
         if (!verified) {
             showSyncStatus('Please verify your email before downloading. Click "Verify Email".', 'error');
             return;
         }
+        */
 
         cloudDownloadBtn.disabled = true;
         cloudDownloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Downloading...</span>';

@@ -43,63 +43,7 @@ def should_exclude(path):
             return True
     return False
 
-# Check firebase-auth-compat.js for bad URLs first
-bad_urls = [
-    "https://apis.google.com/js/api.js",
-    "https://www.google.com/recaptcha/api.js",
-    "https://www.google.com/recaptcha/enterprise.js",
-]
-
-auth_file = os.path.join(BASE_DIR, "scripts", "firebase-auth-compat.js")
-with open(auth_file, "r", encoding="utf-8") as f:
-    auth_content = f.read()
-
-found_bad = []
-for url in bad_urls:
-    if url in auth_content:
-        found_bad.append(url)
-
-if found_bad:
-    print("⚠️  WARNING - Bad URLs still found in firebase-auth-compat.js:")
-    for url in found_bad:
-        print(f"   {url}")
-    print("\n   Fixing now...")
-    auth_content = auth_content.replace(
-        "https://apis.google.com/js/api.js",
-        "disabled://apis.google.com/js/api.js"
-    )
-    auth_content = auth_content.replace(
-        "https://www.google.com/recaptcha/api.js",
-        "disabled://www.google.com/recaptcha/api.js"
-    )
-    auth_content = auth_content.replace(
-        "https://www.google.com/recaptcha/enterprise.js?render=",
-        "disabled://www.google.com/recaptcha/enterprise.js?render="
-    )
-    with open(auth_file, "w", encoding="utf-8") as f:
-        f.write(auth_content)
-    print("   ✅ Fixed!")
-else:
-    print("✅ firebase-auth-compat.js: No bad external URLs found!")
-
-# Check other firebase files too
-for fname in ["firebase-app-compat.js", "firebase-firestore-compat.js"]:
-    fpath = os.path.join(BASE_DIR, "scripts", fname)
-    if os.path.exists(fpath):
-        with open(fpath, "r", encoding="utf-8") as f:
-            content = f.read()
-        found = [u for u in bad_urls if u in content]
-        if found:
-            print(f"⚠️  Fixing {fname}...")
-            for url in found:
-                content = content.replace(url, "disabled://" + url[8:])
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.write(content)
-            print(f"   ✅ Fixed {fname}!")
-        else:
-            print(f"✅ {fname}: OK")
-
-print(f"\n📦 Building ZIP: {OUTPUT_ZIP}")
+print("\n📦 Building ZIP: {OUTPUT_ZIP}")
 
 file_count = 0
 with zipfile.ZipFile(OUTPUT_ZIP, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as zf:

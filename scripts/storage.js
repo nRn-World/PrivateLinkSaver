@@ -449,7 +449,7 @@ const StorageUtils = {
          const tags = await this.getTags();
          
          return {
-             version: '2.5.2',
+             version: '2.5.3',
              exportDate: new Date().toISOString(),
             bookmarks,
             folders,

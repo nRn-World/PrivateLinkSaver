@@ -146,7 +146,11 @@ const translations = {
     'cloud_not_verified': 'Verifiera din e-post innan synkronisering',
     'cloud_sync': 'Molnsynkronisering',
     'cloud_login_title': 'Molnkonto (Säkerhetskopiering & Synk)',
-    'cloud_login_desc': 'Skapa ett konto för att synkronisera och säkerhetskopiera dina bokmärken mellan enheter'
+    'cloud_login_desc': 'Skapa ett konto för att synkronisera och säkerhetskopiera dina bokmärken mellan enheter',
+    'sync_up': 'Synkronisera Upp till moln',
+    'sync_down': 'Synkronisera Ner från moln',
+    'download_to_pc': 'Ladda ner filer till datorn',
+    'upload_from_pc': 'Ladda upp .json .txt filer från datorn'
   },
   'en': {
     'app_title': 'PrivateLinkSaver',
@@ -294,7 +298,11 @@ const translations = {
     'cloud_not_verified': 'Verify your email before syncing',
     'cloud_sync': 'Cloud Sync',
     'cloud_login_title': 'Cloud Account (Backup & Sync)',
-    'cloud_login_desc': 'Create an account to sync and backup your bookmarks across devices'
+    'cloud_login_desc': 'Create an account to sync and backup your bookmarks across devices',
+    'sync_up': 'Sync Up to Cloud',
+    'sync_down': 'Sync Down from Cloud',
+    'download_to_pc': 'Download files to computer',
+    'upload_from_pc': 'Upload .json .txt files from computer'
   },
   'tr': {
     'app_title': 'PrivateLinkSaver',

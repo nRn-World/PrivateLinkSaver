@@ -22,8 +22,7 @@ const CloudAuth = {
         this.initPromise = (async () => {
             try {
                 if (typeof firebase === 'undefined') {
-                    console.error('Firebase SDK not loaded');
-                    return;
+                    throw new Error('Firebase SDK not loaded. Please check your internet connection or reload the extension.');
                 }
                 if (!firebase.apps || !firebase.apps.length) {
                     firebase.initializeApp(this.firebaseConfig);
@@ -146,7 +145,6 @@ const CloudStorage = {
 
             const encryptedData = await CryptoUtils.encryptData(data, encryptionKey);
             
-            // Use REST API instead of Firestore SDK
             const idToken = await user.getIdToken();
             const projectId = CloudAuth.firebaseConfig.projectId;
             const docPath = `users/${user.uid}/data/bookmarks`;

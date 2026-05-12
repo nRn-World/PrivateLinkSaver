@@ -485,7 +485,7 @@
                     padding: 4px 12px;
                     border-radius: 20px;
                     letter-spacing: 0.5px;
-                ">v2.5.1</span>
+                ">v2.5.2</span>
             </div>
         </div>
 
@@ -539,23 +539,62 @@
                         <p id="options-cloud-email-display"></p>
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px; padding: 16px 0; flex-wrap: wrap;">
-                    <button id="options-cloud-sync-btn" class="btn btn-primary" style="flex: 1; min-width: 120px;">
-                        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg> <span data-translate="sync_now">Sync Now</span>
+                <div class="cloud-actions-grid">
+                    <button id="options-cloud-sync-up-btn" class="btn btn-primary btn-with-icon">
+                        <i class="fas fa-cloud-upload-alt btn-icon"></i>
+                        <span data-translate="sync_up">Synkronisera Upp till moln</span>
                     </button>
-                    <button id="options-cloud-backup-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
-                        <i class="fas fa-upload"></i> <span data-translate="save_cloud_backup">Save Backup to Cloud</span>
+                    <button id="options-cloud-sync-down-btn" class="btn btn-primary btn-with-icon">
+                        <i class="fas fa-cloud-download-alt btn-icon"></i>
+                        <span data-translate="sync_down">Synkronisera Ner från moln</span>
                     </button>
-                    <button id="options-cloud-download-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
-                        <i class="fas fa-download"></i> <span data-translate="download_cloud_backup">Download Backup from Cloud</span>
+                    <button id="options-local-download-btn" class="btn btn-outline btn-with-icon">
+                        <i class="fas fa-file-download btn-icon"></i>
+                        <span data-translate="download_to_pc">Ladda ner filer till datorn</span>
                     </button>
-                    <button id="options-cloud-verify-btn" class="btn btn-outline" style="flex: 1; min-width: 120px; display: none; border-color: var(--warning-color); color: var(--warning-color);">
-                        <i class="fas fa-envelope"></i> <span data-translate="verify_email">Verify Email</span>
+                    <button id="options-local-upload-btn" class="btn btn-outline btn-with-icon">
+                        <i class="fas fa-file-upload btn-icon"></i>
+                        <span data-translate="upload_from_pc">Ladda upp .json .txt filer från datorn</span>
                     </button>
-                    <button id="options-cloud-logout-btn" class="btn btn-outline" style="flex: 1; min-width: 120px;">
-                        <svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>
+                    <input type="file" id="local-upload-input" style="display: none;" accept=".json,.txt">
+                    <button id="options-cloud-logout-btn" class="btn btn-outline btn-with-icon btn-logout">
+                        <svg class="icon btn-icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg>
+                        <span data-translate="cloud_logout">Logga ut</span>
                     </button>
                 </div>
+                
+                <style>
+                    .cloud-actions-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                        gap: 12px;
+                        padding: 16px 0;
+                    }
+                    .btn-with-icon {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        padding: 12px 16px;
+                        height: 48px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    }
+                    .btn-icon {
+                        width: 18px !important;
+                        height: 18px !important;
+                        font-size: 18px !important;
+                        flex-shrink: 0;
+                    }
+                    .btn-logout {
+                        border-color: rgba(239, 68, 68, 0.2);
+                        color: #ef4444;
+                    }
+                    .btn-logout:hover {
+                        background: rgba(239, 68, 68, 0.1);
+                        border-color: #ef4444;
+                    }
+                </style>
                 <div id="options-sync-status" style="text-align: center; padding: 8px; font-size: 12px; color: var(--text-secondary);"></div>
             </div>
         </div>
@@ -654,7 +693,7 @@
         </div>
                 <div id="app-version-display" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    <span id="version-text">Version 2.5.1</span>
+                    <span id="version-text">Version 2.5.2</span>
                 </div>
     </div>
 

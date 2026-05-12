@@ -18,10 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cloudLoginBtn = document.getElementById('options-cloud-login-btn');
     const cloudRegisterBtn = document.getElementById('options-cloud-register-btn');
     const cloudForgotBtn = document.getElementById('options-cloud-forgot-btn');
-    const cloudSyncBtn = document.getElementById('options-cloud-sync-btn');
-    const cloudSaveBackupBtn = document.getElementById('options-cloud-backup-btn');
-    const cloudDownloadBtn = document.getElementById('options-cloud-download-btn');
-    const cloudVerifyBtn = document.getElementById('options-cloud-verify-btn');
+    const cloudSyncUpBtn = document.getElementById('options-cloud-sync-up-btn');
+    const cloudSyncDownBtn = document.getElementById('options-cloud-sync-down-btn');
+    const localDownloadBtn = document.getElementById('options-local-download-btn');
+    const localUploadBtn = document.getElementById('options-local-upload-btn');
+    const localUploadInput = document.getElementById('local-upload-input');
     const cloudLogoutBtn = document.getElementById('options-cloud-logout-btn');
     const cloudEmailDisplay = document.getElementById('options-cloud-email-display');
     const syncStatus = document.getElementById('options-sync-status');
@@ -140,23 +141,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Check email verification
             if (!user.emailVerified) {
                 cloudEmailDisplay.innerHTML = `${user.email}`;
-                cloudSyncBtn.disabled = false;
-                cloudSaveBackupBtn.disabled = false;
-                cloudDownloadBtn.disabled = false;
+            }
 
-                const verifyBtn = document.getElementById('options-cloud-verify-btn');
-                if (verifyBtn) {
-                    verifyBtn.style.display = 'none';
-                }
-            } else {
-                cloudSyncBtn.disabled = false;
-                cloudSaveBackupBtn.disabled = false;
-                cloudDownloadBtn.disabled = false;
-
-                const verifyBtn = document.getElementById('options-cloud-verify-btn');
-                if (verifyBtn) {
-                    verifyBtn.style.display = 'none';
-                }
+            cloudSyncUpBtn.disabled = !cloudEncryptionKey;
+            cloudSyncDownBtn.disabled = !cloudEncryptionKey;
+            localDownloadBtn.disabled = false;
+            localUploadBtn.disabled = false;
+            
+            if (!cloudEncryptionKey) {
+                showSyncStatus('Ange ditt lösenord ovan för att aktivera molnsynkronisering', 'info');
             }
             
             // Load stored salt for later use
@@ -230,6 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Cloud login
     cloudLoginBtn.addEventListener('click', async () => {
+        console.log("Login button clicked");
         const email = cloudEmailInput.value.trim();
         const password = cloudPasswordInput.value;
         
@@ -239,19 +233,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         cloudLoginBtn.disabled = true;
-        cloudLoginBtn.textContent = 'Logging in...';
+        cloudLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Logging in...</span>';
+        console.log("Starting login process for:", email);
 
         try {
             await CloudAuth.login(email, password);
-
-            /*
-            const verified = await CloudAuth.isEmailVerified();
-            if (!verified) {
-                await firebase.auth().signOut();
-                showLoginStatus('Please verify your email address before logging in.', 'error');
-                return;
-            }
-            */
+            console.log("CloudAuth.login successful");
 
             let salt = generateSalt();
             const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
@@ -265,10 +252,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             showLoginStatus('Logged in successfully!', 'success');
             await loadCloudState();
         } catch (error) {
+            console.error("Login failed with error:", error);
             showLoginStatus(error.message, 'error');
+            alert("Login Error: " + error.message);
         } finally {
             cloudLoginBtn.disabled = false;
-            cloudLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span data-translate="cloud_login">Login</span>';
+            cloudLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt btn-icon"></i> <span data-translate="cloud_login">Login</span>';
         }
     });
 
@@ -389,174 +378,135 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Cloud verify email
-    if (cloudVerifyBtn) {
-        cloudVerifyBtn.addEventListener('click', async () => {
-            try {
-                const sent = await CloudAuth.resendVerificationEmail();
-                if (sent) {
-                    showSyncStatus('Verification email sent! Check your inbox.', 'success');
-                } else {
-                    showSyncStatus('Email already verified.', 'success');
-                }
-            } catch (error) {
-                showSyncStatus('Failed to send verification: ' + error.message, 'error');
-            }
-        });
-    }
 
-    // Cloud sync
-    cloudSyncBtn.addEventListener('click', async () => {
+
+    // Cloud Sync Up (Local to Cloud)
+    cloudSyncUpBtn.addEventListener('click', async () => {
         const currentUser = await CloudAuth.getCurrentUser();
-        if (!currentUser) {
-            cloudEncryptionKey = null;
+        if (!currentUser || !cloudEncryptionKey) {
             showSyncStatus('Please login first to sync', 'error');
             await loadCloudState();
             return;
         }
-        if (!cloudEncryptionKey) {
-            showSyncStatus('Session expired. Please login again.', 'error');
-            await loadCloudState();
-            return;
-        }
 
-        /*
-        const verified = await CloudAuth.isEmailVerified();
-        if (!verified) {
-            showSyncStatus('Please verify your email before syncing. Click "Verify Email".', 'error');
-            return;
-        }
-        */
-
-        cloudSyncBtn.disabled = true;
-        cloudSyncBtn.textContent = 'Syncing...';
-        showSyncStatus('Syncing with cloud...', '');
-
-        try {
-            // Export local data
-            const localData = await StorageUtils.exportAllData();
-            
-            // Sync to cloud
-            const uploadResult = await CloudStorage.syncToCloud(localData, cloudEncryptionKey, cloudSalt);
-            if (!uploadResult.success) {
-                if (uploadResult.offline) {
-                    showSyncStatus('No internet connection', 'error');
-                } else {
-                    showSyncStatus('Upload failed: ' + uploadResult.error, 'error');
-                }
-                return;
-            }
-
-            // Sync from cloud
-            const downloadResult = await CloudStorage.syncFromCloud(cloudEncryptionKey, cloudPassword);
-            if (downloadResult.hasCloudData && !downloadResult.decryptError && downloadResult.data) {
-                // Merge cloud data with local
-                await StorageUtils.importData(downloadResult.data, true);
-                showSyncStatus('Sync completed successfully!', 'success');
-            } else if (downloadResult.decryptError) {
-                showSyncStatus('Decryption error. Wrong password?', 'error');
-            } else {
-                showSyncStatus('Upload completed. No cloud data to download.', 'success');
-            }
-        } catch (error) {
-            showSyncStatus('Sync failed: ' + error.message, 'error');
-        } finally {
-            cloudSyncBtn.disabled = false;
-            cloudSyncBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><use href="#icon-sync"></use></svg> <span data-translate="sync_now">Sync Now</span>';
-        }
-    });
-
-    // Cloud save backup (upload current data to cloud)
-    cloudSaveBackupBtn.addEventListener('click', async () => {
-        const currentUser = await CloudAuth.getCurrentUser();
-        if (!currentUser || !cloudEncryptionKey) {
-            showSyncStatus('Please login first to save backup', 'error');
-            await loadCloudState();
-            return;
-        }
-
-        /*
-        const verified = await CloudAuth.isEmailVerified();
-        if (!verified) {
-            showSyncStatus('Please verify your email before saving. Click "Verify Email".', 'error');
-            return;
-        }
-        */
-
-        cloudSaveBackupBtn.disabled = true;
-        cloudSaveBackupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Saving...</span>';
-        showSyncStatus('Saving backup to cloud...', '');
+        cloudSyncUpBtn.disabled = true;
+        cloudSyncUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Syncing Up...</span>';
+        showSyncStatus('Uploading to cloud...', '');
 
         try {
             const localData = await StorageUtils.exportAllData();
             const uploadResult = await CloudStorage.syncToCloud(localData, cloudEncryptionKey, cloudSalt);
             if (uploadResult.success) {
-                showSyncStatus('Backup saved to cloud successfully!', 'success');
+                showSyncStatus('Successfully uploaded to cloud!', 'success');
             } else if (uploadResult.offline) {
                 showSyncStatus('No internet connection', 'error');
             } else {
-                showSyncStatus('Save failed: ' + uploadResult.error, 'error');
+                showSyncStatus('Upload failed: ' + uploadResult.error, 'error');
             }
         } catch (error) {
-            showSyncStatus('Save failed: ' + error.message, 'error');
+            showSyncStatus('Sync failed: ' + error.message, 'error');
         } finally {
-            cloudSaveBackupBtn.disabled = false;
-            cloudSaveBackupBtn.innerHTML = '<i class="fas fa-upload"></i> <span data-translate="save_cloud_backup">Save Backup to Cloud</span>';
+            cloudSyncUpBtn.disabled = false;
+            cloudSyncUpBtn.innerHTML = '<i class="fas fa-cloud-upload-alt btn-icon"></i> <span data-translate="sync_up">Synkronisera Upp till moln</span>';
         }
     });
 
-    // Cloud download backup (download cloud data as file)
-    cloudDownloadBtn.addEventListener('click', async () => {
+    // Cloud Sync Down (Cloud to Local)
+    cloudSyncDownBtn.addEventListener('click', async () => {
         const currentUser = await CloudAuth.getCurrentUser();
         if (!currentUser || !cloudEncryptionKey) {
-            showSyncStatus('Please login first to download backup', 'error');
+            showSyncStatus('Please login first to sync', 'error');
             await loadCloudState();
             return;
         }
 
-        /*
-        const verified = await CloudAuth.isEmailVerified();
-        if (!verified) {
-            showSyncStatus('Please verify your email before downloading. Click "Verify Email".', 'error');
-            return;
-        }
-        */
-
-        cloudDownloadBtn.disabled = true;
-        cloudDownloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Downloading...</span>';
-        showSyncStatus('Downloading backup from cloud...', '');
+        cloudSyncDownBtn.disabled = true;
+        cloudSyncDownBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Syncing Down...</span>';
+        showSyncStatus('Downloading from cloud...', '');
 
         try {
             const downloadResult = await CloudStorage.syncFromCloud(cloudEncryptionKey, cloudPassword);
             if (downloadResult.hasCloudData && !downloadResult.decryptError && downloadResult.data) {
-                const blob = new Blob([JSON.stringify(downloadResult.data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                const date = new Date().toISOString().slice(0, 10);
-                a.download = `PrivateLinkSaver_cloud_backup_${date}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showSyncStatus('Backup downloaded!', 'success');
+                // Overwrite local data with cloud data
+                await StorageUtils.importData(downloadResult.data, false);
+                showSyncStatus('Successfully downloaded from cloud!', 'success');
+                // Refresh storage info
+                const stats = await StorageUtils.getStorageStats();
+                const usedMB = (stats.bytesUsed / 1024 / 1024).toFixed(2);
+                storageText.textContent = `${usedMB} MB / ${(stats.bytesAvailable / 1024 / 1024).toFixed(0)} MB`;
+                storageBar.style.width = `${Math.min(stats.percentUsed, 100)}%`;
             } else if (downloadResult.decryptError) {
                 showSyncStatus('Decryption error. Wrong password?', 'error');
             } else {
-                showSyncStatus('No cloud data found. Save a backup first.', 'error');
+                showSyncStatus('No cloud data found.', 'error');
             }
         } catch (error) {
-            showSyncStatus('Download failed: ' + error.message, 'error');
+            showSyncStatus('Sync failed: ' + error.message, 'error');
         } finally {
-            cloudDownloadBtn.disabled = false;
-            cloudDownloadBtn.innerHTML = '<i class="fas fa-download"></i> <span data-translate="download_cloud_backup">Download Backup from Cloud</span>';
+            cloudSyncDownBtn.disabled = false;
+            cloudSyncDownBtn.innerHTML = '<i class="fas fa-cloud-download-alt btn-icon"></i> <span data-translate="sync_down">Synkronisera Ner från moln</span>';
         }
+    });
+
+    // Local Download (Export to file)
+    localDownloadBtn.addEventListener('click', async () => {
+        try {
+            const data = await StorageUtils.exportAllData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `PrivateLinkSaver_Backup_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showSyncStatus('Data downloaded successfully!', 'success');
+        } catch (error) {
+            showSyncStatus('Download failed: ' + error.message, 'error');
+        }
+    });
+
+    // Local Upload (Import from file)
+    localUploadBtn.addEventListener('click', () => {
+        localUploadInput.click();
+    });
+
+    localUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const content = event.target.result;
+                const data = JSON.parse(content);
+                
+                const confirmed = confirm('Do you want to merge with existing data? Click "Cancel" to overwrite all existing data.');
+                
+                await StorageUtils.importData(data, confirmed);
+                showSyncStatus('Data imported successfully!', 'success');
+                
+                // Reset input
+                localUploadInput.value = '';
+                
+                // Refresh storage info
+                const stats = await StorageUtils.getStorageStats();
+                const usedMB = (stats.bytesUsed / 1024 / 1024).toFixed(2);
+                storageText.textContent = `${usedMB} MB / ${(stats.bytesAvailable / 1024 / 1024).toFixed(0)} MB`;
+                storageBar.style.width = `${Math.min(stats.percentUsed, 100)}%`;
+            } catch (error) {
+                showSyncStatus('Import failed: ' + error.message, 'error');
+            }
+        };
+        reader.readAsText(file);
     });
 
     // Cloud logout
     cloudLogoutBtn.addEventListener('click', async () => {
         cloudLogoutBtn.disabled = true;
-        cloudLogoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Logging out...</span>';
+        cloudLogoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Logging out...</span>';
         try {
             // Sign out from Firebase
             if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
@@ -573,7 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showSyncStatus('Logout failed: ' + error.message, 'error');
         } finally {
             cloudLogoutBtn.disabled = false;
-            cloudLogoutBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>';
+            cloudLogoutBtn.innerHTML = '<svg class="icon btn-icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>';
         }
     });
 

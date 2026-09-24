@@ -1,48 +1,49 @@
 # Privacy Policy for PrivateLinkSaver
 
-## Last updated: 2026-01-30
+**Last updated:** 2026-09-25
+
+Live HTML: [https://nrnworld.one/PrivateLinkSaver/privacy.html](https://nrnworld.one/PrivateLinkSaver/privacy.html)
 
 ## Summary
 
-PrivateLinkSaver is designed with your privacy as top priority. We believe that your data belongs to you, and no one else.
+PrivateLinkSaver is privacy-first. Your links, folders, tags and master-password material stay on your device by default. Optional cloud sync encrypts data locally before upload.
 
-## Data Collection
+## Data stored on your device
 
-**PrivateLinkSaver does NOT collect any personal information.**
+- Saved links (URL, title, folder, tags, dates, visit counts)
+- Folders, tags and UI settings (language, theme, auto-logout, backups)
+- A hashed master password / derived crypto material (never stored as plaintext password)
 
-The extension only stores:
-- Your saved bookmarks (URL, title, folder, tags)
-- Your created folders and tags
-- Your settings (language, theme, auto-backup)
-- A hashed password (never in plaintext)
+## Optional encrypted cloud sync
 
-## Where is data stored?
+If you enable cloud sync and create/login to a cloud account, the extension contacts Google Firebase (Identity Toolkit / Firestore) to:
 
-All data is stored **LOCALLY** in your browser using Chrome's storage API. Data is never sent to any external servers.
+- Authenticate with your email and password (Firebase Auth)
+- Store an encrypted backup of your vault on Firestore
 
-## Security
+Link contents are encrypted on your device before upload. We do not operate a separate analytics service.
 
-- Passwords are hashed with PBKDF2-SHA256 and a unique salt
-- Sensitive data can be encrypted with AES-256-GCM
-- Bookmark favicon previews may be loaded from Google's favicon service (`https://www.google.com/s2/favicons`) when available
-- No tracking or analytics
+## Other network use
 
-## Data Sharing
+- Favicon previews may load from Google’s favicon service when available
+- No advertising SDKs, no analytics SDKs, no sale of personal data
 
-We do NOT share your data with anyone. Since everything is stored locally, we don't even have access to it.
+## What we do NOT do
 
-## Your Rights
+- No tracking of your general browsing history
+- No required account to use the local vault
+- No plaintext upload of your bookmarks when sync is off
 
-You have full control over your data:
-- Export all data at any time
-- Delete all data at any time
-- No lock-in - your data is always accessible to you
+## Your control
+
+- Export or delete local data anytime
+- Disable cloud sync / log out of cloud anytime
 
 ## Contact
 
-If you have questions about privacy, contact us via:
-- Buy Me a Coffee: https://buymeacoffee.com/nrnworld
+- Email: bynrnworld@gmail.com
+- Product page: https://nrnworld.one/p/privatelinksaver
 
 ## Changes
 
-We may update this privacy policy. Any changes will be notified within the extension.
+We may update this privacy policy. The latest version will be published at the live HTML URL above.

@@ -85,6 +85,7 @@ def build_firefox_manifest() -> dict:
     gecko = m.setdefault("browser_specific_settings", {}).setdefault("gecko", {})
     gecko.setdefault("id", "privatelinksaver@nrnworld.one")
     gecko["strict_min_version"] = "142.0"
+    m["browser_specific_settings"]["gecko_android"] = {"strict_min_version": "142.0"}
     gecko["data_collection_permissions"] = {
         "required": ["none"],
         "optional": ["authenticationInfo", "bookmarksInfo"],

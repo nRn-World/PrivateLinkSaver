@@ -1,5 +1,11 @@
 // PrivateLinkSaver - Popup Script
 document.addEventListener('DOMContentLoaded', async function () {
+    // Firefox for Android: full-screen popup, touch only, no bookmarks API.
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isTouch = isAndroid || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    if (isAndroid) document.documentElement.classList.add('mobile');
+    if (isTouch) document.documentElement.classList.add('touch');
+
     // Element references
     const elements = {
         loader: document.getElementById('loader'),
@@ -515,7 +521,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // Never show count on badge - keep it clean
-        chrome.action.setBadgeText({ text: '' });
+        try { chrome.action.setBadgeText({ text: '' }); } catch (_error) { /* unsupported platform */ }
     }
 
     // Event delegation for bookmark actions
@@ -551,7 +557,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         el.dataset.tags = JSON.stringify(bookmark.tags || []);
 
         // Drag (this one, or the whole selection) onto a folder chip to move.
-        el.draggable = true;
+        el.draggable = !isTouch; // drag & drop is mouse-only; touch uses Select mode
         el.addEventListener('dragstart', (e) => {
             state.dragIds = state.selectMode && state.selectedIds.has(bookmark.id) ? [...state.selectedIds] : [bookmark.id];
             e.dataTransfer.effectAllowed = 'move';
@@ -1481,7 +1487,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Settings - open options page
     elements.settingsBtn.addEventListener('click', () => {
-        chrome.runtime.openOptionsPage();
+        try {
+            const opened = chrome.runtime.openOptionsPage();
+            if (opened && opened.catch) opened.catch(() => chrome.tabs.create({ url: chrome.runtime.getURL('options.html') }));
+        } catch (_error) {
+            chrome.tabs.create({ url: chrome.runtime.getURL('options.html') });
+        }
     });
 
     // Search
@@ -2358,7 +2369,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         clearChildren(document.getElementById('chrome-bookmarks-tree'));
     }
 
-    document.getElementById('chrome-import-btn').addEventListener('click', openChromeBookmarksModal);
+    const chromeImportBtn = document.getElementById('chrome-import-btn');
+    if (isAndroid) chromeImportBtn.style.display = 'none'; // no bookmarks API on Android
+    chromeImportBtn.addEventListener('click', openChromeBookmarksModal);
     document.getElementById('chrome-bookmarks-close-btn').addEventListener('click', closeChromeBookmarksModal);
 
     function folderHasValidLinks(node) {

@@ -15,6 +15,19 @@ const SESSION_ACTIVITY_THROTTLE_MS = 15000;
 
 let lastSessionTouchAt = 0;
 
+// Firefox for Android has no notifications, context menus, commands or omnibox: every use is optional.
+function notify(options) {
+    try {
+        if (chrome.notifications && chrome.notifications.create) chrome.notifications.create(options);
+    } catch (_error) { /* unsupported platform */ }
+}
+
+function setBadgeColor() {
+    try {
+        if (chrome.action && chrome.action.setBadgeBackgroundColor) chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
+    } catch (_error) { /* unsupported platform */ }
+}
+
 function resolveDefaultLanguage() {
     const ui = String(chrome.i18n.getUILanguage() || 'en').toLowerCase();
     if (ui.startsWith('sv')) return 'sv';
@@ -85,7 +98,7 @@ async function handleAutoLogout(showNotification = false) {
     await Vault.lock();
 
     if (showNotification) {
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -100,7 +113,7 @@ async function handleAutoLogout(showNotification = false) {
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {
     // Set default badge color
-    chrome.action.setBadgeBackgroundColor({ color: '#0ea5e9' });
+    setBadgeColor();
 
     // Set default auto-logout to 15 minutes if not already set
     chrome.storage.local.get('autoLogoutMinutes', (result) => {
@@ -131,8 +144,8 @@ chrome.runtime.onInstalled.addListener((details) => {
         }
     });
     
-    // Create context menus
-    chrome.contextMenus.removeAll(() => {
+    // Create context menus (not available on Firefox for Android)
+    if (chrome.contextMenus) chrome.contextMenus.removeAll(() => {
         chrome.contextMenus.create({
             id: 'save-link',
             title: chrome.i18n.getMessage('contextSaveLink') || 'Save link to PrivateLinkSaver',
@@ -213,7 +226,7 @@ async function createAutoBackup() {
             await Vault.localSet({ backups });
         } catch (error) {
             console.error('Auto-backup storage error:', error);
-            chrome.notifications.create({
+            notify({
                 type: 'basic',
                 iconUrl: 'icons/icon128.png',
                 title: 'PrivateLinkSaver',
@@ -227,7 +240,7 @@ async function createAutoBackup() {
 }
 
 // Handle context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+if (chrome.contextMenus && chrome.contextMenus.onClicked) chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'save-link') {
         let linkTitle = info.selectionText;
         if (!linkTitle) {
@@ -240,7 +253,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 // Handle keyboard shortcuts
-chrome.commands.onCommand.addListener((command) => {
+if (chrome.commands && chrome.commands.onCommand) chrome.commands.onCommand.addListener((command) => {
     if (command === 'save-current-page') {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]) {
@@ -254,7 +267,7 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 // Handle omnibox input
-chrome.omnibox.onInputChanged.addListener((text, suggest) => {
+if (chrome.omnibox) chrome.omnibox.onInputChanged.addListener((text, suggest) => {
     Promise.all([
         chrome.storage.local.get('isLoggedIn'),
         Vault.localGet('bookmarks')
@@ -278,7 +291,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
     }).catch(() => { /* vault locked: no suggestions */ });
 });
 
-chrome.omnibox.onInputEntered.addListener((url) => {
+if (chrome.omnibox) chrome.omnibox.onInputEntered.addListener((url) => {
     chrome.tabs.create({ url });
 });
 
@@ -295,7 +308,7 @@ function escapeXml(str) {
 async function saveBookmark(url, title, tab) {
     const sessionExpired = await handleAutoLogout();
     if (sessionExpired) {
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -307,7 +320,7 @@ async function saveBookmark(url, title, tab) {
 
     const normalizedUrl = normalizeBookmarkUrl(url);
     if (!normalizedUrl) {
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -321,7 +334,7 @@ async function saveBookmark(url, title, tab) {
     const result = await chrome.storage.local.get(['isLoggedIn', 'passwordHash']);
     
     if (!result.isLoggedIn || !result.passwordHash) {
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -337,7 +350,7 @@ async function saveBookmark(url, title, tab) {
         data = await Vault.localGet(['bookmarks', 'language', 'folders']);
     } catch (error) {
         // Encrypted vault without its key (e.g. browser restarted): ask for a fresh login.
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -355,7 +368,7 @@ async function saveBookmark(url, title, tab) {
     // Check if bookmark already exists
     const exists = bookmarks.some((bookmark) => canonicalUrl(bookmark.url) === normalizedCanonical);
     if (exists) {
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -405,7 +418,7 @@ async function saveBookmark(url, title, tab) {
         await Vault.localSet({ bookmarks });
     } catch (error) {
         console.error('Failed to save bookmark:', error);
-        chrome.notifications.create({
+        notify({
             type: 'basic',
             iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
@@ -417,7 +430,7 @@ async function saveBookmark(url, title, tab) {
 
     // Show success notification
     const truncatedTitle = safeTitle.length > 50 ? safeTitle.substring(0, 50) + '...' : safeTitle;
-    chrome.notifications.create({
+    notify({
         type: 'basic',
         iconUrl: 'icons/icon128.png',
         title: 'PrivateLinkSaver Pro',
@@ -433,7 +446,7 @@ async function saveBookmark(url, title, tab) {
 // Update badge with bookmark count
 async function updateBadge() {
     // Never show a badge count - keep icon clean
-    chrome.action.setBadgeText({ text: '' });
+    try { chrome.action.setBadgeText({ text: '' }); } catch (_error) { /* unsupported platform */ }
 }
 
 // Listen for storage changes to update badge

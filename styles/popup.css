@@ -2032,3 +2032,53 @@ input[type="email"]:focus {
   background: rgba(14, 165, 233, 0.18);
   border-style: solid;
 }
+
+/* ===== Firefox for Android / touch ===== */
+.mobile body {
+  width: 100%;
+  height: auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.mobile .bookmarks-container {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.mobile .logo-icon {
+  width: 140px;
+  height: 140px;
+}
+
+.touch .shortcut-hint {
+  display: none;
+}
+
+.touch .bookmark-action-btn,
+.touch .icon-btn,
+.touch .icon-btn-sm {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.touch .bookmark-actions {
+  gap: 4px;
+}
+
+.touch .btn,
+.touch .sort-btn,
+.touch .bulk-btn {
+  min-height: 40px;
+}
+
+.touch .bookmark-select {
+  width: 22px;
+  height: 22px;
+}
+
+.touch input,
+.touch select {
+  font-size: 16px; /* stops Android from zooming into fields */
+}

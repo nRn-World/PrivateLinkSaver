@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.5.11",
+  "version": "2.5.12",
   "description": "__MSG_extDescription__",
   "author": "Robin Ayzit",
   "homepage_url": "https://nrnworld.one/p/privatelinksaver",

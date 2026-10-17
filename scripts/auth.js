@@ -134,6 +134,27 @@ const CloudAuth = {
 };
 
 const CloudStorage = {
+    // Salt the cloud copy was encrypted with (null if none/unreachable). A new device or a
+    // re-login must reuse it, otherwise a fresh random salt gives a key that can not decrypt.
+    async getCloudSalt() {
+        try {
+            if (!navigator.onLine) return null;
+            await CloudAuth.init();
+            const user = firebase.auth().currentUser;
+            if (!user) return null;
+            const idToken = await user.getIdToken();
+            const projectId = CloudAuth.firebaseConfig.projectId;
+            const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${user.uid}/data/bookmarks`;
+            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${idToken}` } });
+            if (!response.ok) return null;
+            const doc = await response.json();
+            const salt = doc.fields && doc.fields.salt && doc.fields.salt.stringValue;
+            return salt || null;
+        } catch (_error) {
+            return null;
+        }
+    },
+
     async syncToCloud(data, encryptionKey, salt) {
         if (!navigator.onLine) return { success: false, offline: true };
         try {

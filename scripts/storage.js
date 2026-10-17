@@ -3,7 +3,7 @@ const StorageUtils = {
     TRACKING_PARAM_PREFIXES: ['utm_', 'ga_', 'mc_', 'pk_', 'sc_'],
     TRACKING_PARAM_EXACT: new Set([
         'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
-        'igshid', 'ref', 'ref_src', 'source', 'campaign', 'si'
+        'igshid', 'ref_src', 'campaign', 'si'
     ]),
     AUTO_LOGOUT_OPTIONS: Object.freeze([5, 15, 30, 60]),
     DEFAULT_AUTO_LOGOUT_MINUTES: 15,
@@ -79,7 +79,8 @@ const StorageUtils = {
                 }
             });
 
-            parsed.hash = '';
+            // Keep "#/route" and "#!route" (hash-routed apps); drop plain anchors.
+            if (!/^#[\/!]/.test(parsed.hash)) parsed.hash = '';
             parsed.hostname = parsed.hostname.toLowerCase();
 
             if (parsed.pathname !== '/' && parsed.pathname.endsWith('/')) {
@@ -97,8 +98,7 @@ const StorageUtils = {
     },
 
     canonicalUrl(url) {
-        const normalized = this.normalizeBookmarkUrl(url);
-        return normalized ? normalized.toLowerCase() : null;
+        return this.normalizeBookmarkUrl(url);
     },
 
     normalizeBookmark(bookmark) {
@@ -106,11 +106,12 @@ const StorageUtils = {
             return null;
         }
 
-        const title = String(bookmark.title || '').trim();
         const url = this.normalizeBookmarkUrl(bookmark.url);
-        if (!title || !url) {
+        if (!url) {
             return null;
         }
+        // A missing title must not delete a saved link: fall back to the URL.
+        const title = String(bookmark.title || '').trim() || url;
 
         return {
             id: String(bookmark.id || CryptoUtils.generateUUID()),
@@ -198,10 +199,7 @@ const StorageUtils = {
             cleaned.push(normalized);
         });
 
-        if (cleaned.length !== bookmarks.length) {
-            await this.set({ bookmarks: cleaned });
-        }
-
+        // Read-only: never write the cleaned list back here, so a read can not delete saved links.
         return cleaned;
     },
 
@@ -444,7 +442,7 @@ const StorageUtils = {
          const tags = await this.getTags();
          
          return {
-             version: '2.5.3',
+             version: chrome.runtime.getManifest().version,
              exportDate: new Date().toISOString(),
             bookmarks,
             folders,
@@ -494,7 +492,8 @@ const StorageUtils = {
             const newTags = importedTags.filter((tag) => !tagNames.has(tag.name.toLowerCase()));
             await this.saveTags([...normalizedExistingTags, ...newTags]);
         } else {
-            // Replace all data
+            // Replace all data - keep a safety backup of what is about to be overwritten.
+            await this.createBackup();
             await this.saveBookmarks(importedBookmarks);
             await this.saveFolders(importedFolders);
             await this.saveTags(importedTags);

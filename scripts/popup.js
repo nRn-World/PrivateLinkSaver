@@ -117,9 +117,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         '_hsenc',
         '_hsmi',
         'igshid',
-        'ref',
         'ref_src',
-        'source',
         'campaign',
         'si'
     ]);
@@ -236,17 +234,31 @@ document.addEventListener('DOMContentLoaded', async function () {
             state.folders = defaultFolderData;
         } else {
             // Translate default folder names
-            state.folders = storedFolders.map(folder => {
+            const renames = new Map();
+            const translated = storedFolders.map(folder => {
                 if (folder.isDefault && folder.key) {
-                    return {
-                        ...folder,
-                        name: translations[state.currentLang][folder.key] || folder.name
-                    };
+                    const name = translations[state.currentLang][folder.key] || folder.name;
+                    if (name !== folder.name) renames.set(folder.name, name);
+                    return { ...folder, name };
                 }
                 return folder;
             });
-            
-            await StorageUtils.saveFolders(state.folders);
+
+            if (renames.size === 0) {
+                state.folders = storedFolders;
+            } else {
+                // Bookmarks reference folders by name, so move them along with the rename.
+                // If they can not be read/written (locked vault), keep the old names.
+                try {
+                    const bookmarks = await StorageUtils.getBookmarks();
+                    const moved = bookmarks.map(b => renames.has(b.folder) ? { ...b, folder: renames.get(b.folder) } : b);
+                    await StorageUtils.saveBookmarks(moved);
+                    await StorageUtils.saveFolders(translated);
+                    state.folders = translated;
+                } catch (_error) {
+                    state.folders = storedFolders;
+                }
+            }
         }
         
         updateFolderDropdowns();
@@ -803,7 +815,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
 
-            parsed.hash = '';
+            // Keep "#/route" and "#!route" (hash-routed apps); drop plain anchors.
+            if (!/^#[\/!]/.test(parsed.hash)) parsed.hash = '';
             parsed.hostname = parsed.hostname.toLowerCase();
 
             if (parsed.pathname !== '/' && parsed.pathname.endsWith('/')) {
@@ -825,8 +838,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function canonicalUrl(url) {
-        const normalized = normalizeHttpUrl(url);
-        return normalized ? normalized.toLowerCase() : null;
+        return normalizeHttpUrl(url);
     }
 
     function getDomainTag(url) {
@@ -1629,11 +1641,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
                 */
 
-                let salt = generateSalt();
-                const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
-                if (cloudKeyData.cloudEncryptionSalt && cloudKeyData.cloudEncryptionSalt !== 'derived') {
-                    salt = cloudKeyData.cloudEncryptionSalt;
+                // Cloud salt wins (it is what the stored cloud data was encrypted with), then local, then new.
+                let salt = await CloudStorage.getCloudSalt();
+                if (!salt) {
+                    const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
+                    if (cloudKeyData.cloudEncryptionSalt && cloudKeyData.cloudEncryptionSalt !== 'derived') {
+                        salt = cloudKeyData.cloudEncryptionSalt;
+                    }
                 }
+                if (!salt) salt = generateSalt();
                 state.cloudEncryptionKey = await getCloudEncryptionKey(password, salt);
                 state.cloudPassword = password;
                 state.cloudSalt = salt;
@@ -2046,6 +2062,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         } else if (request.action === 'focusSearch') {
             setTimeout(() => elements.searchBox.focus(), 100);
         }
+    });
+
+    // Another context (hotkey/context-menu save, options import) changed the links: reload so a later
+    // save from this popup does not overwrite them with a stale list.
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area !== 'local' || !(changes.bookmarks || changes.vaultBlob)) return;
+        if (elements.bookmarksSection.style.display !== 'block') return;
+        StorageUtils.getBookmarks().then((list) => {
+            state.bookmarks = list;
+            refreshBookmarkView();
+        }).catch(() => {});
     });
 
     // Check login status

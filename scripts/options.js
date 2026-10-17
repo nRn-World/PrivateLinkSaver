@@ -281,11 +281,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             await CloudAuth.login(email, password);
             console.log("CloudAuth.login successful");
 
-            let salt = generateSalt();
-            const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
-            if (cloudKeyData.cloudEncryptionSalt && cloudKeyData.cloudEncryptionSalt !== 'derived') {
-                salt = cloudKeyData.cloudEncryptionSalt;
+            // Cloud salt wins (it is what the stored cloud data was encrypted with), then local, then new.
+            let salt = await CloudStorage.getCloudSalt();
+            if (!salt) {
+                const cloudKeyData = await StorageUtils.get(['cloudEncryptionSalt']);
+                if (cloudKeyData.cloudEncryptionSalt && cloudKeyData.cloudEncryptionSalt !== 'derived') {
+                    salt = cloudKeyData.cloudEncryptionSalt;
+                }
             }
+            if (!salt) salt = generateSalt();
             cloudEncryptionKey = await getCloudEncryptionKey(password, salt);
             cloudPassword = password;
             cloudSalt = salt;
@@ -499,7 +503,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const downloadResult = await CloudStorage.syncFromCloud(cloudEncryptionKey, cloudPassword);
             if (downloadResult.hasCloudData && !downloadResult.decryptError && downloadResult.data) {
-                // Overwrite local data with cloud data
+                if (!confirm('This replaces your local links with the cloud copy. A safety backup of your current data is created first. Continue?')) {
+                    showSyncStatus('Cancelled', '');
+                    return;
+                }
+                // Overwrite local data with cloud data (importData makes a safety backup first)
                 await StorageUtils.importData(downloadResult.data, false);
                 showSyncStatus('Successfully downloaded from cloud!', 'success');
                 // Refresh storage info
@@ -588,7 +596,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             cloudEncryptionKey = null;
             cloudPassword = null;
             cloudSalt = null;
-            await StorageUtils.set({ cloudEncryptionSalt: null });
+            // The stored salt is kept on purpose: it is needed to decrypt the cloud copy after the next login.
             showSyncStatus('Logged out successfully', 'success');
             await loadCloudState();
         } catch (error) {

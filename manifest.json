@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.5.7",
+  "version": "2.5.8",
   "description": "__MSG_extDescription__",
   "author": "Robin Ayzit",
   "homepage_url": "https://nrnworld.one/p/privatelinksaver",
@@ -73,12 +73,5 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["icons/*"],
-      "matches": ["<all_urls>"],
-      "use_dynamic_url": true
-    }
-  ]
+  }
 }

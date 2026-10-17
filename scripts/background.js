@@ -6,7 +6,7 @@ if (typeof importScripts === 'function') importScripts('vault.js');
 const TRACKING_PARAM_PREFIXES = ['utm_', 'ga_', 'mc_', 'pk_', 'sc_'];
 const TRACKING_PARAM_EXACT = new Set([
     'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
-    'igshid', 'ref', 'ref_src', 'source', 'campaign', 'si'
+    'igshid', 'ref_src', 'campaign', 'si'
 ]);
 const AUTO_LOGOUT_OPTIONS = new Set([5, 15, 30, 60]);
 const DEFAULT_AUTO_LOGOUT_MINUTES = 15;
@@ -215,7 +215,7 @@ async function createAutoBackup() {
             console.error('Auto-backup storage error:', error);
             chrome.notifications.create({
                 type: 'basic',
-                iconUrl: 'icons/icon-utanbakgrund.png',
+                iconUrl: 'icons/icon128.png',
                 title: 'PrivateLinkSaver',
                 message: 'Storage full. Auto-backup failed.',
                 priority: 2
@@ -229,7 +229,11 @@ async function createAutoBackup() {
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'save-link') {
-        saveBookmark(info.linkUrl, info.selectionText || 'Saved Link', tab);
+        let linkTitle = info.selectionText;
+        if (!linkTitle) {
+            try { linkTitle = new URL(info.linkUrl).hostname.replace(/^www\./, ''); } catch (_e) { linkTitle = 'Saved Link'; }
+        }
+        saveBookmark(info.linkUrl, linkTitle, tab);
     } else if (info.menuItemId === 'save-page') {
         saveBookmark(tab.url, tab.title, tab);
     }
@@ -245,7 +249,7 @@ chrome.commands.onCommand.addListener((command) => {
         });
     } else if (command === 'quick-search') {
         // Try to focus search if popup is open
-        chrome.runtime.sendMessage({ action: 'focusSearch' });
+        Promise.resolve(chrome.runtime.sendMessage({ action: 'focusSearch' })).catch(() => {});
     }
 });
 
@@ -305,7 +309,7 @@ async function saveBookmark(url, title, tab) {
     if (!normalizedUrl) {
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-utanbakgrund.png',
+            iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
             message: 'Unsupported link type. Only HTTP/HTTPS URLs can be saved.',
             priority: 1
@@ -319,7 +323,7 @@ async function saveBookmark(url, title, tab) {
     if (!result.isLoggedIn || !result.passwordHash) {
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-utanbakgrund.png',
+            iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('notificationLoginRequired') || 'Please log in to save bookmarks',
             priority: 2
@@ -335,7 +339,7 @@ async function saveBookmark(url, title, tab) {
         // Encrypted vault without its key (e.g. browser restarted): ask for a fresh login.
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-utanbakgrund.png',
+            iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('notificationLoginRequired') || 'Please log in to save bookmarks',
             priority: 2
@@ -353,7 +357,7 @@ async function saveBookmark(url, title, tab) {
     if (exists) {
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-utanbakgrund.png',
+            iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('notificationExists') || 'This page is already saved!',
             priority: 1
@@ -410,7 +414,7 @@ async function saveBookmark(url, title, tab) {
         console.error('Failed to save bookmark:', error);
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icons/icon-utanbakgrund.png',
+            iconUrl: 'icons/icon128.png',
             title: 'PrivateLinkSaver',
             message: chrome.i18n.getMessage('storage_full') || 'Storage is full. Please free up some space.',
             priority: 2
@@ -422,7 +426,7 @@ async function saveBookmark(url, title, tab) {
     const truncatedTitle = safeTitle.length > 50 ? safeTitle.substring(0, 50) + '...' : safeTitle;
     chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icons/icon-utanbakgrund.png',
+        iconUrl: 'icons/icon128.png',
         title: 'PrivateLinkSaver Pro',
         message: `Saved: ${truncatedTitle}`,
         priority: 1
@@ -512,7 +516,8 @@ function normalizeBookmarkUrl(url) {
             }
         });
 
-        parsed.hash = '';
+        // Keep "#/route" and "#!route" (hash-routed apps); drop plain anchors.
+        if (!/^#[\/!]/.test(parsed.hash)) parsed.hash = '';
         parsed.hostname = parsed.hostname.toLowerCase();
 
         if (parsed.pathname !== '/' && parsed.pathname.endsWith('/')) {
@@ -530,8 +535,7 @@ function normalizeBookmarkUrl(url) {
 }
 
 function canonicalUrl(url) {
-    const normalized = normalizeBookmarkUrl(url);
-    return normalized ? normalized.toLowerCase() : null;
+    return normalizeBookmarkUrl(url);
 }
 
 function inferSmartTags(url, title) {

@@ -1,5 +1,8 @@
 // PrivateLinkSaver - Background Service Worker
 
+// Chrome loads vault.js here; Firefox lists it before this file in background.scripts.
+if (typeof importScripts === 'function') importScripts('vault.js');
+
 const TRACKING_PARAM_PREFIXES = ['utm_', 'ga_', 'mc_', 'pk_', 'sc_'];
 const TRACKING_PARAM_EXACT = new Set([
     'fbclid', 'gclid', 'dclid', 'msclkid', 'yclid', '_hsenc', '_hsmi',
@@ -11,6 +14,15 @@ const AUTO_LOGOUT_ALARM = 'session-auto-logout-check';
 const SESSION_ACTIVITY_THROTTLE_MS = 15000;
 
 let lastSessionTouchAt = 0;
+
+function resolveDefaultLanguage() {
+    const ui = String(chrome.i18n.getUILanguage() || 'en').toLowerCase();
+    if (ui.startsWith('sv')) return 'sv';
+    if (ui.startsWith('tr')) return 'tr';
+    if (ui.startsWith('es')) return 'es';
+    if (ui.startsWith('fr')) return 'fr';
+    return 'en';
+}
 
 function normalizeAutoLogoutMinutes(value) {
     if (value === 'never' || value === 0 || value === '0') {
@@ -70,6 +82,7 @@ async function handleAutoLogout(showNotification = false) {
         autoLogoutNoticeMinutes: autoLogoutMinutes,
         autoLogoutNoticeAt: Date.now()
     });
+    await Vault.lock();
 
     if (showNotification) {
         chrome.notifications.create({
@@ -96,10 +109,25 @@ chrome.runtime.onInstalled.addListener((details) => {
         }
     });
 
-    // Always start with English language on first install
-    chrome.storage.local.get('language', (result) => {
+    // Default language from browser UI; first-run retention flags on install
+    chrome.storage.local.get(['language', 'firstTime', 'showPinHint'], (result) => {
+        const updates = {};
+
         if (result.language === undefined) {
-            chrome.storage.local.set({ language: 'en' });
+            updates.language = resolveDefaultLanguage();
+        }
+
+        if (details.reason === 'install') {
+            if (result.firstTime === undefined) {
+                updates.firstTime = true;
+            }
+            if (result.showPinHint === undefined) {
+                updates.showPinHint = true;
+            }
+        }
+
+        if (Object.keys(updates).length > 0) {
+            chrome.storage.local.set(updates);
         }
     });
     
@@ -158,7 +186,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 // Create automatic backup
 async function createAutoBackup() {
     try {
-        const result = await chrome.storage.local.get(['bookmarks', 'folders', 'tags']);
+        const result = await Vault.localGet(['bookmarks', 'folders', 'tags']);
         const backup = {
             id: generateUUID(),
             date: new Date().toISOString(),
@@ -172,7 +200,7 @@ async function createAutoBackup() {
             }
         };
         
-        const backupsResult = await chrome.storage.local.get('backups');
+        const backupsResult = await Vault.localGet('backups');
         const backups = backupsResult.backups || [];
         backups.push(backup);
         
@@ -182,7 +210,7 @@ async function createAutoBackup() {
         }
         
         try {
-            await chrome.storage.local.set({ backups });
+            await Vault.localSet({ backups });
         } catch (error) {
             console.error('Auto-backup storage error:', error);
             chrome.notifications.create({
@@ -223,8 +251,11 @@ chrome.commands.onCommand.addListener((command) => {
 
 // Handle omnibox input
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
-    chrome.storage.local.get(['bookmarks', 'isLoggedIn'], (result) => {
-        if (!result.isLoggedIn || !result.bookmarks) {
+    Promise.all([
+        chrome.storage.local.get('isLoggedIn'),
+        Vault.localGet('bookmarks')
+    ]).then(([login, result]) => {
+        if (!login.isLoggedIn || !result.bookmarks) {
             return;
         }
         
@@ -240,7 +271,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
             }));
         
         suggest(matches);
-    });
+    }).catch(() => { /* vault locked: no suggestions */ });
 });
 
 chrome.omnibox.onInputEntered.addListener((url) => {
@@ -297,7 +328,20 @@ async function saveBookmark(url, title, tab) {
     }
     
     // Get current bookmarks and preferences
-    const data = await chrome.storage.local.get(['bookmarks', 'language', 'folders']);
+    let data;
+    try {
+        data = await Vault.localGet(['bookmarks', 'language', 'folders']);
+    } catch (error) {
+        // Encrypted vault without its key (e.g. browser restarted): ask for a fresh login.
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon-utanbakgrund.png',
+            title: 'PrivateLinkSaver',
+            message: chrome.i18n.getMessage('notificationLoginRequired') || 'Please log in to save bookmarks',
+            priority: 2
+        });
+        return;
+    }
     const bookmarks = data.bookmarks || [];
     const currentLang = data.language || 'en';
     const folders = data.folders || [];
@@ -361,7 +405,7 @@ async function saveBookmark(url, title, tab) {
     // Save bookmark
     bookmarks.push(newBookmark);
     try {
-        await chrome.storage.local.set({ bookmarks });
+        await Vault.localSet({ bookmarks });
     } catch (error) {
         console.error('Failed to save bookmark:', error);
         chrome.notifications.create({

@@ -3,7 +3,7 @@
   <br />
   <p><strong>Secure. Private. Fast. The modern way to manage your links.</strong></p>
 
-  [![Version](https://img.shields.io/badge/version-2.5.3-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
+  [![Version](https://img.shields.io/badge/version-2.5.6-blue.svg?style=flat-square)](https://github.com/nRn-World/PrivateLinkSaver)
   [![Manifest](https://img.shields.io/badge/manifest-v3-brightgreen.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
   [![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-orange.svg?style=flat-square)](LICENSE)
   [![Cloud](https://img.shields.io/badge/cloud-sync-0ea5e9.svg?style=flat-square)](https://firebase.google.com/)
@@ -13,11 +13,11 @@
 
 ## 🔒 Your Private Web Vault
 
-**PrivateLinkSaver** is a privacy-first browser extension designed for developers and power users who need to organize their digital life without compromising security. Every link save is encrypted, and your data remains under your absolute control.
+**PrivateLinkSaver** is a privacy-first browser extension designed for developers and power users who need to organize their digital life without compromising security. Your links are stored locally in your browser and are protected by a master-password lock. Local storage is not encrypted by default; turn on **Encrypt local data** in Settings (AES-256-GCM, key derived from your master password) to protect your links on this device. Optional cloud sync encrypts your data on your device before upload.
 
 ### ✨ Key Highlights
 
-- 🛡️ **Zero-Knowledge Security** – All data is encrypted locally before any optional sync.
+- 🛡️ **Password lock** – A master password locks access to your links in the extension. Data is encrypted on your device before any optional cloud sync.
 - ☁️ **Encrypted Cloud Sync** – Secure backup and sync across devices via Firebase.
 - 📂 **Smart Organization** – Folders with custom colors, tags, and intelligent suggestions.
 - ⚡ **Turbocharged Workflow** – Command Palette, Omnibox keywords, and deep keyboard integration.
@@ -54,7 +54,7 @@
 
 ### First Launch
 1.  Open the extension from the toolbar.
-2.  Set your master password (this derives your local encryption key).
+2.  Set your master password (it locks the extension and derives the key used to encrypt optional cloud sync).
 3.  Start saving links with `Ctrl+Shift+S`.
 
 ---
@@ -77,7 +77,7 @@
 - **Platform:** Manifest V3 (Latest Standards)
 - **Engine:** Vanilla JavaScript (No Bloat)
 - **Crypto:** Web Crypto API (AES-256-GCM, PBKDF2-SHA256)
-- **Sync:** Firebase Auth & Firestore (End-to-End Encrypted)
+- **Sync:** Firebase Auth & Firestore (data encrypted on your device before upload)
 
 ---
 

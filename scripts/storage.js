@@ -12,24 +12,12 @@ const StorageUtils = {
 
     // Get data from chrome.storage.local
     async get(keys) {
-        return new Promise((resolve) => {
-            chrome.storage.local.get(keys, (result) => {
-                resolve(result);
-            });
-        });
+        return Vault.localGet(keys);
     },
 
     // Set data to chrome.storage.local
     async set(data) {
-        return new Promise((resolve, reject) => {
-            chrome.storage.local.set(data, () => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve();
-                }
-            });
-        });
+        return Vault.localSet(data);
     },
 
     // Remove data from chrome.storage.local
@@ -45,7 +33,7 @@ const StorageUtils = {
     async clear() {
         return new Promise((resolve) => {
             chrome.storage.local.clear(() => {
-                resolve();
+                Vault.lock().then(resolve);
             });
         });
     },
@@ -275,6 +263,11 @@ const StorageUtils = {
     // Get login status
     async getLoginStatus() {
         const result = await this.get('isLoggedIn');
+        if (result.isLoggedIn && await Vault.isLocked()) {
+            // Encrypted vault but no key in memory (e.g. browser restarted): sign in again.
+            await this.saveLoginStatus(false);
+            return false;
+        }
         return result.isLoggedIn || false;
     },
 
@@ -292,6 +285,7 @@ const StorageUtils = {
 
         this._lastSessionTouchAt = 0;
         await this.set({ isLoggedIn: false });
+        await Vault.lock();
     },
 
     async recordSessionActivity(force = false) {
@@ -335,6 +329,7 @@ const StorageUtils = {
             autoLogoutNoticeMinutes: session.autoLogoutMinutes,
             autoLogoutNoticeAt: Date.now()
         });
+        await Vault.lock();
 
         return { expired: true, minutes: session.autoLogoutMinutes };
     },

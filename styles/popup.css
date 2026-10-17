@@ -326,6 +326,29 @@ h2 {
   text-align: left;
 }
 
+.pin-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 var(--spacing-md);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent, #0ea5e9) 12%, transparent);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.pin-hint i {
+  margin-top: 2px;
+  color: var(--accent, #0ea5e9);
+}
+
+.pin-hint[hidden] {
+  display: none !important;
+}
+
 .feature-item {
   display: flex;
   align-items: center;

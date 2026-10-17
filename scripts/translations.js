@@ -101,31 +101,32 @@ const translations = {
     'bookmark_title': 'Titel',
     'bookmark_url': 'URL',
     'edit': 'Redigera',
-    'password_strength_weak': 'Svagt losenord',
-    'password_strength_medium': 'Medelstarkt losenord',
-    'password_strength_strong': 'Starkt losenord',
-    'no_backups_yet': 'Inga backuper annu',
-    'restore': 'Aterstall',
-    'restore_backup_confirm': 'Ar du saker pa att du vill aterstalla fran denna backup? Nuvarande data kommer att ersattas.',
-    'backup_restored': 'Backup aterstalld!',
+    'password_strength_weak': 'Svagt lösenord',
+    'password_strength_medium': 'Medelstarkt lösenord',
+    'password_strength_strong': 'Starkt lösenord',
+    'no_backups_yet': 'Inga backuper ännu',
+    'restore': 'Återställ',
+    'restore_backup_confirm': 'Är du säker på att du vill återställa från denna backup? Nuvarande data kommer att ersättas.',
+    'backup_restored': 'Backup återställd!',
     'backup_created': 'Backup skapad!',
     'auto_backup_enabled': 'Automatisk backup aktiverad!',
     'auto_backup_disabled': 'Automatisk backup avaktiverad!',
-    'invalid_url': 'Ogiltig URL. Endast HTTP/HTTPS-lankar kan sparas.',
-    'merge_import_confirm': 'Vill du sla samman med befintliga bokmarken? Klicka Avbryt for att ersatta alla.',
+    'invalid_url': 'Ogiltig URL. Endast HTTP/HTTPS-länkar kan sparas.',
+    'merge_import_confirm': 'Vill du slå samman med befintliga bokmärken? Klicka Avbryt för att ersätta alla.',
     'saved_clean_link': 'Sparad med smart rensning och taggar!',
     'command_palette': 'Kommandon',
     'command_palette_placeholder': 'Skriv en handling...',
-    'command_palette_hint': 'Tryck Enter for att kora forsta kommandot',
+    'command_palette_hint': 'Tryck Enter för att köra första kommandot',
     'cmd_save_page': 'Spara aktuell sida',
-    'cmd_focus_search': 'Fokusera sok',
+    'cmd_focus_search': 'Fokusera sök',
     'cmd_new_folder': 'Skapa ny mapp',
-    'cmd_toggle_theme': 'Vaxla tema',
-    'no_results_title': 'Inga traffar hittades',
-    'no_results_subtitle': 'Prova ett annat sokord eller filter',
+    'cmd_toggle_theme': 'Växla tema',
+    'no_results_title': 'Inga träffar hittades',
+    'no_results_subtitle': 'Prova ett annat sökord eller filter',
     'copy': 'Kopiera',
-    'folder_changed': 'Mappen har andrats',
-    'storage_full': 'Lagringen ar full. Vänligen frigör utrymme.',
+    'folder_changed': 'Mappen har ändrats',
+    'storage_full': 'Lagringen är full. Vänligen frigör utrymme.',
+    'pin_extension_tip': 'Tips: Fäst tillägget i verktygsfältet (pusselikonen → nålen) för snabb åtkomst',
     'save_error': 'Kunde inte spara. Försök igen.',
     'cloud_decrypt_error': 'Kunde inte dekryptera molndata. Fel lösenord?',
     'export_password_short': 'Lösenordet måste vara minst 4 tecken.',
@@ -302,7 +303,8 @@ const translations = {
     'sync_up': 'Sync Up to Cloud',
     'sync_down': 'Sync Down from Cloud',
     'download_to_pc': 'Download files to computer',
-    'upload_from_pc': 'Upload .json .txt files from computer'
+    'upload_from_pc': 'Upload .json .txt files from computer',
+    'pin_extension_tip': 'Tip: Pin the extension to your toolbar (puzzle icon → pin) for quick access'
   },
   'tr': {
     'app_title': 'PrivateLinkSaver',
@@ -430,7 +432,8 @@ const translations = {
     'cloud_not_verified': 'Senkronizasyondan önce e-postanızı doğrulayın',
     'cloud_sync': 'Bulut senkronizasyonu',
     'cloud_login_title': 'Bulut Hesabı (Yedekleme ve Senkronizasyon)',
-    'cloud_login_desc': 'Yer imlerinizi cihazlar arasında senkronize etmek ve yedeklemek için hesap oluşturun'
+    'cloud_login_desc': 'Yer imlerinizi cihazlar arasında senkronize etmek ve yedeklemek için hesap oluşturun',
+    'pin_extension_tip': 'İpucu: Hızlı erişim için eklentiyi araç çubuğuna sabitleyin (parça simgesi → iğne)'
   },
   'es': {
     'app_title': 'PrivateLinkSaver',
@@ -558,7 +561,8 @@ const translations = {
     'cloud_not_verified': 'Verifica tu correo antes de sincronizar',
     'cloud_sync': 'Sincronización en la nube',
     'cloud_login_title': 'Cuenta en la nube (Respaldo y sincronización)',
-    'cloud_login_desc': 'Crea una cuenta para sincronizar y respaldar tus marcadores entre dispositivos'
+    'cloud_login_desc': 'Crea una cuenta para sincronizar y respaldar tus marcadores entre dispositivos',
+    'pin_extension_tip': 'Consejo: Fija la extensión en la barra de herramientas (icono de puzzle → chincheta) para acceso rápido'
   },
   'fr': {
     'app_title': 'PrivateLinkSaver',
@@ -686,7 +690,8 @@ const translations = {
     'cloud_not_verified': "Vérifiez votre e-mail avant de synchroniser",
     'cloud_sync': 'Synchronisation cloud',
     'cloud_login_title': 'Compte Cloud (Sauvegarde et synchronisation)',
-    'cloud_login_desc': 'Créez un compte pour synchroniser et sauvegarder vos favoris entre appareils'
+    'cloud_login_desc': 'Créez un compte pour synchroniser et sauvegarder vos favoris entre appareils',
+    'pin_extension_tip': 'Astuce : Épinglez l\'extension dans la barre d\'outils (icône puzzle → épingle) pour un accès rapide'
   }
 };
 

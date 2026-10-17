@@ -466,6 +466,17 @@
 
             <div class="setting-item">
                 <div class="setting-info">
+                    <h3>Encrypt local data</h3>
+                    <p>Encrypts your saved links on this device with your master password (AES-256). Off by default. If you forget the password the data cannot be recovered.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="local-encryption">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
                     <h3 data-translate="auto_logout">Auto Logout</h3>
                     <p data-translate="auto_logout_desc">Automatically lock PrivateLinkSaver after inactivity</p>
                 </div>
@@ -701,6 +712,7 @@
     <script src="scripts/firebase-init.js"></script>
     <script src="scripts/translations.js"></script>
     <script src="scripts/crypto.js"></script>
+    <script src="scripts/vault.js"></script>
     <script src="scripts/storage.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/options.js"></script>

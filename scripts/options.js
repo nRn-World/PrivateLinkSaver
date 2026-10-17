@@ -33,6 +33,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cloudPassword = null;
     let cloudSalt = null;
 
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = String(text ?? '');
+        return div.innerHTML;
+    }
+
+    function clearChildren(el) {
+        if (!el) return;
+        while (el.firstChild) el.removeChild(el.firstChild);
+    }
+
+    function setFaIcon(el, className) {
+        clearChildren(el);
+        const i = document.createElement('i');
+        i.className = className;
+        el.appendChild(i);
+    }
+
+    function setIconLabel(el, iconClass, label, translateKey) {
+        clearChildren(el);
+        const i = document.createElement('i');
+        i.className = iconClass;
+        el.appendChild(i);
+        el.appendChild(document.createTextNode(' '));
+        const span = document.createElement('span');
+        if (translateKey) span.setAttribute('data-translate', translateKey);
+        span.textContent = label;
+        el.appendChild(span);
+    }
+
+    function setSvgUseIcon(el, href, svgClass) {
+        clearChildren(el);
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        if (svgClass) svg.setAttribute('class', svgClass);
+        svg.setAttribute('viewBox', '0 0 24 24');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', href);
+        svg.appendChild(use);
+        el.appendChild(svg);
+    }
+
     // Helper to derive encryption key from password
     async function getCloudEncryptionKey(password, salt) {
         const encoder = new TextEncoder();
@@ -94,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { value: 0, label: chrome.i18n.getMessage('auto_logout_never') || 'Never' }
         ];
         
-        autoLogoutSelect.innerHTML = '';
+        clearChildren(autoLogoutSelect);
         autoLogoutOptions.forEach(option => {
             const opt = document.createElement('option');
             opt.value = option.value;
@@ -140,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Check email verification
             if (!user.emailVerified) {
-                cloudEmailDisplay.innerHTML = `${user.email}`;
+                cloudEmailDisplay.textContent = user.email;
             }
 
             cloudSyncUpBtn.disabled = !cloudEncryptionKey;
@@ -218,7 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     toggleCloudPassword.addEventListener('click', () => {
         const type = cloudPasswordInput.type === 'password' ? 'text' : 'password';
         cloudPasswordInput.type = type;
-        toggleCloudPassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        setFaIcon(toggleCloudPassword, type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash');
     });
 
     // Cloud login
@@ -233,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         cloudLoginBtn.disabled = true;
-        cloudLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Logging in...</span>';
+        setIconLabel(cloudLoginBtn, 'fas fa-spinner fa-spin', 'Logging in...');
         console.log("Starting login process for:", email);
 
         try {
@@ -257,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Login Error: " + error.message);
         } finally {
             cloudLoginBtn.disabled = false;
-            cloudLoginBtn.innerHTML = '<i class="fas fa-sign-in-alt btn-icon"></i> <span data-translate="cloud_login">Login</span>';
+            setIconLabel(cloudLoginBtn, 'fas fa-sign-in-alt btn-icon', 'Login', 'cloud_login');
         }
     });
 
@@ -294,7 +335,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showLoginStatus(error.message, 'error');
         } finally {
             cloudRegisterBtn.disabled = false;
-            cloudRegisterBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span data-translate="cloud_register">Create Account</span>';
+            setIconLabel(cloudRegisterBtn, 'fas fa-user-plus', 'Create Account', 'cloud_register');
         }
     });
 
@@ -305,24 +346,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const dialog = document.createElement('div');
         dialog.style.cssText = 'background:var(--surface-color,#fff);border-radius:16px;padding:32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center;color:var(--text-primary,#1e293b);font-family:Inter,sans-serif;';
-        dialog.innerHTML = `
-            <div style="font-size:48px;margin-bottom:16px;">📧</div>
-            <h3 style="margin:0 0 8px;font-size:20px;">Verify Your Email</h3>
-            <p style="margin:0 0 8px;font-size:14px;color:var(--text-secondary,#64748b);line-height:1.5;">A verification email has been sent to<br><strong>${email}</strong></p>
-            <p style="margin:0 0 24px;font-size:13px;color:var(--text-secondary,#64748b);">Click the link in the email, then confirm below.</p>
-            <div id="verify-status" style="margin-bottom:16px;font-size:13px;min-height:20px;"></div>
-            <div style="display:flex;gap:12px;">
-                <button id="verify-cancel-btn" style="flex:1;padding:12px;border:1px solid var(--border-color,#e2e8f0);border-radius:8px;background:transparent;color:var(--text-secondary,#64748b);font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>
-                <button id="verify-confirm-btn" style="flex:1;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">I've Verified</button>
-            </div>
-        `;
+
+        const emoji = document.createElement('div');
+        emoji.style.cssText = 'font-size:48px;margin-bottom:16px;';
+        emoji.textContent = '📧';
+
+        const title = document.createElement('h3');
+        title.style.cssText = 'margin:0 0 8px;font-size:20px;';
+        title.textContent = 'Verify Your Email';
+
+        const p1 = document.createElement('p');
+        p1.style.cssText = 'margin:0 0 8px;font-size:14px;color:var(--text-secondary,#64748b);line-height:1.5;';
+        p1.appendChild(document.createTextNode('A verification email has been sent to'));
+        p1.appendChild(document.createElement('br'));
+        const emailStrong = document.createElement('strong');
+        emailStrong.textContent = email;
+        p1.appendChild(emailStrong);
+
+        const p2 = document.createElement('p');
+        p2.style.cssText = 'margin:0 0 24px;font-size:13px;color:var(--text-secondary,#64748b);';
+        p2.textContent = 'Click the link in the email, then confirm below.';
+
+        const statusEl = document.createElement('div');
+        statusEl.id = 'verify-status';
+        statusEl.style.cssText = 'margin-bottom:16px;font-size:13px;min-height:20px;';
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:12px;';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'verify-cancel-btn';
+        cancelBtn.style.cssText = 'flex:1;padding:12px;border:1px solid var(--border-color,#e2e8f0);border-radius:8px;background:transparent;color:var(--text-secondary,#64748b);font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
+        cancelBtn.textContent = 'Cancel';
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.id = 'verify-confirm-btn';
+        confirmBtn.style.cssText = 'flex:1;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
+        confirmBtn.textContent = "I've Verified";
+
+        btnRow.appendChild(cancelBtn);
+        btnRow.appendChild(confirmBtn);
+        dialog.appendChild(emoji);
+        dialog.appendChild(title);
+        dialog.appendChild(p1);
+        dialog.appendChild(p2);
+        dialog.appendChild(statusEl);
+        dialog.appendChild(btnRow);
 
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
-
-        const statusEl = dialog.querySelector('#verify-status');
-        const cancelBtn = dialog.querySelector('#verify-cancel-btn');
-        const confirmBtn = dialog.querySelector('#verify-confirm-btn');
 
         return new Promise((resolve) => {
             cancelBtn.addEventListener('click', () => {
@@ -390,7 +462,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         cloudSyncUpBtn.disabled = true;
-        cloudSyncUpBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Syncing Up...</span>';
+        setIconLabel(cloudSyncUpBtn, 'fas fa-spinner fa-spin btn-icon', 'Syncing Up...');
         showSyncStatus('Uploading to cloud...', '');
 
         try {
@@ -407,7 +479,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showSyncStatus('Sync failed: ' + error.message, 'error');
         } finally {
             cloudSyncUpBtn.disabled = false;
-            cloudSyncUpBtn.innerHTML = '<i class="fas fa-cloud-upload-alt btn-icon"></i> <span data-translate="sync_up">Synkronisera Upp till moln</span>';
+            setIconLabel(cloudSyncUpBtn, 'fas fa-cloud-upload-alt btn-icon', 'Synkronisera Upp till moln', 'sync_up');
         }
     });
 
@@ -421,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         cloudSyncDownBtn.disabled = true;
-        cloudSyncDownBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Syncing Down...</span>';
+        setIconLabel(cloudSyncDownBtn, 'fas fa-spinner fa-spin btn-icon', 'Syncing Down...');
         showSyncStatus('Downloading from cloud...', '');
 
         try {
@@ -444,7 +516,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showSyncStatus('Sync failed: ' + error.message, 'error');
         } finally {
             cloudSyncDownBtn.disabled = false;
-            cloudSyncDownBtn.innerHTML = '<i class="fas fa-cloud-download-alt btn-icon"></i> <span data-translate="sync_down">Synkronisera Ner från moln</span>';
+            setIconLabel(cloudSyncDownBtn, 'fas fa-cloud-download-alt btn-icon', 'Synkronisera Ner från moln', 'sync_down');
         }
     });
 
@@ -506,7 +578,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Cloud logout
     cloudLogoutBtn.addEventListener('click', async () => {
         cloudLogoutBtn.disabled = true;
-        cloudLogoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin btn-icon"></i> <span>Logging out...</span>';
+        setIconLabel(cloudLogoutBtn, 'fas fa-spinner fa-spin btn-icon', 'Logging out...');
         try {
             // Sign out from Firebase
             if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
@@ -523,7 +595,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             showSyncStatus('Logout failed: ' + error.message, 'error');
         } finally {
             cloudLogoutBtn.disabled = false;
-            cloudLogoutBtn.innerHTML = '<svg class="icon btn-icon" viewBox="0 0 24 24"><use href="#icon-sign-out"></use></svg> <span data-translate="cloud_logout">Logout</span>';
+            clearChildren(cloudLogoutBtn);
+            setSvgUseIcon(cloudLogoutBtn, '#icon-sign-out', 'icon btn-icon');
+            cloudLogoutBtn.appendChild(document.createTextNode(' '));
+            const logoutSpan = document.createElement('span');
+            logoutSpan.setAttribute('data-translate', 'cloud_logout');
+            logoutSpan.textContent = 'Logout';
+            cloudLogoutBtn.appendChild(logoutSpan);
         }
     });
 
@@ -556,6 +634,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // Optional local encryption (see vault.js). Off by default; needs the master password.
+    const localEncryptionToggle = document.getElementById('local-encryption');
+    if (localEncryptionToggle) {
+        localEncryptionToggle.checked = await Vault.isEnabled();
+        localEncryptionToggle.addEventListener('change', async () => {
+            const turnOn = localEncryptionToggle.checked;
+            const revert = () => { localEncryptionToggle.checked = !turnOn; };
+            try {
+                if (turnOn && !confirm('Encrypt your saved links with your master password?\n\nIf you forget the password, the data cannot be recovered. A safety backup is kept inside the encrypted data.')) {
+                    return revert();
+                }
+                const password = prompt('Enter your master password:');
+                if (!password) return revert();
+                const { hash, salt } = await StorageUtils.getPasswordData();
+                if (!hash || !(await CryptoUtils.verifyPassword(password, hash, salt))) {
+                    alert('Wrong password.');
+                    return revert();
+                }
+                if (turnOn) {
+                    await Vault.enable(password);
+                } else {
+                    if (!(await Vault.unlock(password))) {
+                        alert('Wrong password.');
+                        return revert();
+                    }
+                    await Vault.disable();
+                }
+            } catch (error) {
+                console.error('Local encryption change failed:', error);
+                alert('Could not change encryption: ' + error.message);
+                revert();
+            }
+        });
+    }
+
     // Initialize
     await loadSettings();
 
@@ -582,14 +695,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showFooterCopied() {
         if (footerCopyIcon) {
-            footerCopyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+            clearChildren(footerCopyIcon);
+            const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            poly.setAttribute('points', '20 6 9 17 4 12');
+            footerCopyIcon.appendChild(poly);
             footerCopyIcon.style.opacity = '1';
             footerCopyIcon.style.stroke = '#10b981';
         }
         if (footerCopiedMsg) footerCopiedMsg.style.display = 'inline';
         setTimeout(function() {
             if (footerCopyIcon) {
-                footerCopyIcon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+                clearChildren(footerCopyIcon);
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', '9');
+                rect.setAttribute('y', '9');
+                rect.setAttribute('width', '13');
+                rect.setAttribute('height', '13');
+                rect.setAttribute('rx', '2');
+                rect.setAttribute('ry', '2');
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1');
+                footerCopyIcon.appendChild(rect);
+                footerCopyIcon.appendChild(path);
                 footerCopyIcon.style.opacity = '0.6';
                 footerCopyIcon.style.stroke = 'currentColor';
             }

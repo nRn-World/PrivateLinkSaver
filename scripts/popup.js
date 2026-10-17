@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function toggleTheme() {
         state.darkMode = !state.darkMode;
         document.body.setAttribute('data-theme', state.darkMode ? 'dark' : 'light');
-        elements.themeToggle.innerHTML = state.darkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        setFaIcon(elements.themeToggle, state.darkMode ? 'fas fa-sun' : 'fas fa-moon');
         StorageUtils.savePreferences({ darkMode: state.darkMode });
     }
 
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         if (state.darkMode) {
             document.body.setAttribute('data-theme', 'dark');
-            elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            setFaIcon(elements.themeToggle, 'fas fa-sun');
         }
         
         // Set auto-backup toggle
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     function updateSmartTagSuggestions() {
         if (!elements.smartTagSuggestions) return;
 
-        elements.smartTagSuggestions.innerHTML = '';
+        clearChildren(elements.smartTagSuggestions);
         if (!state.activeSuggestedTags.length) return;
 
         const enteredTags = elements.tagInput.value
@@ -318,8 +318,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Update folder dropdowns
     function updateFolderDropdowns() {
-        elements.folderSelect.innerHTML = '';
-        elements.folderSelectAdd.innerHTML = '';
+        clearChildren(elements.folderSelect);
+        clearChildren(elements.folderSelectAdd);
         
         // All folders option
         const allOption = document.createElement('option');
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Update tag list
     function updateTagList() {
         if (elements.tagList) {
-            elements.tagList.innerHTML = '';
+            clearChildren(elements.tagList);
             
             state.tags.forEach(tag => {
                 const tagEl = document.createElement('span');
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         // Update top domains
         const domainList = document.getElementById('domain-list');
-        domainList.innerHTML = '';
+        clearChildren(domainList);
         
         stats.topDomains.forEach(({ domain, count }) => {
             const item = document.createElement('div');
@@ -439,6 +439,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.loginSection.style.display = 'none';
         elements.registerSection.style.display = 'none';
         elements.bookmarksSection.style.display = 'none';
+
+        const pinHint = document.getElementById('pin-hint');
+        if (pinHint) {
+            const { showPinHint } = await chrome.storage.local.get('showPinHint');
+            pinHint.hidden = showPinHint !== true;
+        }
         
         await updateStats();
     }
@@ -460,7 +466,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Display bookmarks
     function displayBookmarks(bookmarks, options = {}) {
-        elements.bookmarksContainer.innerHTML = '';
+        clearChildren(elements.bookmarksContainer);
 
         const list = options.preSorted ? bookmarks : sortBookmarks(bookmarks);
 
@@ -531,48 +537,111 @@ document.addEventListener('DOMContentLoaded', async function () {
         const safeFavicon = normalizeHttpUrl(bookmark.favicon) || getFavicon(bookmark.url);
         const visitCount = Number(bookmark.visitCount) || 0;
 
-        el.innerHTML = `
-            <div class="bookmark-header">
-                <img class="bookmark-favicon" src="${escapeHtml(safeFavicon)}" alt="">
-                <span class="bookmark-title">${escapeHtml(bookmark.title)}</span>
-                <div class="bookmark-actions">
-                <button class="bookmark-action-btn edit" data-action="edit" data-id="${bookmark.id}" title="${translations[state.currentLang]['edit']}">
-                    <svg class="icon" viewBox="0 0 24 24"><use href="#icon-edit"></use></svg>
-                </button>
-                <button class="bookmark-action-btn copy" data-action="copy" data-id="${bookmark.id}" title="${t('copy')}">
-                    <svg class="icon" viewBox="0 0 24 24"><use href="#icon-copy"></use></svg>
-                </button>
-                <button class="bookmark-action-btn delete" data-action="delete" data-id="${bookmark.id}" title="${translations[state.currentLang]['delete']}">
-                    <svg class="icon" viewBox="0 0 24 24"><use href="#icon-trash"></use></svg>
-                </button>
-            </div>
-            </div>
-            <div class="bookmark-url">
-                <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(safeUrlText)}</a>
-            </div>
-            <div class="bookmark-meta">
-                <span class="bookmark-date">${escapeHtml(bookmark.date)}</span>
-                ${visitCount > 0 ? `<span><i class="fas fa-eye"></i> ${visitCount}</span>` : ''}
-                <select class="bookmark-folder-select" style="color: ${state.folders.find(f => f.name === bookmark.folder)?.color || 'inherit'}">
-                    ${state.folders.map(f => `
-                        <option value="${escapeHtml(f.name)}" ${f.name === bookmark.folder ? 'selected' : ''} style="color: ${f.color}">${escapeHtml(f.name)}</option>
-                    `).join('')}
-                </select>
-            </div>
-            ${(bookmark.tags || []).length > 0 ? `
-                <div class="bookmark-tags">
-                    ${bookmark.tags.map(tag => `<span class="bookmark-tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
-            ` : ''}
-        `;
+        const header = document.createElement('div');
+        header.className = 'bookmark-header';
+
+        const favicon = document.createElement('img');
+        favicon.className = 'bookmark-favicon';
+        favicon.src = safeFavicon;
+        favicon.alt = '';
+
+        const title = document.createElement('span');
+        title.className = 'bookmark-title';
+        title.textContent = bookmark.title || '';
+
+        const actions = document.createElement('div');
+        actions.className = 'bookmark-actions';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'bookmark-action-btn edit';
+        editBtn.dataset.action = 'edit';
+        editBtn.dataset.id = bookmark.id;
+        editBtn.title = translations[state.currentLang]['edit'];
+        editBtn.appendChild(svgUse('#icon-edit', 'icon'));
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'bookmark-action-btn copy';
+        copyBtn.dataset.action = 'copy';
+        copyBtn.dataset.id = bookmark.id;
+        copyBtn.title = t('copy');
+        copyBtn.appendChild(svgUse('#icon-copy', 'icon'));
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'bookmark-action-btn delete';
+        deleteBtn.dataset.action = 'delete';
+        deleteBtn.dataset.id = bookmark.id;
+        deleteBtn.title = translations[state.currentLang]['delete'];
+        deleteBtn.appendChild(svgUse('#icon-trash', 'icon'));
+
+        actions.appendChild(editBtn);
+        actions.appendChild(copyBtn);
+        actions.appendChild(deleteBtn);
+        header.appendChild(favicon);
+        header.appendChild(title);
+        header.appendChild(actions);
+
+        const urlWrap = document.createElement('div');
+        urlWrap.className = 'bookmark-url';
+        const link = document.createElement('a');
+        link.href = safeHref;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = safeUrlText;
+        urlWrap.appendChild(link);
+
+        const meta = document.createElement('div');
+        meta.className = 'bookmark-meta';
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'bookmark-date';
+        dateSpan.textContent = bookmark.date || '';
+        meta.appendChild(dateSpan);
+
+        if (visitCount > 0) {
+            const visits = document.createElement('span');
+            const eye = document.createElement('i');
+            eye.className = 'fas fa-eye';
+            visits.appendChild(eye);
+            visits.appendChild(document.createTextNode(' ' + visitCount));
+            meta.appendChild(visits);
+        }
+
+        const folderSelect = document.createElement('select');
+        folderSelect.className = 'bookmark-folder-select';
+        const folderColor = state.folders.find(f => f.name === bookmark.folder)?.color || 'inherit';
+        folderSelect.style.color = folderColor;
+        state.folders.forEach((f) => {
+            const opt = document.createElement('option');
+            opt.value = f.name;
+            opt.textContent = f.name;
+            opt.style.color = f.color;
+            if (f.name === bookmark.folder) opt.selected = true;
+            folderSelect.appendChild(opt);
+        });
+        meta.appendChild(folderSelect);
+
+        el.appendChild(header);
+        el.appendChild(urlWrap);
+        el.appendChild(meta);
+
+        if ((bookmark.tags || []).length > 0) {
+            const tagsWrap = document.createElement('div');
+            tagsWrap.className = 'bookmark-tags';
+            bookmark.tags.forEach((tag) => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'bookmark-tag';
+                tagEl.textContent = tag;
+                tagsWrap.appendChild(tagEl);
+            });
+            el.appendChild(tagsWrap);
+        }
         
         // Event listeners - using event delegation
         // Track visit
-        el.querySelector('a').addEventListener('click', async () => {
+        link.addEventListener('click', async () => {
             await trackVisit(bookmark.id);
         });
         
-        el.querySelector('.bookmark-folder-select').addEventListener('change', async (e) => {
+        folderSelect.addEventListener('change', async (e) => {
             const newFolder = e.target.value;
             const folderData = state.folders.find(f => f.name === newFolder);
             if (folderData) {
@@ -823,11 +892,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         return merged.slice(0, 10);
     }
 
-    // Escape HTML
+    // Escape HTML (read-only .innerHTML — no assignment)
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = String(text ?? '');
         return div.innerHTML;
+    }
+
+    function clearChildren(el) {
+        if (!el) return;
+        while (el.firstChild) el.removeChild(el.firstChild);
+    }
+
+    function setFaIcon(el, className) {
+        clearChildren(el);
+        const i = document.createElement('i');
+        i.className = className;
+        el.appendChild(i);
+    }
+
+    function svgUse(href, className) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        if (className) svg.setAttribute('class', className);
+        svg.setAttribute('viewBox', '0 0 24 24');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', href);
+        svg.appendChild(use);
+        return svg;
     }
 
     // Check password strength
@@ -939,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         state.activeCommands = filtered;
         state.commandIndex = Math.max(0, Math.min(state.commandIndex, Math.max(filtered.length - 1, 0)));
-        elements.commandResults.innerHTML = '';
+        clearChildren(elements.commandResults);
 
         filtered.forEach((command, index) => {
             const item = document.createElement('button');
@@ -993,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Load backups
     async function loadBackups() {
         const backups = await StorageUtils.getBackups();
-        elements.backupsContainer.innerHTML = '';
+        clearChildren(elements.backupsContainer);
         
         if (backups.length === 0) {
             const emptyText = document.createElement('p');
@@ -1085,6 +1176,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Get started
     elements.getStartedBtn.addEventListener('click', async () => {
         elements.welcomeScreen.style.display = 'none';
+        await chrome.storage.local.set({ showPinHint: false, firstTime: false });
         const { hash } = await StorageUtils.getPasswordData();
         if (hash) {
             showBookmarks();
@@ -1118,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     elements.togglePassword.addEventListener('click', () => {
         const type = elements.password.type === 'password' ? 'text' : 'password';
         elements.password.type = type;
-        elements.togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        setFaIcon(elements.togglePassword, type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash');
     });
 
     // Register
@@ -1170,6 +1262,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         hideLoader();
         
         if (isValid) {
+            // Encrypted vault: derive the key from the password (no-op when encryption is off).
+            if (!(await Vault.unlock(password))) {
+                showToast(translations[state.currentLang]['wrong_password'], 'error');
+                return;
+            }
             await StorageUtils.saveLoginStatus(true);
             await StorageUtils.recordSessionActivity(true); // Record activity on login
             elements.password.value = '';
@@ -1503,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.toggleCloudPassword.addEventListener('click', () => {
             const type = elements.cloudPassword.type === 'password' ? 'text' : 'password';
             elements.cloudPassword.type = type;
-            elements.toggleCloudPassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            setFaIcon(elements.toggleCloudPassword, type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash');
         });
     }
 
@@ -1597,24 +1694,55 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const dialog = document.createElement('div');
         dialog.style.cssText = 'background:#fff;border-radius:16px;padding:32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center;color:#1e293b;font-family:Inter,sans-serif;';
-        dialog.innerHTML = `
-            <div style="font-size:48px;margin-bottom:16px;">📧</div>
-            <h3 style="margin:0 0 8px;font-size:20px;">Verify Your Email</h3>
-            <p style="margin:0 0 8px;font-size:14px;color:#64748b;line-height:1.5;">A verification email has been sent to<br><strong>${email}</strong></p>
-            <p style="margin:0 0 24px;font-size:13px;color:#64748b;">Click the link in the email, then confirm below.</p>
-            <div id="popup-verify-status" style="margin-bottom:16px;font-size:13px;min-height:20px;"></div>
-            <div style="display:flex;gap:12px;">
-                <button id="popup-verify-cancel-btn" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:transparent;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Cancel</button>
-                <button id="popup-verify-confirm-btn" style="flex:1;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">I've Verified</button>
-            </div>
-        `;
+
+        const emoji = document.createElement('div');
+        emoji.style.cssText = 'font-size:48px;margin-bottom:16px;';
+        emoji.textContent = '📧';
+
+        const title = document.createElement('h3');
+        title.style.cssText = 'margin:0 0 8px;font-size:20px;';
+        title.textContent = 'Verify Your Email';
+
+        const p1 = document.createElement('p');
+        p1.style.cssText = 'margin:0 0 8px;font-size:14px;color:#64748b;line-height:1.5;';
+        p1.appendChild(document.createTextNode('A verification email has been sent to'));
+        p1.appendChild(document.createElement('br'));
+        const emailStrong = document.createElement('strong');
+        emailStrong.textContent = email;
+        p1.appendChild(emailStrong);
+
+        const p2 = document.createElement('p');
+        p2.style.cssText = 'margin:0 0 24px;font-size:13px;color:#64748b;';
+        p2.textContent = 'Click the link in the email, then confirm below.';
+
+        const statusEl = document.createElement('div');
+        statusEl.id = 'popup-verify-status';
+        statusEl.style.cssText = 'margin-bottom:16px;font-size:13px;min-height:20px;';
+
+        const btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display:flex;gap:12px;';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.id = 'popup-verify-cancel-btn';
+        cancelBtn.style.cssText = 'flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:transparent;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
+        cancelBtn.textContent = 'Cancel';
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.id = 'popup-verify-confirm-btn';
+        confirmBtn.style.cssText = 'flex:1;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
+        confirmBtn.textContent = "I've Verified";
+
+        btnRow.appendChild(cancelBtn);
+        btnRow.appendChild(confirmBtn);
+        dialog.appendChild(emoji);
+        dialog.appendChild(title);
+        dialog.appendChild(p1);
+        dialog.appendChild(p2);
+        dialog.appendChild(statusEl);
+        dialog.appendChild(btnRow);
 
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
-
-        const statusEl = dialog.querySelector('#popup-verify-status');
-        const cancelBtn = dialog.querySelector('#popup-verify-cancel-btn');
-        const confirmBtn = dialog.querySelector('#popup-verify-confirm-btn');
 
         return new Promise((resolve) => {
             cancelBtn.addEventListener('click', () => {
@@ -1998,7 +2126,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!granted) return;
 
         const treeContainer = document.getElementById('chrome-bookmarks-tree');
-        treeContainer.innerHTML = '';
+        clearChildren(treeContainer);
 
         try {
             chrome.bookmarks.getTree((tree) => {
@@ -2012,7 +2140,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function closeChromeBookmarksModal() {
         document.getElementById('chrome-bookmarks-modal').classList.remove('active');
-        document.getElementById('chrome-bookmarks-tree').innerHTML = '';
+        clearChildren(document.getElementById('chrome-bookmarks-tree'));
     }
 
     document.getElementById('chrome-import-btn').addEventListener('click', openChromeBookmarksModal);

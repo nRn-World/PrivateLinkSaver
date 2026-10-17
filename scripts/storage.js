@@ -374,8 +374,9 @@ const StorageUtils = {
 
     // Get user preferences
     async getPreferences() {
-        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup', 'autoLogoutMinutes']);
+        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup', 'autoLogoutMinutes', 'showFavicons']);
         return {
+            showFavicons: result.showFavicons === true,
             language: result.language || 'en',
             darkMode: result.darkMode !== undefined ? result.darkMode : true,
             firstTime: result.firstTime !== false,

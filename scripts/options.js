@@ -248,6 +248,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         chrome.runtime.sendMessage({ action: 'setupAutoBackup' });
     });
 
+    // Site icons (off = no network requests for saved sites)
+    const showFaviconsToggle = document.getElementById('show-favicons');
+    if (showFaviconsToggle) {
+        showFaviconsToggle.checked = (await StorageUtils.get('showFavicons')).showFavicons === true;
+        showFaviconsToggle.addEventListener('change', () => {
+            StorageUtils.savePreferences({ showFavicons: showFaviconsToggle.checked });
+        });
+    }
+
     // Auto logout change
     autoLogoutSelect.addEventListener('change', async () => {
         const minutes = parseInt(autoLogoutSelect.value);

@@ -365,26 +365,9 @@ async function saveBookmark(url, title, tab) {
         return;
     }
     
-    // Get favicon
-    let favicon = null;
-    
-    // Use tab favicon if saving the current page
-    if (tab && tab.favIconUrl) {
-        favicon = tab.favIconUrl;
-    }
-    
-    if (!favicon) {
-        try {
-            const urlObj = new URL(normalizedUrl);
-            let domain = urlObj.hostname;
-            if (domain && domain.includes('.') && domain !== 'localhost' && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(domain)) {
-                favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            }
-        } catch (e) {
-            // Invalid URL, skip favicon
-        }
-    }
-    
+    // Per-site favicon URLs are never stored: the popup draws letter icons (or, if the user opted in, fetches by domain).
+    const favicon = null;
+
     // Get default folder
     const defaultFolder = folders.length > 0 ? folders[0].name : 'General';
     
@@ -476,6 +459,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 sendResponse({ success: false, error: 'No active tab' });
             }
         });
+        return true;
+    } else if (request.action === 'trackVisit') {
+        Vault.localGet('bookmarks').then((data) => {
+            const list = data.bookmarks || [];
+            const bookmark = list.find((b) => b.id === request.id);
+            if (!bookmark) return;
+            bookmark.visitCount = (Number(bookmark.visitCount) || 0) + 1;
+            bookmark.lastVisited = Date.now();
+            return Vault.localSet({ bookmarks: list });
+        }).then(() => sendResponse({ success: true }), () => sendResponse({ success: false }));
         return true;
     } else if (request.action === 'createBackup') {
         createAutoBackup().then(() => sendResponse({ success: true }));

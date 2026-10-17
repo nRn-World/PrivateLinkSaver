@@ -100,7 +100,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         cloudEncryptionKey: null,
         cloudPassword: null,
         cloudSalt: null,
-        cloudLoggedIn: false
+        cloudLoggedIn: false,
+        showFavicons: false
     };
 
     function t(key, fallback = '') {
@@ -206,7 +207,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         const prefs = await StorageUtils.getPreferences();
         state.darkMode = prefs.darkMode;
         state.currentLang = prefs.language;
-        
+        state.showFavicons = prefs.showFavicons;
+
         if (state.darkMode) {
             document.body.setAttribute('data-theme', 'dark');
             setFaIcon(elements.themeToggle, 'fas fa-sun');
@@ -427,7 +429,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             domainName.className = 'domain-name';
 
             const icon = document.createElement('img');
-            icon.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
+            if (state.showFavicons) icon.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
+            else icon.hidden = true;
             icon.alt = '';
 
             const domainText = document.createElement('span');
@@ -546,16 +549,24 @@ document.addEventListener('DOMContentLoaded', async function () {
         const safeUrl = normalizeHttpUrl(bookmark.url);
         const safeHref = safeUrl || '#';
         const safeUrlText = safeUrl || String(bookmark.url || '');
-        const safeFavicon = normalizeHttpUrl(bookmark.favicon) || getFavicon(bookmark.url);
         const visitCount = Number(bookmark.visitCount) || 0;
 
         const header = document.createElement('div');
         header.className = 'bookmark-header';
 
-        const favicon = document.createElement('img');
-        favicon.className = 'bookmark-favicon';
-        favicon.src = safeFavicon;
-        favicon.alt = '';
+        // Icons are only fetched (by domain, from Google) when the user turned them on;
+        // stored per-site favicon URLs are never loaded, so viewing links contacts no saved site.
+        let favicon;
+        if (state.showFavicons) {
+            favicon = document.createElement('img');
+            favicon.src = getFavicon(bookmark.url);
+            favicon.alt = '';
+        } else {
+            favicon = document.createElement('span');
+            favicon.className = 'letter-icon';
+            favicon.textContent = (String(bookmark.title || safeUrlText).match(/[\p{L}\p{N}]/u) || ['#'])[0].toUpperCase();
+        }
+        favicon.classList.add('bookmark-favicon');
 
         const title = document.createElement('span');
         title.className = 'bookmark-title';
@@ -775,7 +786,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         state.bookmarks[index].visitCount = (state.bookmarks[index].visitCount || 0) + 1;
         state.bookmarks[index].lastVisited = Date.now();
-        await StorageUtils.saveBookmarks(state.bookmarks);
+        // The popup closes when the new tab opens, so the background script does the save.
+        Promise.resolve(chrome.runtime.sendMessage({ action: 'trackVisit', id: bookmarkId })).catch(() => {});
     }
 
     function getBookmarkIndexById(bookmarkId) {
@@ -1333,10 +1345,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         await StorageUtils.saveTags(state.tags);
 
-        let favicon = tabMeta.favIconUrl;
-        if (!favicon) {
-            favicon = getFavicon(normalizedUrl);
-        }
+        const favicon = null; // never store per-site favicon URLs (see createBookmarkElement)
 
         const newBookmark = {
             id: CryptoUtils.generateUUID(),
@@ -2067,6 +2076,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Another context (hotkey/context-menu save, options import) changed the links: reload so a later
     // save from this popup does not overwrite them with a stale list.
     chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local' && changes.showFavicons) {
+            state.showFavicons = changes.showFavicons.newValue === true;
+            refreshBookmarkView();
+        }
         if (area !== 'local' || !(changes.bookmarks || changes.vaultBlob)) return;
         if (elements.bookmarksSection.style.display !== 'block') return;
         StorageUtils.getBookmarks().then((list) => {
@@ -2261,6 +2274,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             favicon.className = 'chrome-tree-favicon';
             try {
                 const domain = new URL(node.url).hostname;
+                if (!state.showFavicons) throw new Error('icons off');
                 favicon.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
             } catch (_) {
                 favicon.style.display = 'none';

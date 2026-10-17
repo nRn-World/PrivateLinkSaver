@@ -101,7 +101,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         cloudPassword: null,
         cloudSalt: null,
         cloudLoggedIn: false,
-        showFavicons: false
+        showFavicons: true,
+        selectMode: false,
+        selectedIds: new Set(),
+        visibleIds: [],
+        dragIds: []
     };
 
     function t(key, fallback = '') {
@@ -364,6 +368,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateSelectColor(elements.folderSelect);
         updateSelectColor(elements.folderSelectAdd);
         
+        fillBulkMove();
+
         // Update stats
         if (elements.totalFolders) elements.totalFolders.textContent = state.folders.length;
         if (elements.quickFolderCount) elements.quickFolderCount.textContent = state.folders.length;
@@ -484,6 +490,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         clearChildren(elements.bookmarksContainer);
 
         const list = options.preSorted ? bookmarks : sortBookmarks(bookmarks);
+        state.visibleIds = list.map((b) => b.id);
+        updateBulkBar();
 
         if (list.length === 0) {
             elements.bookmarksContainer.appendChild(elements.emptyState);
@@ -541,6 +549,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         el.dataset.bookmarkId = bookmark.id;
         el.dataset.folder = bookmark.folder;
         el.dataset.tags = JSON.stringify(bookmark.tags || []);
+
+        // Drag (this one, or the whole selection) onto a folder chip to move.
+        el.draggable = true;
+        el.addEventListener('dragstart', (e) => {
+            state.dragIds = state.selectMode && state.selectedIds.has(bookmark.id) ? [...state.selectedIds] : [bookmark.id];
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', bookmark.url);
+            el.classList.add('dragging');
+            setTimeout(showFolderDropBar, 0);
+        });
+        el.addEventListener('dragend', () => {
+            el.classList.remove('dragging');
+            hideFolderDropBar();
+        });
+        if (state.selectedIds.has(bookmark.id)) el.classList.add('selected');
         
         if (state.allBookmarksHidden) {
             el.classList.add('hidden');
@@ -554,12 +577,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         const header = document.createElement('div');
         header.className = 'bookmark-header';
 
-        // Icons are only fetched (by domain, from Google) when the user turned them on;
-        // stored per-site favicon URLs are never loaded, so viewing links contacts no saved site.
+        // Site icons as before; the "Show site icons" setting off = local letter icons, no requests.
         let favicon;
         if (state.showFavicons) {
             favicon = document.createElement('img');
-            favicon.src = getFavicon(bookmark.url);
+            favicon.src = normalizeHttpUrl(bookmark.favicon) || getFavicon(bookmark.url);
             favicon.alt = '';
         } else {
             favicon = document.createElement('span');
@@ -599,6 +621,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         actions.appendChild(editBtn);
         actions.appendChild(copyBtn);
         actions.appendChild(deleteBtn);
+        if (state.selectMode) {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'bookmark-select';
+            checkbox.checked = state.selectedIds.has(bookmark.id);
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) state.selectedIds.add(bookmark.id);
+                else state.selectedIds.delete(bookmark.id);
+                el.classList.toggle('selected', checkbox.checked);
+                updateBulkBar();
+            });
+            header.appendChild(checkbox);
+        }
         header.appendChild(favicon);
         header.appendChild(title);
         header.appendChild(actions);
@@ -1345,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         await StorageUtils.saveTags(state.tags);
 
-        const favicon = null; // never store per-site favicon URLs (see createBookmarkElement)
+        const favicon = tabMeta.favIconUrl || getFavicon(normalizedUrl);
 
         const newBookmark = {
             id: CryptoUtils.generateUUID(),
@@ -1980,6 +2015,143 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.fileInput.value = '';
     });
 
+    // ===== Multi-select, bulk actions and drag & drop to folders =====
+    const bulkBar = document.getElementById('bulk-bar');
+    const bulkCount = document.getElementById('bulk-count');
+    const bulkAllBtn = document.getElementById('bulk-all-btn');
+    const bulkMove = document.getElementById('bulk-move');
+    const bulkTagInput = document.getElementById('bulk-tag-input');
+    const bulkTagBtn = document.getElementById('bulk-tag-btn');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const selectModeBtn = document.getElementById('select-mode-btn');
+    const dropBar = document.getElementById('folder-drop-bar');
+
+    function updateBulkBar() {
+        const existing = new Set(state.bookmarks.map((b) => b.id));
+        state.selectedIds.forEach((id) => { if (!existing.has(id)) state.selectedIds.delete(id); });
+        bulkBar.hidden = !state.selectMode;
+        selectModeBtn.classList.toggle('active', state.selectMode);
+        bulkCount.textContent = `${state.selectedIds.size} ${t('selected_count', 'selected')}`;
+        bulkAllBtn.textContent = t('select_all', 'All');
+        const none = state.selectedIds.size === 0;
+        [bulkMove, bulkTagInput, bulkTagBtn, bulkDeleteBtn].forEach((el) => { el.disabled = none; });
+    }
+
+    function fillBulkMove() {
+        clearChildren(bulkMove);
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = t('move_to', 'Move to...');
+        bulkMove.appendChild(placeholder);
+        state.folders.forEach((folder) => {
+            const option = document.createElement('option');
+            option.value = folder.name;
+            option.textContent = folder.name;
+            bulkMove.appendChild(option);
+        });
+    }
+
+    function showFolderDropBar() {
+        clearChildren(dropBar);
+        const hint = document.createElement('span');
+        hint.className = 'folder-drop-hint';
+        hint.textContent = t('drop_to_move', 'Drop on a folder to move');
+        dropBar.appendChild(hint);
+        state.folders.forEach((folder) => {
+            const chip = document.createElement('div');
+            chip.className = 'folder-drop-chip';
+            chip.textContent = folder.name;
+            chip.style.borderColor = folder.color;
+            chip.style.color = folder.color;
+            chip.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                chip.classList.add('over');
+            });
+            chip.addEventListener('dragleave', () => chip.classList.remove('over'));
+            chip.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                chip.classList.remove('over');
+                hideFolderDropBar();
+                await moveBookmarks(state.dragIds, folder.name);
+            });
+            dropBar.appendChild(chip);
+        });
+        dropBar.classList.add('visible');
+    }
+
+    function hideFolderDropBar() {
+        dropBar.classList.remove('visible');
+    }
+
+    async function moveBookmarks(ids, folderName) {
+        const wanted = new Set(ids);
+        let moved = 0;
+        state.bookmarks.forEach((b) => {
+            if (wanted.has(b.id) && b.folder !== folderName) {
+                b.folder = folderName;
+                moved += 1;
+            }
+        });
+        if (!moved) return;
+        await StorageUtils.saveBookmarks(state.bookmarks);
+        state.selectedIds.clear();
+        refreshBookmarkView();
+        showToast(`${t('bulk_moved', 'Moved')}: ${moved}`);
+    }
+
+    async function bulkAddTags() {
+        const names = mergeTags(bulkTagInput.value.split(',').map((tagName) => tagName.trim()));
+        if (!names.length || !state.selectedIds.size) return;
+        const canonical = names.map((name) => {
+            let tag = state.tags.find((entry) => entry.name.toLowerCase() === name.toLowerCase());
+            if (!tag) {
+                tag = { id: CryptoUtils.generateUUID(), name, color: colorFromTagName(name) };
+                state.tags.push(tag);
+            }
+            return tag.name;
+        });
+        state.bookmarks.forEach((b) => {
+            if (state.selectedIds.has(b.id)) b.tags = mergeTags(b.tags || [], canonical);
+        });
+        await StorageUtils.saveTags(state.tags);
+        await StorageUtils.saveBookmarks(state.bookmarks);
+        bulkTagInput.value = '';
+        updateTagList();
+        refreshBookmarkView();
+        showToast(`${t('bulk_tagged', 'Tagged')}: ${state.selectedIds.size}`);
+    }
+
+    async function bulkDelete() {
+        const ids = new Set(state.selectedIds);
+        if (!ids.size || !confirm(t('bulk_delete_confirm', 'Delete the selected bookmarks? A safety backup is created first.'))) return;
+        try { await StorageUtils.createBackup(); } catch (_error) { /* storage full: continue, the user confirmed */ }
+        state.bookmarks = state.bookmarks.filter((b) => !ids.has(b.id));
+        await StorageUtils.saveBookmarks(state.bookmarks);
+        state.selectedIds.clear();
+        refreshBookmarkView();
+        showToast(`${t('bulk_deleted', 'Deleted')}: ${ids.size}`);
+        await updateStats();
+    }
+
+    selectModeBtn.addEventListener('click', () => {
+        state.selectMode = !state.selectMode;
+        state.selectedIds.clear();
+        refreshBookmarkView();
+    });
+    bulkAllBtn.addEventListener('click', () => {
+        state.visibleIds.forEach((id) => state.selectedIds.add(id));
+        refreshBookmarkView();
+    });
+    bulkMove.addEventListener('change', async () => {
+        const target = bulkMove.value;
+        bulkMove.value = '';
+        if (target) await moveBookmarks([...state.selectedIds], target);
+    });
+    bulkTagBtn.addEventListener('click', bulkAddTags);
+    bulkTagInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') bulkAddTags(); });
+    bulkDeleteBtn.addEventListener('click', bulkDelete);
+
     // Close modals
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -2054,6 +2226,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (e.key === 'Enter') elements.saveFolderBtn.click();
     });
 
+    const versionText = document.getElementById('popup-version-text');
+    if (versionText) versionText.textContent = 'v' + chrome.runtime.getManifest().version;
+
     // Initialize
     await initTheme();
     applyTranslation(state.currentLang);
@@ -2077,7 +2252,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // save from this popup does not overwrite them with a stale list.
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area === 'local' && changes.showFavicons) {
-            state.showFavicons = changes.showFavicons.newValue === true;
+            state.showFavicons = changes.showFavicons.newValue !== false;
             refreshBookmarkView();
         }
         if (area !== 'local' || !(changes.bookmarks || changes.vaultBlob)) return;

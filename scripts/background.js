@@ -365,8 +365,18 @@ async function saveBookmark(url, title, tab) {
         return;
     }
     
-    // Per-site favicon URLs are never stored: the popup draws letter icons (or, if the user opted in, fetches by domain).
-    const favicon = null;
+    // Get favicon (tab icon when saving the current page, else Google's favicon service)
+    let favicon = tab && tab.favIconUrl ? tab.favIconUrl : null;
+    if (!favicon) {
+        try {
+            const domain = new URL(normalizedUrl).hostname;
+            if (domain && domain.includes('.') && domain !== 'localhost' && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(domain)) {
+                favicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            }
+        } catch (e) {
+            // Invalid URL, skip favicon
+        }
+    }
 
     // Get default folder
     const defaultFolder = folders.length > 0 ? folders[0].name : 'General';

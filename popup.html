@@ -147,8 +147,27 @@
         <!-- Register Section -->
         <div class="card auth-card" id="register-section">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-key"></i>
+                <div class="logo-icon lock-badge" aria-hidden="true">
+                    <svg viewBox="0 0 96 96" fill="none">
+                        <defs>
+                            <linearGradient id="plsShield" x1="24" y1="18" x2="72" y2="80" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#38bdf8"/>
+                                <stop offset="1" stop-color="#0284c7"/>
+                            </linearGradient>
+                            <radialGradient id="plsGlow" cx="48" cy="48" r="46" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#38bdf8" stop-opacity=".35"/>
+                                <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="48" cy="48" r="46" fill="url(#plsGlow)"/>
+                        <circle cx="48" cy="48" r="38" stroke="#38bdf8" stroke-opacity=".35" stroke-width="1.5"/>
+                        <circle cx="48" cy="48" r="44" stroke="#38bdf8" stroke-opacity=".15" stroke-width="1"/>
+                        <path d="M48 19 71 27.5v18.3c0 14.6-9.6 25.4-23 31.2-13.4-5.8-23-16.6-23-31.2V27.5L48 19Z"
+                              fill="url(#plsShield)"/>
+                        <path d="M48 19 71 27.5v18.3c0 14.6-9.6 25.4-23 31.2V19Z" fill="#fff" fill-opacity=".1"/>
+                        <circle cx="48" cy="43" r="6.5" fill="#fff"/>
+                        <path d="M45.2 47.5h5.6l2.2 14.5H43l2.2-14.5Z" fill="#fff"/>
+                    </svg>
                 </div>
                 <h2 data-translate="register_password">Create Password</h2>
             </div>
@@ -340,6 +359,9 @@
                 <button id="sort-visits" class="sort-btn">
                     <i class="fas fa-fire"></i> <span data-translate="sort_visits">Popular</span>
                 </button>
+                <button id="select-mode-btn" class="sort-btn" type="button">
+                    <i class="fas fa-check-square"></i> <span data-translate="select_mode">Select</span>
+                </button>
             </div>
 
             <!-- Data Actions -->
@@ -367,6 +389,16 @@
             </div>
 
             <!-- Bookmarks Container -->
+            <div id="bulk-bar" class="bulk-bar" hidden>
+                <span id="bulk-count" class="bulk-count"></span>
+                <button id="bulk-all-btn" class="bulk-btn" type="button"></button>
+                <select id="bulk-move" class="bulk-move"></select>
+                <input id="bulk-tag-input" class="bulk-tag-input" type="text" placeholder="Add tags..."
+                    data-translate-placeholder="add_tags">
+                <button id="bulk-tag-btn" class="bulk-btn" type="button" title="Tag"><i class="fas fa-tag"></i></button>
+                <button id="bulk-delete-btn" class="bulk-btn danger" type="button" title="Delete"><i class="fas fa-trash-alt"></i></button>
+            </div>
+
             <div id="bookmarks-container" class="bookmarks-container">
                 <div class="empty-state" id="empty-state">
                     <i class="fas fa-bookmark"></i>
@@ -559,6 +591,9 @@
 
     <!-- Scripts -->
     <!-- Firebase Modular SDK for Manifest V3 (no external script loading) -->
+    <!-- Outside the cards: their backdrop-filter would break position:fixed -->
+    <div id="folder-drop-bar" class="folder-drop-bar" aria-hidden="true"></div>
+
     <script src="scripts/firebase-init.js"></script>
     <script src="scripts/translations.js"></script>
     <script src="scripts/crypto.js"></script>

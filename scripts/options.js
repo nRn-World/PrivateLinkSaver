@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Site icons (off = no network requests for saved sites)
     const showFaviconsToggle = document.getElementById('show-favicons');
     if (showFaviconsToggle) {
-        showFaviconsToggle.checked = (await StorageUtils.get('showFavicons')).showFavicons === true;
+        showFaviconsToggle.checked = (await StorageUtils.get('showFavicons')).showFavicons !== false;
         showFaviconsToggle.addEventListener('change', () => {
             StorageUtils.savePreferences({ showFavicons: showFaviconsToggle.checked });
         });

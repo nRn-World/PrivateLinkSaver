@@ -2082,3 +2082,49 @@ input[type="email"]:focus {
 .touch select {
   font-size: 16px; /* stops Android from zooming into fields */
 }
+
+/* Hidden in Classic design (shown when clay.css is enabled) */
+.folder-chips { display: none; }
+
+/* Update notes + New Soft Pastel design banner (existing users) */
+.new-design-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface-color);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+.new-design-banner[hidden] { display: none !important; }
+.ndb-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ndb-top strong { font-size: 13px; color: var(--text-primary); }
+.ndb-notes { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; margin: 0; }
+.ndb-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 4px; border-top: 1px solid var(--border-color); }
+.ndb-bottom span { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+.ndb-try {
+  border: none;
+  border-radius: 99px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #f08f7a, #9b7cf5);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ndb-try:hover { opacity: 0.92; }
+.ndb-close {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 6px;
+}
+.ndb-close:hover { background: var(--border-color); color: var(--text-primary); }

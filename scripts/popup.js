@@ -212,12 +212,43 @@ document.addEventListener('DOMContentLoaded', async function () {
         StorageUtils.savePreferences({ darkMode: state.darkMode });
     }
 
+    function applyUiStyle(style) {
+        const isPastel = style === 'pastel';
+        const clayLink = document.getElementById('clay-theme-css');
+        if (clayLink) clayLink.disabled = !isPastel;
+        document.body.setAttribute('data-ui-style', isPastel ? 'pastel' : 'classic');
+    }
+
     // Initialize theme
     async function initTheme() {
         const prefs = await StorageUtils.getPreferences();
         state.darkMode = prefs.darkMode;
         state.currentLang = prefs.language;
         state.showFavicons = prefs.showFavicons;
+
+        applyUiStyle(prefs.uiStyle || 'classic');
+
+        const banner = document.getElementById('new-design-banner');
+        const tryBtn = document.getElementById('try-new-design-btn');
+        const closeBtn = document.getElementById('dismiss-design-banner');
+        if (banner && prefs.showStyleBanner && prefs.uiStyle !== 'pastel') {
+            banner.hidden = false;
+        }
+        if (tryBtn && !tryBtn.dataset.bound) {
+            tryBtn.dataset.bound = '1';
+            tryBtn.addEventListener('click', async () => {
+                applyUiStyle('pastel');
+                if (banner) banner.hidden = true;
+                await StorageUtils.savePreferences({ uiStyle: 'pastel', showStyleBanner: false });
+            });
+        }
+        if (closeBtn && !closeBtn.dataset.bound) {
+            closeBtn.dataset.bound = '1';
+            closeBtn.addEventListener('click', async () => {
+                if (banner) banner.hidden = true;
+                await StorageUtils.savePreferences({ showStyleBanner: false });
+            });
+        }
 
         if (state.darkMode) {
             document.body.setAttribute('data-theme', 'dark');
@@ -957,7 +988,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return merged.slice(0, 10);
     }
 
-    // Escape HTML (read-only .innerHTML — no assignment)
+    // Escape HTML (read-only .innerHTML â€” no assignment)
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = String(text ?? '');
@@ -1341,6 +1372,47 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
+    // Side panel / panic / open folder / password generator
+    const spBtn = document.getElementById('side-panel-btn');
+    if (spBtn && chrome.sidePanel && chrome.sidePanel.open && location.search.indexOf('panel=1') === -1) {
+        spBtn.style.display = '';
+        spBtn.addEventListener('click', async () => {
+            try {
+                const win = await chrome.windows.getCurrent();
+                await chrome.sidePanel.open({ windowId: win.id });
+                window.close();
+            } catch (_e) { showToast('Side panel unavailable', 'error'); }
+        });
+    }
+    const panicBtn = document.getElementById('panic-btn');
+    if (panicBtn) panicBtn.addEventListener('click', async () => {
+        await StorageUtils.saveLoginStatus(false);
+        elements.logoutBtn.click();
+        window.close();
+    });
+    const guideBtn = document.getElementById('guide-btn');
+    if (guideBtn) guideBtn.addEventListener('click', () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+    });
+    const openFolderBtn = document.getElementById('open-folder-btn');
+    if (openFolderBtn) openFolderBtn.addEventListener('click', () => {
+        const folder = elements.folderSelect.value;
+        const links = (state.bookmarks || []).filter((b) => (folder === 'all' || b.folder === folder) && StorageUtils.isSafeHttpUrl(b.url));
+        if (!links.length) return;
+        if (links.length > 10 && !confirm('Open ' + links.length + ' tabs?')) return;
+        links.forEach((b) => chrome.tabs.create({ url: b.url, active: false }));
+    });
+    const genBtn = document.getElementById('gen-password-btn');
+    if (genBtn) genBtn.addEventListener('click', () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#\$%&*?';
+        const buf = new Uint32Array(18); crypto.getRandomValues(buf);
+        const pw = Array.from(buf, (n) => chars[n % chars.length]).join('');
+        elements.newPassword.value = pw; elements.confirmPassword.value = pw;
+        elements.newPassword.type = 'text'; elements.confirmPassword.type = 'text';
+        elements.newPassword.dispatchEvent(new Event('input'));
+        navigator.clipboard.writeText(pw).then(() => showToast('Password generated and copied - store it safely!')).catch(() => {});
+    });
+
     // Logout
     elements.logoutBtn.addEventListener('click', async () => {
         await StorageUtils.saveLoginStatus(false);
@@ -1352,6 +1424,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // Add bookmark
+    const saveAllTabsBtn = document.getElementById('save-all-tabs-btn');
+    if (saveAllTabsBtn) saveAllTabsBtn.addEventListener('click', async () => {
+        const sel = document.getElementById('folder-select-add');
+        const res = await new Promise((r) => chrome.runtime.sendMessage({ action: 'saveAllTabs', folder: sel ? sel.value : '' }, (x) => r(x || {})));
+        if (res.success) {
+            showToast(t('save_all_tabs') + ': +' + res.added + (res.skipped ? ' (' + res.skipped + ' skipped)' : ''));
+            const rb = document.getElementById('refresh-btn'); if (rb) rb.click();
+        } else {
+            showToast(res.error || 'Failed', 'error');
+        }
+    });
+
     elements.addBookmarkBtn.addEventListener('click', async () => {
         const tabMeta = await refreshCurrentTabMeta();
         if (!tabMeta || !isSafeHttpUrl(tabMeta.url)) {
@@ -1768,7 +1852,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const emoji = document.createElement('div');
         emoji.style.cssText = 'font-size:48px;margin-bottom:16px;';
-        emoji.textContent = '📧';
+        emoji.textContent = 'ðŸ“§';
 
         const title = document.createElement('h3');
         title.style.cssText = 'margin:0 0 8px;font-size:20px;';
@@ -2406,7 +2490,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const toggle = document.createElement('button');
             toggle.className = 'chrome-tree-toggle';
-            toggle.textContent = '▶';
+            toggle.textContent = 'â–¶';
 
             const icon = document.createElement('i');
             icon.className = 'chrome-tree-icon fas fa-folder';
@@ -2604,3 +2688,60 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
 });
+
+// Pastel folder chips (mirrors the hidden #folder-select)
+(function () {
+    const sel = document.getElementById('folder-select');
+    const box = document.getElementById('folder-chips');
+    if (!sel || !box) return;
+    const tints = ['#ffd9c7', '#e3d8ff', '#cdf3e4', '#ffe6a8', '#d4e6ff', '#ffd1e0'];
+    function render() {
+        box.textContent = '';
+        Array.from(sel.options).forEach((opt, i) => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'folder-chip' + (opt.value === sel.value ? ' active' : '');
+            chip.style.setProperty('--chip-tint', tints[i % tints.length]);
+            chip.textContent = (opt.value === 'all' ? '' : '📁 ') + opt.textContent;
+            chip.addEventListener('click', () => {
+                sel.value = opt.value;
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
+                render();
+            });
+            box.appendChild(chip);
+        });
+    }
+    new MutationObserver(render).observe(sel, { childList: true });
+    sel.addEventListener('change', render);
+    render();
+
+    // Drag-to-scroll & mousewheel horizontal scroll for horizontal bars
+    function enableDragScroll(el) {
+        if (!el) return;
+        let isDown = false, startX = 0, scrollStart = 0, dragged = false;
+        el.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'SELECT') return;
+            isDown = true; dragged = false;
+            startX = e.pageX - el.offsetLeft;
+            scrollStart = el.scrollLeft;
+        });
+        window.addEventListener('mouseup', () => { isDown = false; });
+        el.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            const walk = (e.pageX - el.offsetLeft) - startX;
+            if (Math.abs(walk) > 4) dragged = true;
+            if (dragged) { e.preventDefault(); el.scrollLeft = scrollStart - walk; }
+        });
+        el.addEventListener('click', (e) => {
+            if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; }
+        }, true);
+        el.addEventListener('wheel', (e) => {
+            if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.preventDefault();
+                el.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
+    enableDragScroll(document.querySelector('.data-actions'));
+    enableDragScroll(document.querySelector('.sort-controls'));
+})();

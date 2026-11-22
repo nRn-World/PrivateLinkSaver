@@ -18,6 +18,7 @@ INCLUDE_FILES = [
     "manifest.json",
     "popup.html",
     "options.html",
+    "welcome.html",
     "LICENSE",
     "privacy.html",
 ]
@@ -56,6 +57,10 @@ def build_firefox_manifest() -> dict:
     m["background"] = {
         "scripts": ["scripts/vault.js", "scripts/background.js"]
     }
+
+    # Chrome-only side panel
+    m.pop("side_panel", None)
+    m["permissions"] = [p for p in m.get("permissions", []) if p != "sidePanel"]
 
     icon_map = {
         "16": "icons/icon16.png",

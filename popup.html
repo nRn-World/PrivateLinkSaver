@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="vendor/all.min.css">
     <link rel="stylesheet" href="vendor/inter.css">
     <link rel="stylesheet" href="styles/popup.css">
+    <link id="clay-theme-css" rel="stylesheet" href="styles/clay.css">
 </head>
 
 <body>
@@ -76,6 +77,19 @@
             <button id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
                 <i class="fas fa-moon"></i>
             </button>
+        </div>
+
+        <!-- Update Notes & New Soft Pastel Design Banner (for existing users on Classic) -->
+        <div id="new-design-banner" class="new-design-banner" hidden>
+            <div class="ndb-top">
+                <strong data-translate="new_design_title">✨ Updated to v2.6.0!</strong>
+                <button id="dismiss-design-banner" class="ndb-close" type="button" title="Close">&times;</button>
+            </div>
+            <p class="ndb-notes" data-translate="update_notes_v26">New: Side Panel, Save all open tabs (Ctrl+Shift+E), Incognito support, Open folder, Panic button &amp; Password generator.</p>
+            <div class="ndb-bottom">
+                <span data-translate="new_design_desc">Try our new Soft Pastel design (switch back anytime in Settings):</span>
+                <button id="try-new-design-btn" class="ndb-try" type="button" data-translate="try_new_design">Try Soft Pastel</button>
+            </div>
         </div>
 
         <!-- Welcome Screen -->
@@ -180,6 +194,7 @@
                     <input type="password" id="new-password" data-translate-placeholder="new_password"
                         placeholder="New Password">
                 </div>
+                <button type="button" id="gen-password-btn" class="text-link">🎲 Generate strong password</button>
                 <div class="password-strength" id="password-strength">
                     <div class="strength-bar"></div>
                     <span class="strength-text"></span>
@@ -274,6 +289,9 @@
                     <button id="hide-all-btn" class="icon-btn" title="Hide All">
                         <i class="fas fa-eye-slash"></i>
                     </button>
+                    <button id="side-panel-btn" class="icon-btn" title="Open in side panel" style="display:none;"><i class="fas fa-columns"></i></button>
+                    <button id="panic-btn" class="icon-btn" title="Panic: lock now and close"><i class="fas fa-bolt"></i></button>
+                    <button id="guide-btn" class="icon-btn" title="Quick Guide"><i class="fas fa-question-circle"></i></button>
                     <button id="settings-btn" class="icon-btn" title="Settings">
                         <i class="fas fa-cog"></i>
                     </button>
@@ -293,9 +311,7 @@
                     </div>
                 </div>
                 <div class="smart-tag-suggestions" id="smart-tag-suggestions"></div>
-                <button id="add-bookmark" class="btn btn-success btn-large">
-                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
-                </button>
+                
             </div>
 
             <!-- Quick Stats -->
@@ -332,12 +348,14 @@
             <!-- Folder & Tag Filters -->
             <div class="filter-controls">
                 <div class="filter-group">
+                    <div id="folder-chips" class="folder-chips"></div>
                     <select id="folder-select" class="filter-select">
                         <option value="all" data-translate="all_folders">All Folders</option>
                     </select>
                     <button id="new-folder-btn" class="icon-btn-sm" title="New Folder">
                         <i class="fas fa-folder-plus"></i>
                     </button>
+                    <button id="open-folder-btn" class="icon-btn-sm" title="Open all links in folder"><i class="fas fa-external-link-alt"></i></button>
                     <button id="delete-folder-btn" class="icon-btn-sm" title="Delete Folder">
                         <i class="fas fa-trash-alt"></i>
                     </button>
@@ -406,6 +424,12 @@
                     <span data-translate="start_saving">Start saving your favorite pages!</span>
                 </div>
             </div>
+            <div class="save-row"><button id="add-bookmark" class="btn btn-success btn-large">
+                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
+                </button>
+                <button id="save-all-tabs-btn" class="btn btn-outline btn-large" style="margin-top:8px;">
+                    <i class="fas fa-layer-group"></i> <span data-translate="save_all_tabs">Save all open tabs</span>
+                </button></div>
         </div>
 
         <!-- Stats Modal -->

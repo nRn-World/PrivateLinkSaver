@@ -374,14 +374,16 @@ const StorageUtils = {
 
     // Get user preferences
     async getPreferences() {
-        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup', 'autoLogoutMinutes', 'showFavicons']);
+        const result = await this.get(['language', 'darkMode', 'firstTime', 'autoBackup', 'autoLogoutMinutes', 'showFavicons', 'uiStyle', 'showStyleBanner']);
         return {
             showFavicons: result.showFavicons !== false,
             language: result.language || 'en',
             darkMode: result.darkMode !== undefined ? result.darkMode : true,
             firstTime: result.firstTime !== false,
             autoBackup: result.autoBackup || false,
-            autoLogoutMinutes: this.normalizeAutoLogoutMinutes(result.autoLogoutMinutes)
+            autoLogoutMinutes: this.normalizeAutoLogoutMinutes(result.autoLogoutMinutes),
+            uiStyle: result.uiStyle || 'classic',
+            showStyleBanner: Boolean(result.showStyleBanner)
         };
     },
 

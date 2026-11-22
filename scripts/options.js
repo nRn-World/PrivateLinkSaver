@@ -1,6 +1,7 @@
 // Options page script
 document.addEventListener('DOMContentLoaded', async () => {
     const darkModeToggle = document.getElementById('dark-mode');
+    const uiStyleSelect = document.getElementById('ui-style');
     const languageSelect = document.getElementById('language');
     const autoBackupToggle = document.getElementById('auto-backup');
     const autoLogoutSelect = document.getElementById('auto-logout');
@@ -122,6 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const stats = await StorageUtils.getStorageStats();
         
         darkModeToggle.checked = prefs.darkMode;
+        if (uiStyleSelect) uiStyleSelect.value = prefs.uiStyle || 'classic';
         languageSelect.value = prefs.language;
         applyTranslation(prefs.language);
         autoBackupToggle.checked = prefs.autoBackup;
@@ -231,6 +233,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         await StorageUtils.savePreferences({ darkMode: darkModeToggle.checked });
         document.body.setAttribute('data-theme', darkModeToggle.checked ? 'dark' : 'light');
     });
+
+    if (uiStyleSelect) {
+        uiStyleSelect.addEventListener('change', async () => {
+            await StorageUtils.savePreferences({
+                uiStyle: uiStyleSelect.value,
+                showStyleBanner: false
+            });
+        });
+    }
 
     // Language change
     languageSelect.addEventListener('change', async () => {

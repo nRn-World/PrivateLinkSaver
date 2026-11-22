@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivateLinkSaver – Welcome Guide</title>
+  <link rel="stylesheet" href="vendor/all.min.css">
+  <link rel="stylesheet" href="vendor/inter.css">
+  <link rel="stylesheet" href="styles/welcome.css">
+</head>
+<body data-theme="dark">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon128.png" alt="PrivateLinkSaver" class="brand-icon">
+      <span>PrivateLinkSaver</span>
+    </div>
+    <div class="topbar-controls">
+      <div class="lang-switch">
+        <button class="pill-btn active" data-lang="sv" type="button">SV</button>
+        <button class="pill-btn" data-lang="en" type="button">EN</button>
+      </div>
+      <button id="theme-btn" class="circle-btn" type="button" title="Toggle theme">
+        <i class="fas fa-sun"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- SLIDE 0: Welcome / Hero -->
+    <section class="slide active" data-step="0">
+      <div class="hero-badge">
+        <img src="icons/icon128.png" alt="Logo">
+      </div>
+      <h1 class="gradient-title" data-i18n="s0_title">Ditt privata valv är redo</h1>
+      <p class="subtitle" data-i18n="s0_sub">Spara, organisera och kryptera dina länkar bakom ett huvudlösenord — helt utan spårning.</p>
+
+      <div class="notice-card">
+        <i class="fas fa-shield-alt"></i>
+        <div>
+          <strong data-i18n="s0_notice_title">Viktigt om säkerhet</strong>
+          <p data-i18n="s0_notice_text">Dina länkar krypteras lokalt på din enhet. Om du glömmer ditt huvudlösenord kan det inte återställas — kom ihåg att spara det säkert.</p>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button id="start-tour-btn" class="cta-btn primary" type="button">
+          <span data-i18n="s0_cta">Starta snabbguiden (5 steg)</span> <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- SLIDE 1: Step 1 - Pin the extension -->
+    <section class="slide" data-step="1">
+      <div class="step-icon"><i class="fas fa-thumbtack"></i></div>
+      <div class="step-label" data-i18n="s1_step">Steg 1</div>
+      <h2 data-i18n="s1_title">Fäst tillägget i verktygsfältet</h2>
+      <p class="subtitle" data-i18n="s1_sub">Klicka på pusselbiten uppe till höger i Chrome och nåla fast PrivateLinkSaver för åtkomst med ett klick.</p>
+
+      <div class="browser-mock">
+        <div class="mock-bar">
+          <div class="mock-dots"><span></span><span></span><span></span></div>
+          <div class="mock-url">chrome://newtab</div>
+          <div class="mock-icons">
+            <span class="mock-ext pinned"><img src="icons/icon128.png" alt=""></span>
+            <span class="mock-puzzle active"><i class="fas fa-puzzle-piece"></i></span>
+          </div>
+        </div>
+        <div class="mock-body">
+          <div class="mock-dropdown">
+            <div class="mock-dd-head">
+              <span data-i18n="s1_mock_ext">Tillägg</span>
+              <i class="fas fa-times"></i>
+            </div>
+            <div class="mock-dd-row highlight">
+              <img src="icons/icon128.png" alt="">
+              <span class="mock-dd-name">PrivateLinkSaver – Private Bookmark Manager</span>
+              <span class="mock-pin-btn pulse"><i class="fas fa-thumbtack"></i></span>
+            </div>
+            <div class="mock-dd-row muted">
+              <span class="mock-fake-ico"></span>
+              <span class="mock-dd-name">Andra tillägg…</span>
+              <span class="mock-pin-btn"><i class="fas fa-thumbtack"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Step 2 - Allow in Incognito -->
+    <section class="slide" data-step="2">
+      <div class="step-icon"><i class="fas fa-user-secret"></i></div>
+      <div class="step-label" data-i18n="s2_step">Steg 2</div>
+      <h2 data-i18n="s2_title">Aktivera i inkognitoläge</h2>
+      <p class="subtitle" data-i18n="s2_sub">Slå på "Tillåt i inkognito" under tilläggets inställningar så du kan spara och öppna hemliga länkar även i privata fönster.</p>
+
+      <div class="browser-mock">
+        <div class="mock-bar">
+          <div class="mock-dots"><span></span><span></span><span></span></div>
+          <div class="mock-url">chrome://extensions/?id=privatelinksaver</div>
+        </div>
+        <div class="mock-settings">
+          <div class="mock-setting-row">
+            <div>
+              <strong data-i18n="s2_pin_label">Fäst i verktygsfältet</strong>
+              <small data-i18n="s2_pin_desc">Visa ikonen bredvid adressfältet</small>
+            </div>
+            <div class="mock-toggle on"><span></span></div>
+          </div>
+          <div class="mock-setting-row highlight-row">
+            <div>
+              <strong data-i18n="s2_incog_label">Tillåt i inkognito</strong>
+              <small data-i18n="s2_incog_desc">Använd PrivateLinkSaver i inkognitofönster utan att spara historik.</small>
+            </div>
+            <div class="mock-toggle on pulse"><span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <button id="open-ext-settings-btn" class="cta-btn secondary" type="button">
+        <i class="fas fa-sliders-h"></i> <span data-i18n="s2_btn">Öppna tilläggsinställningar i Chrome</span>
+      </button>
+    </section>
+
+    <!-- SLIDE 3: Step 3 - Shortcuts & Side Panel -->
+    <section class="slide" data-step="3">
+      <div class="step-icon"><i class="fas fa-keyboard"></i></div>
+      <div class="step-label" data-i18n="s3_step">Steg 3</div>
+      <h2 data-i18n="s3_title">Snabbkommandon &amp; Sidopanel</h2>
+      <p class="subtitle" data-i18n="s3_sub">Arbeta blixtsnabbt med tangentbordet eller öppna valvet i Chromes sidopanel medan du surfar.</p>
+
+      <div class="shortcuts-grid">
+        <div class="shortcut-card">
+          <div class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></div>
+          <span data-i18n="s3_k1">Spara aktuell sida direkt</span>
+        </div>
+        <div class="shortcut-card">
+          <div class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd></div>
+          <span data-i18n="s3_k2">Spara alla öppna flikar</span>
+        </div>
+        <div class="shortcut-card">
+          <div class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></div>
+          <span data-i18n="s3_k3">Öppna PrivateLinkSaver</span>
+        </div>
+        <div class="shortcut-card">
+          <div class="keys"><kbd>pls</kbd> + <kbd>Tab</kbd></div>
+          <span data-i18n="s3_k4">Sök bokmärken i adressfältet</span>
+        </div>
+      </div>
+
+      <button id="open-shortcuts-btn" class="cta-btn secondary" type="button">
+        <i class="fas fa-external-link-alt"></i> <span data-i18n="s3_btn">Anpassa kortkommandon i Chrome</span>
+      </button>
+    </section>
+
+    <!-- SLIDE 4: Step 4 - Explore all 12 features -->
+    <section class="slide slide-wide" data-step="4">
+      <div class="step-icon"><i class="fas fa-sparkles fas fa-star"></i></div>
+      <h2 class="gradient-title small" data-i18n="s4_title">Utforska funktionerna</h2>
+      <p class="subtitle" data-i18n="s4_sub">Allt du behöver för ett säkert och organiserat privat bokmärkesvalv.</p>
+
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-ico c1"><i class="fas fa-lock"></i></div>
+          <h3 data-i18n="f1_t">Lösenord &amp; AES-256</h3>
+          <p data-i18n="f1_d">Lås alla länkar bakom ett huvudlösenord med valfri lokal AES-256-kryptering.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c2"><i class="fas fa-columns"></i></div>
+          <h3 data-i18n="f2_t">Sidopanel-läge</h3>
+          <p data-i18n="f2_d">Ha ditt valv öppet i Chromes sidopanel medan du surfar mellan sidor.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c3"><i class="fas fa-user-secret"></i></div>
+          <h3 data-i18n="f3_t">Inkognito-stöd</h3>
+          <p data-i18n="f3_d">Spara och öppna privata länkar direkt i inkognitofönster utan spår.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c4"><i class="fas fa-layer-group"></i></div>
+          <h3 data-i18n="f4_t">Spara alla flikar</h3>
+          <p data-i18n="f4_d">Spara hela din webbläsarsession med ett klick — dubbletter hoppas över.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c2"><i class="fas fa-folder-open"></i></div>
+          <h3 data-i18n="f5_t">Mappar &amp; Pastelltaggar</h3>
+          <p data-i18n="f5_d">Organisera med färgkodade mappflikar, smarta taggförslag och flerval.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c1"><i class="fas fa-search"></i></div>
+          <h3 data-i18n="f6_t">Blixtsnabb sök &amp; pls</h3>
+          <p data-i18n="f6_d">Hitta länkar direkt med Ctrl+K eller skriv "pls" i adressfältet.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c4"><i class="fas fa-bolt"></i></div>
+          <h3 data-i18n="f7_t">Panikknapp</h3>
+          <p data-i18n="f7_d">Lås valvet och stäng popupen omedelbart med ett enda klick.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c3"><i class="fas fa-external-link-alt"></i></div>
+          <h3 data-i18n="f8_t">Öppna hel mapp</h3>
+          <p data-i18n="f8_d">Starta alla sparade länkar i en mapp samtidigt i nya flikar.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c1"><i class="fas fa-cloud"></i></div>
+          <h3 data-i18n="f9_t">Krypterad molnsynk</h3>
+          <p data-i18n="f9_d">Valfri molnbackup som krypteras på din enhet innan uppladdning.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c2"><i class="fas fa-file-import"></i></div>
+          <h3 data-i18n="f10_t">Import &amp; Export</h3>
+          <p data-i18n="f10_d">Importera från Chrome-bokmärken eller exportera till JSON, HTML och CSV.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c3"><i class="fas fa-key"></i></div>
+          <h3 data-i18n="f11_t">Lösenordsgenerator</h3>
+          <p data-i18n="f11_d">Skapa ett kryptografiskt starkt huvudlösenord med ett klick.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico c4"><i class="fas fa-clock"></i></div>
+          <h3 data-i18n="f12_t">Auto-lås &amp; Integritet</h3>
+          <p data-i18n="f12_d">Låser automatiskt vid inaktivitet, rensar spårningslänkar och döljer ikoner.</p>
+        </div>
+      </div>
+
+      <div class="finish-actions">
+        <button id="open-sidepanel-btn" class="cta-btn primary" type="button">
+          <i class="fas fa-columns"></i> <span data-i18n="s4_open_panel">Öppna i sidopanelen</span>
+        </button>
+        <button id="finish-btn" class="cta-btn secondary" type="button">
+          <i class="fas fa-check"></i> <span data-i18n="s4_done">Stäng guiden</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="stepper">
+    <button id="prev-btn" class="nav-btn" type="button" disabled>
+      <i class="fas fa-chevron-left"></i> <span data-i18n="prev">Tillbaka</span>
+    </button>
+    <div class="dots" id="dots">
+      <button class="dot active" data-goto="0" type="button" aria-label="1"></button>
+      <button class="dot" data-goto="1" type="button" aria-label="2"></button>
+      <button class="dot" data-goto="2" type="button" aria-label="3"></button>
+      <button class="dot" data-goto="3" type="button" aria-label="4"></button>
+      <button class="dot" data-goto="4" type="button" aria-label="5"></button>
+    </div>
+    <button id="next-btn" class="nav-btn primary-nav" type="button">
+      <span data-i18n="next">Nästa</span> <i class="fas fa-chevron-right"></i>
+    </button>
+  </footer>
+
+  <script src="scripts/welcome.js"></script>
+</body>
+</html>

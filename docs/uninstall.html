@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivateLinkSaver – Feedback</title>
+  <style>
+    :root {
+      --bg: #f7ebe4;
+      --surface: #fff9f5;
+      --surface-2: #f4e2d8;
+      --text: #3d2f45;
+      --muted: #766480;
+      --border: rgba(180, 135, 120, 0.24);
+      --grad: linear-gradient(135deg, #f08f7a 0%, #9b7cf5 100%);
+      --shadow: 0 12px 32px rgba(158, 108, 92, 0.14), inset 0 2px 3px rgba(255, 255, 255, 0.7);
+      --pill-shadow: 0 3px 8px rgba(158, 108, 92, 0.12), inset 0 2px 3px rgba(255, 255, 255, 0.65);
+    }
+    [data-theme="dark"] {
+      --bg: #17121f;
+      --surface: #251d31;
+      --surface-2: #312742;
+      --text: #faf2f6;
+      --muted: #b8a8c7;
+      --border: rgba(195, 166, 255, 0.16);
+      --shadow: 0 16px 40px rgba(6, 3, 14, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+      --pill-shadow: 0 4px 12px rgba(6, 3, 14, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 28px 16px 56px;
+      position: relative;
+      overflow-x: hidden;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(95px); pointer-events: none; z-index: 0; opacity: 0.38;
+    }
+    [data-theme="dark"] .orb { opacity: 0.24; }
+    .o1 { width: 420px; height: 420px; background: #ffb4a2; top: -150px; left: -120px; }
+    .o2 { width: 460px; height: 460px; background: #a78bfa; bottom: -160px; right: -120px; }
+
+    .wrap { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 16px; }
+    .brand-badge {
+      width: 34px; height: 34px; border-radius: 12px; background: var(--grad);
+      display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 16px;
+      box-shadow: var(--pill-shadow);
+    }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    .pill-btn {
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      border-radius: 99px; padding: 7px 13px; font-weight: 800; font-size: 12px; cursor: pointer;
+      box-shadow: var(--pill-shadow); transition: transform 0.15s ease;
+    }
+    .pill-btn:hover { transform: translateY(-1px); }
+    .pill-btn.active { background: var(--grad); color: #fff; border-color: transparent; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 32px 30px;
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-size: 28px; font-weight: 800; margin-bottom: 8px;
+      background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .lead { color: var(--muted); font-size: 14.5px; line-height: 1.55; margin-bottom: 26px; }
+
+    .q-block { margin-bottom: 22px; }
+    .q-title { display: block; font-size: 14px; font-weight: 800; margin-bottom: 10px; }
+    .q-opt { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+
+    .reasons { display: flex; flex-direction: column; gap: 9px; }
+    .reason {
+      display: flex; align-items: flex-start; gap: 11px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 12px 14px; cursor: pointer;
+      transition: transform 0.14s ease, border-color 0.15s ease;
+      font-size: 13.5px; line-height: 1.4;
+    }
+    .reason:hover { transform: translateY(-1px); border-color: rgba(167, 139, 250, 0.55); }
+    .reason input[type="checkbox"] {
+      margin-top: 2px; width: 17px; height: 17px; accent-color: #9b7cf5; flex-shrink: 0; cursor: pointer;
+    }
+    .reason a { color: #9b7cf5; font-weight: 700; text-decoration: none; }
+    .reason a:hover { text-decoration: underline; }
+
+    .stars { display: flex; gap: 8px; }
+    .star-btn {
+      width: 42px; height: 42px; border-radius: 14px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--muted); font-size: 20px; cursor: pointer;
+      transition: transform 0.14s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .star-btn:hover { transform: translateY(-2px); }
+    .star-btn.on { background: var(--grad); color: #fff; border-color: transparent; }
+
+    textarea, input[type="email"] {
+      width: 100%; border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+      border-radius: 16px; padding: 12px 14px; font: inherit; font-size: 13.5px;
+      outline: none; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    textarea:focus, input[type="email"]:focus {
+      border-color: #9b7cf5; box-shadow: 0 0 0 3px rgba(155, 124, 245, 0.22);
+    }
+
+    .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .submit-btn {
+      border: none; border-radius: 16px; padding: 13px 26px; font: inherit; font-size: 14px; font-weight: 800;
+      background: var(--grad); color: #fff; cursor: pointer; box-shadow: var(--pill-shadow);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .submit-btn:hover { transform: translateY(-2px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: wait; }
+    .status { font-size: 13px; color: var(--muted); }
+    .status.err { color: #f4728a; }
+
+    .thanks { display: none; text-align: center; padding: 18px 8px; }
+    .thanks.show { display: block; }
+    .thanks-emoji { font-size: 46px; margin-bottom: 12px; }
+    .thanks p { color: var(--muted); font-size: 14.5px; margin: 10px auto 22px; max-width: 440px; line-height: 1.55; }
+    .reinstall-link {
+      display: inline-block; text-decoration: none; border-radius: 16px; padding: 12px 22px;
+      background: var(--grad); color: #fff; font-weight: 800; font-size: 14px; box-shadow: var(--pill-shadow);
+    }
+    .foot { text-align: center; margin-top: 18px; font-size: 12px; color: var(--muted); }
+    .foot a { color: #9b7cf5; text-decoration: none; }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">P</div>
+        <span>PrivateLinkSaver</span>
+      </div>
+      <div class="controls">
+        <button class="pill-btn active" data-lang="sv" type="button">SV</button>
+        <button class="pill-btn" data-lang="en" type="button">EN</button>
+        <button class="pill-btn" id="theme-btn" type="button" title="Toggle theme">☀️</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="feedback-form">
+        <h1 data-i18n="title">Tråkigt att se dig gå!</h1>
+        <p class="lead" data-i18n="lead">Vi vill göra PrivateLinkSaver så smidigt och säkert som möjligt. Berätta gärna kort varför du avinstallerade — det tar bara 20 sekunder.</p>
+
+        <div class="q-block">
+          <label class="q-title" data-i18n="q1">Vad var den främsta anledningen till att du tog bort tillägget?</label>
+          <div class="reasons">
+            <label class="reason"><input type="checkbox" name="reason" value="No longer needed"><span data-i18n="r1">Jag behöver inte ett privat bokmärkesvalv just nu</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Missing features"><span data-i18n="r2">Saknade en viktig funktion (skriv gärna vilken nedan)</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Found another alternative"><span data-i18n="r3">Hittade ett annat tillägg som passade mig bättre</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Bugs or sync issues"><span data-i18n="r4">Upplevde buggar eller problem (t.ex. molnsynk, inloggning eller inkognito)</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Too complicated"><span data-i18n="r5">Kändes krångligt att komma igång eller använda</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Privacy concerns"><span data-i18n="r6">Frågor kring integritet eller kryptering (<a href="privacy.html" target="_blank">läs vår integritetspolicy</a>)</span></label>
+            <label class="reason"><input type="checkbox" name="reason" value="Other"><span data-i18n="r7">Annat</span></label>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <label class="q-title"><span data-i18n="q2">Hur var din helhetsupplevelse?</span> <span class="q-opt" data-i18n="opt">(Valfritt)</span></label>
+          <div class="stars" id="stars">
+            <button type="button" class="star-btn" data-val="1">★</button>
+            <button type="button" class="star-btn" data-val="2">★</button>
+            <button type="button" class="star-btn" data-val="3">★</button>
+            <button type="button" class="star-btn" data-val="4">★</button>
+            <button type="button" class="star-btn" data-val="5">★</button>
+          </div>
+        </div>
+
+        <div class="q-block">
+          <label class="q-title" for="details"><span data-i18n="q3">Vad hade kunnat få dig att stanna, eller vad kan vi förbättra?</span> <span class="q-opt" data-i18n="opt">(Valfritt)</span></label>
+          <textarea id="details" name="details" data-i18n-ph="ph_details" placeholder="Skriv gärna dina tankar, önskemål eller om något inte fungerade…"></textarea>
+        </div>
+
+        <div class="q-block">
+          <label class="q-title" for="email"><span data-i18n="q4">Din e-post om du vill ha hjälp eller svar</span> <span class="q-opt" data-i18n="opt">(Valfritt)</span></label>
+          <input type="email" id="email" name="email" placeholder="namn@exempel.se">
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="submit-btn" id="submit-btn" data-i18n="send">Skicka feedback</button>
+          <span class="status" id="status"></span>
+        </div>
+      </form>
+
+      <div class="thanks" id="thanks">
+        <div class="thanks-emoji">💜</div>
+        <h1 data-i18n="thanks_title">Stort tack för din feedback!</h1>
+        <p data-i18n="thanks_text">Varje svar hjälper oss göra PrivateLinkSaver bättre och tryggare. Du är alltid välkommen tillbaka!</p>
+        <a class="reinstall-link" href="https://nrnworld.one/p/privatelinksaver" target="_blank" data-i18n="reinstall">Besök PrivateLinkSaver</a>
+      </div>
+    </div>
+
+    <div class="foot">
+      PrivateLinkSaver · <a href="privacy.html">Privacy Policy</a> · <a href="mailto:bynrnworld@gmail.com">bynrnworld@gmail.com</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const I18N = {
+        sv: {
+          title: 'Tråkigt att se dig gå!',
+          lead: 'Vi vill göra PrivateLinkSaver så smidigt och säkert som möjligt. Berätta gärna kort varför du avinstallerade — det tar bara 20 sekunder.',
+          q1: 'Vad var den främsta anledningen till att du tog bort tillägget?',
+          r1: 'Jag behöver inte ett privat bokmärkesvalv just nu',
+          r2: 'Saknade en viktig funktion (skriv gärna vilken nedan)',
+          r3: 'Hittade ett annat tillägg som passade mig bättre',
+          r4: 'Upplevde buggar eller problem (t.ex. molnsynk, inloggning eller inkognito)',
+          r5: 'Kändes krångligt att komma igång eller använda',
+          r6: 'Frågor kring integritet eller kryptering (<a href="privacy.html" target="_blank">läs vår integritetspolicy</a>)',
+          r7: 'Annat',
+          q2: 'Hur var din helhetsupplevelse?',
+          q3: 'Vad hade kunnat få dig att stanna, eller vad kan vi förbättra?',
+          q4: 'Din e-post om du vill ha hjälp eller svar',
+          opt: '(Valfritt)',
+          ph_details: 'Skriv gärna dina tankar, önskemål eller om något inte fungerade…',
+          send: 'Skicka feedback',
+          sending: 'Skickar…',
+          pick_one: 'Välj minst en anledning eller skriv en kommentar.',
+          thanks_title: 'Stort tack för din feedback!',
+          thanks_text: 'Varje svar hjälper oss göra PrivateLinkSaver bättre och tryggare. Du är alltid välkommen tillbaka!',
+          reinstall: 'Besök PrivateLinkSaver'
+        },
+        en: {
+          title: 'Sorry to see you go!',
+          lead: 'We want PrivateLinkSaver to be as helpful and private as possible. Could you share why you uninstalled it? It only takes 20 seconds.',
+          q1: 'What was the main reason you removed the extension?',
+          r1: 'I don’t need a private bookmark vault right now',
+          r2: 'Missing a feature I needed (please tell us below)',
+          r3: 'Switched to another bookmark manager',
+          r4: 'Ran into bugs or issues (e.g. cloud sync, login, or Incognito)',
+          r5: 'Felt too complicated to set up or use',
+          r6: 'Questions about privacy or encryption (<a href="privacy.html" target="_blank">read our privacy policy</a>)',
+          r7: 'Other',
+          q2: 'How was your overall experience?',
+          q3: 'What could we add or improve to make you stay?',
+          q4: 'Your email if you would like a reply or help',
+          opt: '(Optional)',
+          ph_details: 'Share your thoughts, feature ideas, or anything that didn’t work…',
+          send: 'Send feedback',
+          sending: 'Sending…',
+          pick_one: 'Please select at least one reason or write a comment.',
+          thanks_title: 'Thank you for your feedback!',
+          thanks_text: 'Every response helps us improve PrivateLinkSaver. You are always welcome back!',
+          reinstall: 'Visit PrivateLinkSaver'
+        }
+      };
+
+      let lang = (navigator.language || 'en').toLowerCase().startsWith('sv') ? 'sv' : 'en';
+      let rating = 0;
+
+      function applyLang(next) {
+        lang = I18N[next] ? next : 'en';
+        const d = I18N[lang];
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const k = el.getAttribute('data-i18n');
+          if (!d[k]) return;
+          if (k === 'r6') el.innerHTML = d[k]; else el.textContent = d[k];
+        });
+        document.querySelectorAll('[data-i18n-ph]').forEach((el) => {
+          const k = el.getAttribute('data-i18n-ph');
+          if (d[k]) el.placeholder = d[k];
+        });
+        document.querySelectorAll('.pill-btn[data-lang]').forEach((b) => {
+          b.classList.toggle('active', b.dataset.lang === lang);
+        });
+      }
+
+      document.querySelectorAll('.pill-btn[data-lang]').forEach((b) => {
+        b.addEventListener('click', () => applyLang(b.dataset.lang));
+      });
+
+      const themeBtn = document.getElementById('theme-btn');
+      themeBtn.addEventListener('click', () => {
+        const dark = document.body.getAttribute('data-theme') === 'dark';
+        document.body.setAttribute('data-theme', dark ? 'light' : 'dark');
+        themeBtn.textContent = dark ? '🌙' : '☀️';
+      });
+
+      const starBtns = Array.from(document.querySelectorAll('.star-btn'));
+      starBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          rating = Number(btn.dataset.val);
+          starBtns.forEach((s, i) => s.classList.toggle('on', i < rating));
+        });
+      });
+
+      const form = document.getElementById('feedback-form');
+      const statusEl = document.getElementById('status');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const reasons = Array.from(form.querySelectorAll('input[name="reason"]:checked')).map((i) => i.value);
+        const details = document.getElementById('details').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if (!reasons.length && !details && !rating) {
+          statusEl.textContent = I18N[lang].pick_one;
+          statusEl.className = 'status err';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = I18N[lang].sending;
+        statusEl.textContent = '';
+
+        const payload = {
+          _subject: 'PrivateLinkSaver – Uninstall Feedback',
+          _template: 'table',
+          reasons: reasons.join(', ') || '(none)',
+          rating: rating ? rating + ' / 5' : '(not rated)',
+          details: details || '(none)',
+          reply_email: email || '(not provided)',
+          language: lang
+        };
+
+        try {
+          const res = await fetch('https://formsubmit.co/ajax/bynrnworld@gmail.com', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          form.style.display = 'none';
+          document.getElementById('thanks').classList.add('show');
+        } catch (_err) {
+          // Graceful fallback to email client if offline/blocked
+          const body = encodeURIComponent(
+            'Reasons: ' + payload.reasons + '\nRating: ' + payload.rating + '\nDetails: ' + payload.details + '\nEmail: ' + payload.reply_email
+          );
+          window.location.href = 'mailto:bynrnworld@gmail.com?subject=PrivateLinkSaver%20Feedback&body=' + body;
+          form.style.display = 'none';
+          document.getElementById('thanks').classList.add('show');
+        }
+      });
+
+      applyLang(lang);
+    })();
+  </script>
+</body>
+</html>

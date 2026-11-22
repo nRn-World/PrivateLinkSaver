@@ -112,6 +112,13 @@ async function handleAutoLogout(showNotification = false) {
 
 // Initialize extension on install
 chrome.runtime.onInstalled.addListener((details) => {
+    // Open feedback page when the user uninstalls the extension
+    try {
+        if (chrome.runtime && chrome.runtime.setUninstallURL) {
+            chrome.runtime.setUninstallURL('https://nrnworld.one/PrivateLinkSaver/uninstall.html');
+        }
+    } catch (_e) { /* unsupported platform */ }
+
     // Set default badge color
     setBadgeColor();
 
@@ -122,12 +129,12 @@ chrome.runtime.onInstalled.addListener((details) => {
         }
     });
 
-    // Default language from browser UI; first-run retention flags on install
-    chrome.storage.local.get(['language', 'firstTime', 'showPinHint'], (result) => {
+    // Default language (English) and UI style (Soft Pastel for new installs, Classic + banner for updates)
+    chrome.storage.local.get(['language', 'firstTime', 'showPinHint', 'uiStyle', 'showStyleBanner'], (result) => {
         const updates = {};
 
         if (result.language === undefined) {
-            updates.language = resolveDefaultLanguage();
+            updates.language = 'en';
         }
 
         if (details.reason === 'install') {
@@ -136,6 +143,20 @@ chrome.runtime.onInstalled.addListener((details) => {
             }
             if (result.showPinHint === undefined) {
                 updates.showPinHint = true;
+            }
+            if (result.uiStyle === undefined) {
+                updates.uiStyle = 'pastel';
+            }
+            updates.showStyleBanner = false;
+            try {
+                if (chrome.tabs && chrome.tabs.create) {
+                    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+                }
+            } catch (_e) { /* unsupported platform */ }
+        } else if (details.reason === 'update') {
+            if (result.uiStyle === undefined) {
+                updates.uiStyle = 'classic';
+                updates.showStyleBanner = true;
             }
         }
 
@@ -155,6 +176,12 @@ chrome.runtime.onInstalled.addListener((details) => {
         chrome.contextMenus.create({
             id: 'save-page',
             title: chrome.i18n.getMessage('contextSavePage') || 'Save page to PrivateLinkSaver',
+            contexts: ['page']
+        });
+
+        chrome.contextMenus.create({
+            id: 'save-all-tabs',
+            title: chrome.i18n.getMessage('contextSaveAllTabs') || 'Save all open tabs to PrivateLinkSaver',
             contexts: ['page']
         });
     });
@@ -249,6 +276,9 @@ if (chrome.contextMenus && chrome.contextMenus.onClicked) chrome.contextMenus.on
         saveBookmark(info.linkUrl, linkTitle, tab);
     } else if (info.menuItemId === 'save-page') {
         saveBookmark(tab.url, tab.title, tab);
+    } else if (info.menuItemId === 'save-all-tabs') {
+        saveAllTabs().then((r) => notify({ type: 'basic', iconUrl: 'icons/icon128.png', title: 'PrivateLinkSaver',
+            message: r.success ? ('Saved ' + r.added + ' tabs (' + r.skipped + ' skipped)') : r.error, priority: 1 }));
     }
 });
 
@@ -260,6 +290,9 @@ if (chrome.commands && chrome.commands.onCommand) chrome.commands.onCommand.addL
                 saveBookmark(tabs[0].url, tabs[0].title, tabs[0]);
             }
         });
+    } else if (command === 'save-all-tabs') {
+        saveAllTabs().then((r) => notify({ type: 'basic', iconUrl: 'icons/icon128.png', title: 'PrivateLinkSaver',
+            message: r.success ? ('Saved ' + r.added + ' tabs (' + r.skipped + ' skipped)') : r.error, priority: 1 }));
     } else if (command === 'quick-search') {
         // Try to focus search if popup is open
         Promise.resolve(chrome.runtime.sendMessage({ action: 'focusSearch' })).catch(() => {});
@@ -302,6 +335,43 @@ function escapeXml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+// Save every open http(s) tab in the current window (skips duplicates)
+async function saveAllTabs(folderName) {
+    const login = await chrome.storage.local.get(['isLoggedIn', 'passwordHash']);
+    if (!login.isLoggedIn || !login.passwordHash) return { success: false, error: 'Please log in first' };
+    let data;
+    try { data = await Vault.localGet(['bookmarks', 'language', 'folders']); }
+    catch (_e) { return { success: false, error: 'Please log in first' }; }
+    const bookmarks = data.bookmarks || [];
+    const folders = data.folders || [];
+    const lang = data.language || 'en';
+    const folder = folderName || (folders.length > 0 ? folders[0].name : 'General');
+    const known = new Set(bookmarks.map((b) => canonicalUrl(b.url)));
+    const tabs = await chrome.tabs.query({ currentWindow: true });
+    let added = 0, skipped = 0;
+    for (const tab of tabs) {
+        const url = normalizeBookmarkUrl(tab.url);
+        const canon = url && canonicalUrl(url);
+        if (!url || known.has(canon)) { skipped++; continue; }
+        known.add(canon);
+        const title = String(tab.title || url).trim();
+        let favicon = tab.favIconUrl || null;
+        if (!favicon) { try { favicon = 'https://www.google.com/s2/favicons?domain=' + new URL(url).hostname + '&sz=64'; } catch (_e) {} }
+        bookmarks.push({
+            id: generateUUID(), title, url, folder,
+            tags: inferSmartTags(url, title), favicon,
+            date: new Date().toLocaleDateString(lang, { year: 'numeric', month: 'short', day: 'numeric' }),
+            timestamp: Date.now(), visitCount: 0, lastVisited: null
+        });
+        added++;
+    }
+    if (added > 0) {
+        try { await Vault.localSet({ bookmarks }); } catch (_e) { return { success: false, error: 'Save failed' }; }
+        updateBadge();
+    }
+    return { success: true, added, skipped };
 }
 
 // Save a bookmark
@@ -472,6 +542,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         setupSessionAlarm()
             .then(() => handleAutoLogout())
             .then(() => sendResponse({ success: true }));
+        return true;
+    } else if (request.action === 'saveAllTabs') {
+        saveAllTabs(request.folder).then(sendResponse).catch((e) => sendResponse({ success: false, error: String(e) }));
         return true;
     } else if (request.action === 'saveCurrentPage') {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

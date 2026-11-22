@@ -1,3 +1,75 @@
+# PrivateLinkSaver — NY optimerad butikstext (2026-10-24)
+Använd denna i Chrome Web Store + AMO. Äldre text ligger kvar längst ned.
+
+**Titel (max 75):** PrivateLinkSaver – Private Bookmark Manager
+**NYTT i 2.6.0:** Save all open tabs (Ctrl+Shift+E), högerklicksmeny + knapp i popup. Lägg till i beskrivningen: '- Save all open tabs (Ctrl+Shift+E)', '- Side panel mode', '- Works in Incognito (enable Allow in Incognito)', '- Open a whole folder with one click', '- Built-in strong password generator', '- Panic button: lock instantly'.
+
+**Kategori:** Productivity
+**Sökord att väva in naturligt:** private bookmarks, password protected bookmarks, bookmark manager, link vault, encrypted bookmarks, save links, read later, secret bookmarks
+
+## English
+**Short description (≤132):**
+```
+Private bookmark manager: lock your saved links with a password, organize in folders & tags, optional encrypted sync.
+```
+**Detailed description:**
+```
+Keep your links to yourself. PrivateLinkSaver is a bookmark manager that hides your saved links behind a master password, so nobody who borrows your browser can see them.
+
+Save any page in one click or with Ctrl+Shift+S. Find it again in a second with search (Ctrl+Shift+F) or by typing "pls" in the address bar.
+
+WHY PEOPLE USE IT
+- Password lock: your links stay hidden until you unlock
+- Folders, tags and search: stay organized, even with thousands of links
+- Multi-select: move, tag or delete many links at once, or drag them into folders
+- Optional local encryption (AES-256) in Settings
+- Optional cloud sync between your devices, encrypted on your device before it leaves
+- Right-click any link or page to save it
+- Import from Chrome bookmarks, export and back up anytime
+- Dark and light theme
+- Site icons can be switched off for extra privacy
+- Works in Chrome and Firefox, including Firefox for Android
+- Available in English, Svenska, Türkçe, Español and Français
+
+PRIVACY
+No account, no tracking, no ads. Your links stay on your device. If you turn on sync, data is encrypted before upload.
+
+Support: bynrnworld@gmail.com
+```
+
+## Svenska
+**Kort beskrivning (≤132):**
+```
+Privat bokmärkeshanterare: lås sparade länkar med lösenord, organisera i mappar och taggar, valfri krypterad synk.
+```
+**Detaljerad beskrivning:**
+```
+Håll dina länkar för dig själv. PrivateLinkSaver är en bokmärkeshanterare som gömmer dina sparade länkar bakom ett huvudlösenord, så ingen som lånar din webbläsare ser dem.
+
+Spara vilken sida som helst med ett klick eller Ctrl+Shift+S. Hitta den igen på en sekund med sök (Ctrl+Shift+F) eller genom att skriva "pls" i adressfältet.
+
+DET HÄR FÅR DU
+- Lösenordslås: länkarna är dolda tills du låser upp
+- Mappar, taggar och sök: håll ordning även med tusentals länkar
+- Flerval: flytta, tagga eller radera många länkar på en gång, eller dra dem till mappar
+- Valfri lokal kryptering (AES-256) i inställningarna
+- Valfri molnsynk mellan dina enheter, krypterad på din enhet innan den lämnar den
+- Högerklicka på en länk eller sida för att spara den
+- Importera från Chrome-bokmärken, exportera och säkerhetskopiera när du vill
+- Mörkt och ljust tema
+- Sajtikoner kan stängas av för extra integritet
+- Fungerar i Chrome och Firefox, även Firefox för Android
+- Finns på svenska, engelska, turkiska, spanska och franska
+
+INTEGRITET
+Inget konto, ingen spårning, inga annonser. Dina länkar stannar på din enhet. Slår du på synk krypteras datan före uppladdning.
+
+Support: bynrnworld@gmail.com
+```
+
+---
+# ÄLDRE TEXT (behålls för referens)
+
 # Chrome Web Store / AMO Listing — PrivateLinkSaver
 
 Homepage: https://nrnworld.one/p/privatelinksaver  

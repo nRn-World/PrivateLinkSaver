@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.5.12",
+  "version": "2.6.0",
   "description": "__MSG_extDescription__",
   "author": "Robin Ayzit",
   "homepage_url": "https://nrnworld.one/p/privatelinksaver",
@@ -37,13 +37,16 @@
     "service_worker": "scripts/background.js"
   },
   "options_page": "options.html",
+  "side_panel": { "default_path": "popup.html?panel=1" },
+  "incognito": "spanning",
   "permissions": [
     "storage",
     "tabs",
     "contextMenus",
     "activeTab",
     "notifications",
-    "alarms"
+    "alarms",
+    "sidePanel"
   ],
   "optional_permissions": ["bookmarks"],
   "commands": {
@@ -59,6 +62,10 @@
         "default": "Ctrl+Shift+B",
         "mac": "Command+Shift+B"
       }
+    },
+    "save-all-tabs": {
+      "suggested_key": { "default": "Ctrl+Shift+E", "mac": "Command+Shift+E" },
+      "description": "Save all open tabs"
     },
     "quick-search": {
       "suggested_key": {

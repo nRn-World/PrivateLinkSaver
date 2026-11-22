@@ -1374,12 +1374,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Side panel / panic / open folder / password generator
     const spBtn = document.getElementById('side-panel-btn');
-    if (spBtn && chrome.sidePanel && chrome.sidePanel.open && location.search.indexOf('panel=1') === -1) {
+    const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : null;
+    if (spBtn && sidePanelApi && typeof sidePanelApi['open'] === 'function' && location.search.indexOf('panel=1') === -1) {
         spBtn.style.display = '';
         spBtn.addEventListener('click', async () => {
             try {
                 const win = await chrome.windows.getCurrent();
-                await chrome.sidePanel.open({ windowId: win.id });
+                await sidePanelApi['open']({ windowId: win.id });
                 window.close();
             } catch (_e) { showToast('Side panel unavailable', 'error'); }
         });

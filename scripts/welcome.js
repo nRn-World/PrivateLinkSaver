@@ -150,10 +150,15 @@
     btn.addEventListener('click', () => applyLang(btn.dataset.lang));
   });
 
+  function setThemeIcon(isDark) {
+    const icon = themeBtn.querySelector('i');
+    if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+  }
+
   themeBtn.addEventListener('click', () => {
-    const isDark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    themeBtn.innerHTML = isDark ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    const nextDark = document.body.getAttribute('data-theme') !== 'dark';
+    document.body.setAttribute('data-theme', nextDark ? 'dark' : 'light');
+    setThemeIcon(nextDark);
   });
 
   document.getElementById('open-ext-settings-btn').addEventListener('click', () => {
@@ -169,11 +174,15 @@
   });
 
   const spBtn = document.getElementById('open-sidepanel-btn');
+  const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : null;
+  if (!sidePanelApi || typeof sidePanelApi['open'] !== 'function') {
+    spBtn.style.display = 'none';
+  }
   spBtn.addEventListener('click', async () => {
-    if (typeof chrome !== 'undefined' && chrome.sidePanel && chrome.sidePanel.open) {
+    if (sidePanelApi && typeof sidePanelApi['open'] === 'function') {
       try {
         const win = await chrome.windows.getCurrent();
-        await chrome.sidePanel.open({ windowId: win.id });
+        await sidePanelApi['open']({ windowId: win.id });
         return;
       } catch (_e) {}
     }
@@ -187,7 +196,7 @@
       if (res && res.language) applyLang(res.language === 'sv' ? 'sv' : 'en');
       if (res && res.darkMode === false) {
         document.body.setAttribute('data-theme', 'light');
-        themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        setThemeIcon(false);
       }
     });
   }

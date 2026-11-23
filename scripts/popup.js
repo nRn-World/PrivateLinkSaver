@@ -221,6 +221,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Initialize theme
     async function initTheme() {
+        if (location.search.indexOf('panel=1') !== -1) {
+            document.body.classList.add('in-side-panel');
+        }
         const prefs = await StorageUtils.getPreferences();
         state.darkMode = prefs.darkMode;
         state.currentLang = prefs.language;
@@ -231,8 +234,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         const banner = document.getElementById('new-design-banner');
         const tryBtn = document.getElementById('try-new-design-btn');
         const closeBtn = document.getElementById('dismiss-design-banner');
-        if (banner && prefs.showStyleBanner && prefs.uiStyle !== 'pastel') {
+        const ndbBottom = banner ? banner.querySelector('.ndb-bottom') : null;
+        if (banner && prefs.showStyleBanner) {
             banner.hidden = false;
+            if (ndbBottom) ndbBottom.style.display = (prefs.uiStyle === 'pastel') ? 'none' : '';
         }
         if (tryBtn && !tryBtn.dataset.bound) {
             tryBtn.dataset.bound = '1';
@@ -627,9 +632,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         favicon.classList.add('bookmark-favicon');
 
-        const title = document.createElement('span');
+        const title = document.createElement('a');
         title.className = 'bookmark-title';
+        title.href = safeHref;
+        title.target = '_blank';
+        title.rel = 'noopener noreferrer';
         title.textContent = bookmark.title || '';
+        title.addEventListener('click', (e) => {
+            if (state.selectMode) { e.preventDefault(); return; }
+            if (safeHref === '#') { e.preventDefault(); return; }
+            chrome.runtime.sendMessage({ action: 'trackVisit', id: bookmark.id });
+        });
 
         const actions = document.createElement('div');
         actions.className = 'bookmark-actions';
@@ -1372,16 +1385,35 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Side panel / panic / open folder / password generator
+    // Side panel toggle (persists until user switches back to popup) / panic / open folder / password generator
     const spBtn = document.getElementById('side-panel-btn');
     const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : null;
-    if (spBtn && sidePanelApi && typeof sidePanelApi['open'] === 'function' && location.search.indexOf('panel=1') === -1) {
+    const isInSidePanel = location.search.indexOf('panel=1') !== -1;
+    if (spBtn && sidePanelApi && typeof sidePanelApi['open'] === 'function') {
         spBtn.style.display = '';
+        if (isInSidePanel) {
+            spBtn.classList.add('active');
+            spBtn.title = 'Switch back to Popup mode';
+        } else {
+            spBtn.title = 'Pin to Side Panel mode';
+        }
         spBtn.addEventListener('click', async () => {
             try {
-                const win = await chrome.windows.getCurrent();
-                await sidePanelApi['open']({ windowId: win.id });
-                window.close();
+                if (isInSidePanel) {
+                    await chrome.storage.local.set({ preferSidePanel: false });
+                    if (typeof sidePanelApi['setPanelBehavior'] === 'function') {
+                        await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick: false });
+                    }
+                    window.close();
+                } else {
+                    await chrome.storage.local.set({ preferSidePanel: true });
+                    if (typeof sidePanelApi['setPanelBehavior'] === 'function') {
+                        await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick: true });
+                    }
+                    const win = await chrome.windows.getCurrent();
+                    await sidePanelApi['open']({ windowId: win.id });
+                    window.close();
+                }
             } catch (_e) { showToast('Side panel unavailable', 'error'); }
         });
     }
@@ -2149,25 +2181,32 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function showFolderDropBar() {
         clearChildren(dropBar);
+        const defaultHint = t('drop_to_move', 'Drop on a folder to move');
         const hint = document.createElement('span');
         hint.className = 'folder-drop-hint';
-        hint.textContent = t('drop_to_move', 'Drop on a folder to move');
+        hint.textContent = defaultHint;
         dropBar.appendChild(hint);
         state.folders.forEach((folder) => {
             const chip = document.createElement('div');
             chip.className = 'folder-drop-chip';
-            chip.textContent = folder.name;
+            chip.textContent = '📁 ' + folder.name;
             chip.style.borderColor = folder.color;
-            chip.style.color = folder.color;
             chip.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 chip.classList.add('over');
+                hint.textContent = '➜ ' + folder.name;
+                hint.classList.add('active-target');
             });
-            chip.addEventListener('dragleave', () => chip.classList.remove('over'));
+            chip.addEventListener('dragleave', () => {
+                chip.classList.remove('over');
+                hint.textContent = defaultHint;
+                hint.classList.remove('active-target');
+            });
             chip.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 chip.classList.remove('over');
+                hint.classList.remove('active-target');
                 hideFolderDropBar();
                 await moveBookmarks(state.dragIds, folder.name);
             });

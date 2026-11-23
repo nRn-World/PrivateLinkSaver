@@ -79,13 +79,13 @@
             </button>
         </div>
 
-        <!-- Update Notes & New Soft Pastel Design Banner (for existing users on Classic) -->
+        <!-- Update Notes & New Soft Pastel Design Banner (for existing users) -->
         <div id="new-design-banner" class="new-design-banner" hidden>
             <div class="ndb-top">
-                <strong data-translate="new_design_title">✨ Updated to v2.6.0!</strong>
+                <strong data-translate="new_design_title">✨ What's new in v2.6.1!</strong>
                 <button id="dismiss-design-banner" class="ndb-close" type="button" title="Close">&times;</button>
             </div>
-            <p class="ndb-notes" data-translate="update_notes_v26">New: Side Panel, Save all open tabs (Ctrl+Shift+E), Incognito support, Open folder, Panic button &amp; Password generator.</p>
+            <p class="ndb-notes" data-translate="update_notes_v26">Persistent Side Panel, clickable bookmark titles, sticky header while scrolling, clearer drag-to-folder highlights &amp; Save all open tabs.</p>
             <div class="ndb-bottom">
                 <span data-translate="new_design_desc">Try our new Soft Pastel design (switch back anytime in Settings):</span>
                 <button id="try-new-design-btn" class="ndb-try" type="button" data-translate="try_new_design">Try Soft Pastel</button>
@@ -272,6 +272,7 @@
 
         <!-- Bookmarks Section -->
         <div class="card bookmarks-card" id="bookmarks-section">
+            <div class="sticky-head">
             <div class="header">
                 <div class="header-title">
                     <h2><i class="fas fa-bookmark"></i> <span data-translate="your_bookmarks">Your Bookmarks</span></h2>
@@ -311,7 +312,14 @@
                     </div>
                 </div>
                 <div class="smart-tag-suggestions" id="smart-tag-suggestions"></div>
-                
+                <div class="save-row">
+                    <button id="add-bookmark" class="btn btn-success btn-large">
+                        <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
+                    </button>
+                    <button id="save-all-tabs-btn" class="btn btn-outline btn-large">
+                        <i class="fas fa-layer-group"></i> <span data-translate="save_all_tabs">Save all open tabs</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Quick Stats -->
@@ -343,6 +351,7 @@
                         <i class="fas fa-terminal"></i> <span data-translate="command_palette">Commands</span>
                     </button>
                 </div>
+            </div>
             </div>
 
             <!-- Folder & Tag Filters -->
@@ -424,12 +433,6 @@
                     <span data-translate="start_saving">Start saving your favorite pages!</span>
                 </div>
             </div>
-            <div class="save-row"><button id="add-bookmark" class="btn btn-success btn-large">
-                    <i class="fas fa-plus"></i> <span data-translate="add_current_page">Save Current Page</span>
-                </button>
-                <button id="save-all-tabs-btn" class="btn btn-outline btn-large" style="margin-top:8px;">
-                    <i class="fas fa-layer-group"></i> <span data-translate="save_all_tabs">Save all open tabs</span>
-                </button></div>
         </div>
 
         <!-- Stats Modal -->

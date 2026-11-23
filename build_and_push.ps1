@@ -1,4 +1,4 @@
-﻿# PrivateLinkSaver — Build ZIP for Chrome Web Store (+ optional Git push)
+# PrivateLinkSaver — Build ZIP for Chrome Web Store (+ optional Git push)
 # Run from anywhere; paths resolve from this script's folder.
 
 $ErrorActionPreference = 'Stop'

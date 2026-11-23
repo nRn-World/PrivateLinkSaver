@@ -111,7 +111,22 @@ async function handleAutoLogout(showNotification = false) {
 }
 
 // Initialize extension on install
+function syncSidePanelBehavior() {
+    try {
+        const sp = typeof chrome !== 'undefined' ? chrome['sidePanel'] : null;
+        if (!sp || typeof sp['setPanelBehavior'] !== 'function') return;
+        chrome.storage.local.get('preferSidePanel', (res) => {
+            try {
+                sp['setPanelBehavior']({ openPanelOnActionClick: Boolean(res && res.preferSidePanel) });
+            } catch (_e) {}
+        });
+    } catch (_e) {}
+}
+
+syncSidePanelBehavior();
+
 chrome.runtime.onInstalled.addListener((details) => {
+    syncSidePanelBehavior();
     // Open feedback page when the user uninstalls the extension
     try {
         if (chrome.runtime && chrome.runtime.setUninstallURL) {
@@ -156,8 +171,8 @@ chrome.runtime.onInstalled.addListener((details) => {
         } else if (details.reason === 'update') {
             if (result.uiStyle === undefined) {
                 updates.uiStyle = 'classic';
-                updates.showStyleBanner = true;
             }
+            updates.showStyleBanner = true;
         }
 
         if (Object.keys(updates).length > 0) {
